@@ -1,8 +1,8 @@
 # Lebenzeitanalyse
 Lebenzeitanalyse fuer NTX und IGA Patienten
 
-### folder structure
+#### folder structure:
 .
-├── R                       # R scripts, notebooks, markdown, etc.
-├── data                    # data as .csv and xlsx files
+├── R                       # R scripts, notebooks, markdown, etc. <br>
+├── data                    # data as .csv and xlsx files <br>
 └── README.md
