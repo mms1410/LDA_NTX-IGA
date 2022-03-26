@@ -1,4 +1,4 @@
-# Lebenzeitanalyse
+# LDA_TX-IGA
 Lebenzeitanalyse fuer NTX und IGA Patienten
 
 #### folder structure:
