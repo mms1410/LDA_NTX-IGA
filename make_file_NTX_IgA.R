@@ -5,7 +5,7 @@ library(dplyr)
 path_sven_windows <- file.path("C:", "Users", "svenm", "Documents", "06_data",
                                fsep = .Platform$file.sep)
 path_alina_mac <- file.path("Users", "bitteaendern", "01_data")
-path_mms14 <- file.path("~", "03_data", fsep = .Platform$file.sep)
+path_mms1410 <- file.path("~", "02_data","IGA_NTX", fsep = .Platform$file.sep)
 if(Sys.info()["user"] == "svenm"){
   path1 <- file.path(path_sven_windows,"iga_sheet2.csv",
                      fsep = .Platform$file.sep)
@@ -20,12 +20,12 @@ if(Sys.info()["user"] == "svenm"){
                      fsep = .Platform$file.sep) 
   path3 <- file.path(path_alina_mac,"iga_sheet1.csv",
                      fsep = .Platform$file.sep)
-} else if(Sys.info()["user"] == "mms14"){
-  path1 <- file.path(path_mms14, "01_csv","iga_sheet2.csv",
+} else if(Sys.info()["user"] == "mms1410"){
+  path1 <- file.path(path_mms1410, "01_csv","iga_sheet2.csv",
                      fsep = .Platform$file.sep)
-  path2 <- file.path(path_mms14, "01_csv","ntx_daten.csv",
+  path2 <- file.path(path_mms1410, "01_csv","ntx_daten.csv",
                      fsep = .Platform$file.sep) 
-  path3 <- file.path(path_mms14, "01_csv", "iga_sheet1.csv",
+  path3 <- file.path(path_mms1410, "01_csv", "iga_sheet1.csv",
                      fsep = .Platform$file.sep)
 }
 ################################################################################
@@ -157,22 +157,22 @@ daten_ntx$T_Ende_5 <- NULL
 daten_ntx$T_Ende_6 <- NULL
 ############################ speichern und bereinigen #########################
 # save data as R
-if(Sys.info()["user"] == "svenm"){
-  save(daten_iga, file = file.path(path_sven_windows,"daten_IgA.Rdata",
-                                   fsep = .Platform$file.sep))
-  save(daten_ntx, file = file.path(path_sven_windows,"daten_NTX.Rdata",
-                                   fsep = .Platform$file.sep))
-}else if(Sys.info()["user"] == "bitteaendern"){
-  save(daten_iga, file = file.path(path_alina_mac,"daten_IgA.Rdata",
-                                   fsep = .Platform$file.sep))
-  save(daten_ntx, file = file.path(path_alina_mac,"daten_NTX.Rdata",
-                                   fsep = .Platform$file.sep))
-} else if(Sys.info()["user"] == "mms14"){
-  save(daten_iga, file = file.path(path_mms14,"06_Rdata", "daten_IgA.Rdata",
-                                   fsep = .Platform$file.sep)) # cannot use too long path name here !!!
-  save(daten_ntx, file = file.path(path_mms14,"06_Rdata", "daten_NTX.Rdata",
-                                   fsep = .Platform$file.sep))
-} 
+# if(Sys.info()["user"] == "svenm"){
+#   save(daten_iga, file = file.path(path_sven_windows,"daten_IgA.Rdata",
+#                                    fsep = .Platform$file.sep))
+#   save(daten_ntx, file = file.path(path_sven_windows,"daten_NTX.Rdata",
+#                                    fsep = .Platform$file.sep))
+# }else if(Sys.info()["user"] == "bitteaendern"){
+#   save(daten_iga, file = file.path(path_alina_mac,"daten_IgA.Rdata",
+#                                    fsep = .Platform$file.sep))
+#   save(daten_ntx, file = file.path(path_alina_mac,"daten_NTX.Rdata",
+#                                    fsep = .Platform$file.sep))
+# } else if(Sys.info()["user"] == "mms1410"){
+#   save(daten_iga, file = file.path(path_mms1410,"06_Rdata", "daten_IgA.Rdata",
+#                                    fsep = .Platform$file.sep)) # cannot use too long path name here !!!
+#   save(daten_ntx, file = file.path(path_mms1410,"06_Rdata", "daten_NTX.Rdata",
+#                                    fsep = .Platform$file.sep))
+# } 
 # remove all tmp_* data and variables
 rm(list = ls()[grep(pattern = "tmp_[\\w\\W]*", ls())])
 rm(list = ls()[grep(pattern = "path[\\w\\W]*", ls())])

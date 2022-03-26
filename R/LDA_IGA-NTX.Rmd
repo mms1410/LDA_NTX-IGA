@@ -1,0 +1,96 @@
+---
+title: "LDA_IGA-NTX"
+output: html_notebook
+---
+```{r}
+
+```
+# § 1
+<!--- load libraries --->
+```{r, echo = TRUE}
+library(ggplot2)
+library(survival)
+library(survminer)
+library(xtable)
+```
+<!-- load data -->
+Data is generated in seperate script:
+```{r, echo = TRUE}
+# library(readxl)
+# library(data.table)
+# library(forcats)
+source("read_data.R")
+```
+preliminaries:
+```{r}
+follow_up <- lubridate::years(10)
+```
+# § 2 Desciptive Statistics
+
+## § 2.1 IGA
+Number of observations:
+```{r, echo = FALSE}
+nrow(data_iga1)
+```
+Data Structure:
+```{r, echo = FALSE}
+knitr::kable(as.data.table(as.list(lapply(data_iga1, class))))
+```
+## § 2.2 NTX
+Number of observations:
+```{r, echo = FALSE}
+nrow(data_ntx)
+```
+Data Structure:
+```{r, echo = FALSE}
+knitr::kable(as.data.table(as.list(lapply(data_ntx, class))))
+```
+
+# § 3 Survival Analysis
+
+##  § 3.1 IGA
+##  § 3.1.1
+```{r}
+# Zeitraum: Follow-Up
+# Event:    TX_Status
+# Zensur DateLastSeen (<= follow-up) ODER Tod
+
+```
+##  § 3.1.2
+```{r}
+# Zeitraum Follow-Up
+# Event Tod UND graft-loss
+# Zensur: DateLastSeen (<= follow-up)
+censoring <- c("Date last seen", "Todesdatum")
+event <- "TX Status"
+```
+##  § 3.1.3
+```{r}
+# Zeitraum Follow-Up
+# Event:  Tod
+# Zensur  DateLastSeen (<= follow-up)
+```
+
+##  § 3.2 NTX
+##  § 3.2.1
+```{r}
+# Zeitraum: Follow-Up
+# Event:    TX_Status
+# Zensur DateLastSeen (<= follow-up) ODER Tod
+```
+##  § 3.2.2
+```{r}
+# Zeitraum Follow-Up
+# Event Tod UND graft-loss
+# Zensur: DateLastSeen (<= follow-up)
+censoring <- c("Date last seen", "Todesdatum")
+event <- "TX Status"
+```
+##  § 3.3.3
+```{r}
+# Zeitraum Follow-Up
+# Event:  Tod
+# Zensur  DateLastSeen (<= follow-up)
+censoring <- "Date last seen"
+event <- "Tod"
+```

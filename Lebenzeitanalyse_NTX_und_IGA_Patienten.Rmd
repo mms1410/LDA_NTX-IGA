@@ -186,8 +186,6 @@ ggplot() +
   labs(color = "Patienten Gruppe") +
   theme_classic() +
   guides(colour = guide_legend(override.aes = list(size = 10)))
-  
-
 ```
 Die Altersverteilung der NTX Patienten ist rechtsschief, während für IGA Patienten die Alterverteilung mehr einen linksschiefen Charakter hat. Insbesondere ist auffallend, dass IGA Patienten die einer wiederholten Biopsie bedurfen im unteren Bereich der Altersverteilung liegen. In Übereinstimmung dazu liegt das mediane Alter dieser Gruppe auch deutlich unter dem Medianalter der IGA Gruppe ohne wiederholte Biopsie (rote vertikale Linie), dass wiederum nahe am medianen Alter der gesamten IGA Gruppe liegt (gestrichelte Linie).
 
