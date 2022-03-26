@@ -2,7 +2,28 @@
 Lebenzeitanalyse fuer NTX und IGA Patienten
 
 #### folder structure:
-.                           <br>
-├── R                       # R scripts, notebooks, markdown, etc. <br>
-├── data                    # data as .csv and xlsx files <br>
+
+```
+.
+├── archive
+│   ├── ...
+│   ├── ...
+│   └── etc.
+├── data
+│   ├── IgA_masterfile-Tango_2020_04_21 NEU.xlsx
+│   ├── iga_sheet1.csv
+│   ├── iga_sheet2.csv
+│   ├── ntx_daten.csv
+│   └── ntx-fu-alina_Aussortierte_Daten.xlsx
+├── misc
+│   ├── ...
+│   ├── ...
+│   └── etc.
+├── R
+│   ├── LDA_IGA-NTX.nb.html
+│   ├── LDA_IGA-NTX.Rmd
+│   ├── read_data.R
+│   └── scratch.R
 └── README.md
+
+```
