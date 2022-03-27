@@ -5,11 +5,11 @@ Lebenzeitanalyse fuer NTX und IGA Patienten
 
 ```
 .
-├── archive (.gitignore)
+├── archive
 │   ├── ...
 │   ├── ...
 │   └── etc.
-├── data
+├── data (.gitignore)
 │   ├── IgA_masterfile-Tango_2020_04_21 NEU.xlsx
 │   ├── iga_sheet1.csv
 │   ├── iga_sheet2.csv
