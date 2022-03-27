@@ -5,7 +5,7 @@ Lebenzeitanalyse fuer NTX und IGA Patienten
 
 ```
 .
-├── archive
+├── archive (.gitignore)
 │   ├── ...
 │   ├── ...
 │   └── etc.
@@ -15,7 +15,7 @@ Lebenzeitanalyse fuer NTX und IGA Patienten
 │   ├── iga_sheet2.csv
 │   ├── ntx_daten.csv
 │   └── ntx-fu-alina_Aussortierte_Daten.xlsx
-├── misc
+├── misc (.gitignore)
 │   ├── ...
 │   ├── ...
 │   └── etc.
