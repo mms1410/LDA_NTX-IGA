@@ -7,7 +7,7 @@ output: html_notebook
 ```
 # § 1
 <!--- load libraries --->
-```{r, echo = TRUE}
+```{r, echo = TRUE, message = FALSE}
 library(ggplot2)
 library(survival)
 library(survminer)
@@ -15,7 +15,7 @@ library(xtable)
 ```
 <!-- load data -->
 Data is generated in seperate script:
-```{r, echo = TRUE}
+```{r, echo = TRUE, message = FALSE}
 # library(readxl)
 # library(data.table)
 # library(forcats)
@@ -75,7 +75,7 @@ event <- "TX Status"
 ##  § 3.2.1
 ```{r}
 # Zeitraum: Follow-Up
-# Event:    TX_Status
+# Event:    TX_Status / graft loss
 # Zensur DateLastSeen (<= follow-up) ODER Tod
 ```
 ##  § 3.2.2

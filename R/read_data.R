@@ -16,42 +16,55 @@ tmp_data_ntx_path <- paste0(tmp_data_ntx_path,
 tmp_data_iga_path <- dirname(rstudioapi::getSourceEditorContext()$path)  # <folder>/R
 tmp_data_iga_path <- dirname(tmp_data_iga_path)  # <folder>
 tmp_data_iga_path <- paste0(tmp_data_iga_path, .Platform$file.sep, "data")  # <folder>/data
-tmp_data_iga1_path <- paste0(tmp_data_iga_path,
-                        .Platform$file.sep,
-                        "iga_sheet1.csv")
 tmp_data_iga2_path <- paste0(tmp_data_iga_path,
-                             .Platform$file.sep,
-                             "iga_sheet2.csv")
+                        .Platform$file.sep,
+                        "IgAN_Sheet2.csv")
+
 ##
-tmp_iga1_select <- c("Datum" = "character",
-                    "Geburtsdatum" = "character",
-                    "Geschlecht" = "factor",
-                    "TX Status" = "factor",
-                    "Date last seen" = "character",
-                    "Todesdatum" = "character",
-                    "Transplantatfunktionsende 1" = "character",
-                    "Transplantatfunktionsende 2" = "character",
-                    "Transplantatfunktionsende 4" = "character",
-                    "Transplantatfunktionsende 5" = "character",
-                    "Transplantatfunktionsende 6" = "character",
-                    "T-date" = "character",
-                    "D-type" = "factor",
-                    "D-age" = "factor",
-                    "D-abo" = "factor",
-                    "D-sex" = "factor",
-                    "R-sex" = "factor",
-                    "first-name" = "character",
-                    "last-name" = "character")
-tmp_iga1_dmy <- c("Datum",
-                  "Geburtsdatum",
-                  "Date last seen",
-                  "Todesdatum",
-                  "Transplantatfunktionsende 1",
-                  "Transplantatfunktionsende 2",
-                  "Transplantatfunktionsende 4",
-                  "Transplantatfunktionsende 5",
-                  "Transplantatfunktionsende 6",
-                  "T-date")
+tmp_iga2_select <- c("T-date" = "character",
+                     "T-dls" = "character",
+                     "graft loss (0=functial, 1=loss)" = "factor",
+                     "graft loss date" = "character",
+                     "max FUP graft (years)" = "numeric",
+                     "Pat death (0=alive, 1= dead)" = "factor",
+                     "max FUP survivial (years)" = "numeric",
+                     "biopsy after KTX  (0=no, 1=yes)" = "factor",
+                     "biopsy proven recurrence (0=no, 1=yes)" = "factor",
+                     "date of biopsy" = "character",
+                     "time of biopsy (years after KTX)" = "numeric",
+                     "Date of birth" = "character",
+                     "D-type" = "factor",
+                     "D-cod" = "factor",
+                     "D-age" = "character",
+                     "D-abo" = "factor",
+                     "D-sex" = "factor",
+                     "R-sex"  = "factor",
+                     "R-abo" = "factor",
+                     "R Full Phenotype" = "factor",
+                     "D-weight" = "numeric",
+                     "D-height" = "numeric",
+                     "D-pheno" = "factor",
+                     "T-fc" = "factor",
+                     "R-dc" = "factor",
+                     "R-weight" = "numeric",
+                     "R-height" = "numeric",
+                     "Cold ischaemic period hours" = "numeric",
+                     "Cold ischaemic period minutes" = "numeric",
+                     "Warm ischaemic period 2" = "numeric",
+                     "mm-A" = "factor",
+                     "mm-B" = "factor",
+                     "mm-DR" = "factor",
+                     "Current PRA%" = "numeric",
+                     "Highest PRA%" = "numeric")
+
+
+tmp_iga2_dmy <- c("T-date",
+                  "T-dls",
+                  "graft loss date",
+                  "date of biopsy",
+                  "Date of birth"
+                  )
+
 tmp_ntx_select <- c("Geburtsdatum"  = "character" ,
                     "Geschlecht"  = "factor" ,
                     "Transplantatfunktionsende 1[NTX PatientenInformation]" = "character",
@@ -79,15 +92,14 @@ data_ntx <- fread(tmp_data_ntx_path,
 ## date format
 data_ntx[, (tmp_ntx_dmy) := lapply(.SD, lubridate::dmy), .SDcols = tmp_ntx_dmy]
 ################################## iga #########################################
-data_iga1 <- fread(tmp_data_iga1_path,
-                  select = tmp_iga1_select,
-                  encoding = "UTF-8",
-                  na.strings = "")
-data_iga1$Datum[!is.na(data_iga1$Datum)] <- regmatches(data_iga1$Datum,
-                                                     regexpr("\\d\\d.\\d\\d.\\d\\d\\d\\d",
-                                                             data_iga1$Datum))
-## date format
-data_iga1[, (tmp_iga1_dmy) := lapply(.SD, lubridate::dmy), .SDcols = tmp_iga1_dmy]
+data_iga2 <- fread(tmp_data_iga2_path, 
+                   select = tmp_iga2_select,
+                   encoding = "UTF-8",
+                   na.strings = c("", "-"),
+                   dec = ",")
+
+data_iga2 <- data_iga2[!is.na(`T-date`)]
+data_iga2[, (tmp_iga2_dmy) := lapply(.SD, lubridate::dmy), .SDcols = tmp_iga2_dmy]
 
 ## merge `Transplantationsende \d`
 

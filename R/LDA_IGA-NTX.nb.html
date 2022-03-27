@@ -240,8 +240,11 @@ library(xtable)</code></pre>
 <p>Data is generated in seperate script:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwicmVhZF9kYXRhLlJcIilcbmBgYCJ9 -->
-<pre class="r"><code>source(&quot;read_data.R&quot;)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBsaWJyYXJ5KHJlYWR4bClcbiMgbGlicmFyeShkYXRhLnRhYmxlKVxuIyBsaWJyYXJ5KGZvcmNhdHMpXG5zb3VyY2UoXCJyZWFkX2RhdGEuUlwiKVxuYGBgIn0= -->
+<pre class="r"><code># library(readxl)
+# library(data.table)
+# library(forcats)
+source(&quot;read_data.R&quot;)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -261,14 +264,84 @@ library(xtable)</code></pre>
 <p>Number of observations:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDI2NVxuIn0= -->
-<pre><code>[1] 265</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDYwXG4ifQ== -->
+<pre><code>[1] 60</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Data Structure:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+
+<!-- rnb-html-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImtuaXRfYXNpcyJdLCJzaXppbmdQb2xpY3kiOltdfX0= -->
+
+<table style="width:100%;">
+<colgroup>
+<col width="2%" />
+<col width="5%" />
+<col width="4%" />
+<col width="4%" />
+<col width="6%" />
+<col width="4%" />
+<col width="11%" />
+<col width="11%" />
+<col width="11%" />
+<col width="11%" />
+<col width="11%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Datum</th>
+<th align="left">Geburtsdatum</th>
+<th align="left">Geschlecht</th>
+<th align="left">TX Status</th>
+<th align="left">Date last seen</th>
+<th align="left">Todesdatum</th>
+<th align="left">Transplantatfunktionsende 1</th>
+<th align="left">Transplantatfunktionsende 2</th>
+<th align="left">Transplantatfunktionsende 4</th>
+<th align="left">Transplantatfunktionsende 5</th>
+<th align="left">Transplantatfunktionsende 6</th>
+<th align="left">T-date</th>
+<th align="left">D-type</th>
+<th align="left">D-age</th>
+<th align="left">D-abo</th>
+<th align="left">D-sex</th>
+<th align="left">R-sex</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Date</td>
+<td align="left">Date</td>
+<td align="left">factor</td>
+<td align="left">factor</td>
+<td align="left">Date</td>
+<td align="left">Date</td>
+<td align="left">Date</td>
+<td align="left">Date</td>
+<td align="left">Date</td>
+<td align="left">Date</td>
+<td align="left">Date</td>
+<td align="left">Date</td>
+<td align="left">factor</td>
+<td align="left">factor</td>
+<td align="left">factor</td>
+<td align="left">factor</td>
+<td align="left">factor</td>
+</tr>
+</tbody>
+</table>
+
+
+<!-- rnb-html-end -->
+
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
@@ -277,11 +350,66 @@ library(xtable)</code></pre>
 <p>Number of observations:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDEwMTVcbiJ9 -->
+<pre><code>[1] 1015</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Data Structure:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+
+<!-- rnb-html-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImtuaXRfYXNpcyJdLCJzaXppbmdQb2xpY3kiOltdfX0= -->
+
+<table>
+<colgroup>
+<col width="2%" />
+<col width="2%" />
+<col width="11%" />
+<col width="11%" />
+<col width="11%" />
+<col width="11%" />
+<col width="11%" />
+<col width="7%" />
+<col width="9%" />
+<col width="9%" />
+<col width="8%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Geburtsdatum</th>
+<th align="left">Geschlecht</th>
+<th align="left">Transplantatfunktionsende 1[NTX PatientenInformation]</th>
+<th align="left">Transplantatfunktionsende 2[NTX PatientenInformation]</th>
+<th align="left">Transplantatfunktionsende 3[NTX PatientenInformation]</th>
+<th align="left">Transplantatfunktionsende 5[NTX PatientenInformation]</th>
+<th align="left">Transplantatfunktionsende 6[NTX PatientenInformation]</th>
+<th align="left">TX Status[NTX PatientenInformation]</th>
+<th align="left">Patienten Status[NTX PatientenInformation]</th>
+<th align="left">Date last seen[NTX PatientenInformation]</th>
+<th align="left">Todesdatum[NTX PatientenInformation]</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Date</td>
+<td align="left">factor</td>
+<td align="left">Date</td>
+<td align="left">Date</td>
+<td align="left">Date</td>
+<td align="left">Date</td>
+<td align="left">Date</td>
+<td align="left">factor</td>
+<td align="left">factor</td>
+<td align="left">Date</td>
+<td align="left">Date</td>
+</tr>
+</tbody>
+</table>
+
+
+<!-- rnb-html-end -->
+
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
@@ -374,7 +502,7 @@ event &lt;- &quot;Tod&quot;</code></pre>
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiTERBX0lHQS1OVFgiCm91dHB1dDogaHRtbF9ub3RlYm9vawotLS0KYGBge3J9CgpgYGAKIyDCpyAxCjwhLS0tIGxvYWQgbGlicmFyaWVzIC0tLT4KYGBge3IsIGVjaG8gPSBUUlVFfQpsaWJyYXJ5KGdncGxvdDIpCmxpYnJhcnkoc3Vydml2YWwpCmxpYnJhcnkoc3Vydm1pbmVyKQpsaWJyYXJ5KHh0YWJsZSkKYGBgCjwhLS0gbG9hZCBkYXRhIC0tPgpEYXRhIGlzIGdlbmVyYXRlZCBpbiBzZXBlcmF0ZSBzY3JpcHQ6CmBgYHtyLCBlY2hvID0gVFJVRX0KIyBsaWJyYXJ5KHJlYWR4bCkKIyBsaWJyYXJ5KGRhdGEudGFibGUpCiMgbGlicmFyeShmb3JjYXRzKQpzb3VyY2UoInJlYWRfZGF0YS5SIikKYGBgCnByZWxpbWluYXJpZXM6CmBgYHtyfQpmb2xsb3dfdXAgPC0gbHVicmlkYXRlOjp5ZWFycygxMCkKYGBgCiMgwqcgMiBEZXNjaXB0aXZlIFN0YXRpc3RpY3MKCiMjIMKnIDIuMSBJR0EKTnVtYmVyIG9mIG9ic2VydmF0aW9uczoKYGBge3IsIGVjaG8gPSBGQUxTRX0KbnJvdyhkYXRhX2lnYTEpCmBgYApEYXRhIFN0cnVjdHVyZToKYGBge3IsIGVjaG8gPSBGQUxTRX0Ka25pdHI6OmthYmxlKGFzLmRhdGEudGFibGUoYXMubGlzdChsYXBwbHkoZGF0YV9pZ2ExLCBjbGFzcykpKSkKYGBgCiMjIMKnIDIuMiBOVFgKTnVtYmVyIG9mIG9ic2VydmF0aW9uczoKYGBge3IsIGVjaG8gPSBGQUxTRX0KbnJvdyhkYXRhX250eCkKYGBgCkRhdGEgU3RydWN0dXJlOgpgYGB7ciwgZWNobyA9IEZBTFNFfQprbml0cjo6a2FibGUoYXMuZGF0YS50YWJsZShhcy5saXN0KGxhcHBseShkYXRhX250eCwgY2xhc3MpKSkpCmBgYAoKIyDCpyAzIFN1cnZpdmFsIEFuYWx5c2lzCgojIyAgwqcgMy4xIElHQQojIyAgwqcgMy4xLjEKYGBge3J9CiMgWmVpdHJhdW06IEZvbGxvdy1VcAojIEV2ZW50OiAgICBUWF9TdGF0dXMKIyBaZW5zdXIgRGF0ZUxhc3RTZWVuICg8PSBmb2xsb3ctdXApIE9ERVIgVG9kCgpgYGAKIyMgIMKnIDMuMS4yCmBgYHtyfQojIFplaXRyYXVtIEZvbGxvdy1VcAojIEV2ZW50IFRvZCBVTkQgZ3JhZnQtbG9zcwojIFplbnN1cjogRGF0ZUxhc3RTZWVuICg8PSBmb2xsb3ctdXApCmNlbnNvcmluZyA8LSBjKCJEYXRlIGxhc3Qgc2VlbiIsICJUb2Rlc2RhdHVtIikKZXZlbnQgPC0gIlRYIFN0YXR1cyIKYGBgCiMjICDCpyAzLjEuMwpgYGB7cn0KIyBaZWl0cmF1bSBGb2xsb3ctVXAKIyBFdmVudDogIFRvZAojIFplbnN1ciAgRGF0ZUxhc3RTZWVuICg8PSBmb2xsb3ctdXApCmBgYAoKIyMgIMKnIDMuMiBOVFgKIyMgIMKnIDMuMi4xCmBgYHtyfQojIFplaXRyYXVtOiBGb2xsb3ctVXAKIyBFdmVudDogICAgVFhfU3RhdHVzCiMgWmVuc3VyIERhdGVMYXN0U2VlbiAoPD0gZm9sbG93LXVwKSBPREVSIFRvZApgYGAKIyMgIMKnIDMuMi4yCmBgYHtyfQojIFplaXRyYXVtIEZvbGxvdy1VcAojIEV2ZW50IFRvZCBVTkQgZ3JhZnQtbG9zcwojIFplbnN1cjogRGF0ZUxhc3RTZWVuICg8PSBmb2xsb3ctdXApCmNlbnNvcmluZyA8LSBjKCJEYXRlIGxhc3Qgc2VlbiIsICJUb2Rlc2RhdHVtIikKZXZlbnQgPC0gIlRYIFN0YXR1cyIKYGBgCiMjICDCpyAzLjMuMwpgYGB7cn0KIyBaZWl0cmF1bSBGb2xsb3ctVXAKIyBFdmVudDogIFRvZAojIFplbnN1ciAgRGF0ZUxhc3RTZWVuICg8PSBmb2xsb3ctdXApCmNlbnNvcmluZyA8LSAiRGF0ZSBsYXN0IHNlZW4iCmV2ZW50IDwtICJUb2QiCmBgYAo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiTERBX0lHQS1OVFgiCm91dHB1dDogaHRtbF9ub3RlYm9vawotLS0KYGBge3J9CgpgYGAKIyDCpyAxCjwhLS0tIGxvYWQgbGlicmFyaWVzIC0tLT4KYGBge3IsIGVjaG8gPSBUUlVFLCBtZXNzYWdlID0gRkFMU0V9CmxpYnJhcnkoZ2dwbG90MikKbGlicmFyeShzdXJ2aXZhbCkKbGlicmFyeShzdXJ2bWluZXIpCmxpYnJhcnkoeHRhYmxlKQpgYGAKPCEtLSBsb2FkIGRhdGEgLS0+CkRhdGEgaXMgZ2VuZXJhdGVkIGluIHNlcGVyYXRlIHNjcmlwdDoKYGBge3IsIGVjaG8gPSBUUlVFLCBtZXNzYWdlID0gRkFMU0V9CiMgbGlicmFyeShyZWFkeGwpCiMgbGlicmFyeShkYXRhLnRhYmxlKQojIGxpYnJhcnkoZm9yY2F0cykKc291cmNlKCJyZWFkX2RhdGEuUiIpCmBgYApwcmVsaW1pbmFyaWVzOgpgYGB7cn0KZm9sbG93X3VwIDwtIGx1YnJpZGF0ZTo6eWVhcnMoMTApCmBgYAojIMKnIDIgRGVzY2lwdGl2ZSBTdGF0aXN0aWNzCgojIyDCpyAyLjEgSUdBCk51bWJlciBvZiBvYnNlcnZhdGlvbnM6CmBgYHtyLCBlY2hvID0gRkFMU0V9Cm5yb3coZGF0YV9pZ2ExKQpgYGAKRGF0YSBTdHJ1Y3R1cmU6CmBgYHtyLCBlY2hvID0gRkFMU0V9CmtuaXRyOjprYWJsZShhcy5kYXRhLnRhYmxlKGFzLmxpc3QobGFwcGx5KGRhdGFfaWdhMSwgY2xhc3MpKSkpCmBgYAojIyDCpyAyLjIgTlRYCk51bWJlciBvZiBvYnNlcnZhdGlvbnM6CmBgYHtyLCBlY2hvID0gRkFMU0V9Cm5yb3coZGF0YV9udHgpCmBgYApEYXRhIFN0cnVjdHVyZToKYGBge3IsIGVjaG8gPSBGQUxTRX0Ka25pdHI6OmthYmxlKGFzLmRhdGEudGFibGUoYXMubGlzdChsYXBwbHkoZGF0YV9udHgsIGNsYXNzKSkpKQpgYGAKCiMgwqcgMyBTdXJ2aXZhbCBBbmFseXNpcwoKIyMgIMKnIDMuMSBJR0EKIyMgIMKnIDMuMS4xCmBgYHtyfQojIFplaXRyYXVtOiBGb2xsb3ctVXAKIyBFdmVudDogICAgVFhfU3RhdHVzCiMgWmVuc3VyIERhdGVMYXN0U2VlbiAoPD0gZm9sbG93LXVwKSBPREVSIFRvZAoKYGBgCiMjICDCpyAzLjEuMgpgYGB7cn0KIyBaZWl0cmF1bSBGb2xsb3ctVXAKIyBFdmVudCBUb2QgVU5EIGdyYWZ0LWxvc3MKIyBaZW5zdXI6IERhdGVMYXN0U2VlbiAoPD0gZm9sbG93LXVwKQpjZW5zb3JpbmcgPC0gYygiRGF0ZSBsYXN0IHNlZW4iLCAiVG9kZXNkYXR1bSIpCmV2ZW50IDwtICJUWCBTdGF0dXMiCmBgYAojIyAgwqcgMy4xLjMKYGBge3J9CiMgWmVpdHJhdW0gRm9sbG93LVVwCiMgRXZlbnQ6ICBUb2QKIyBaZW5zdXIgIERhdGVMYXN0U2VlbiAoPD0gZm9sbG93LXVwKQpgYGAKCiMjICDCpyAzLjIgTlRYCiMjICDCpyAzLjIuMQpgYGB7cn0KIyBaZWl0cmF1bTogRm9sbG93LVVwCiMgRXZlbnQ6ICAgIFRYX1N0YXR1cyAvIGdyYWZ0IGxvc3MKIyBaZW5zdXIgRGF0ZUxhc3RTZWVuICg8PSBmb2xsb3ctdXApIE9ERVIgVG9kCmBgYAojIyAgwqcgMy4yLjIKYGBge3J9CiMgWmVpdHJhdW0gRm9sbG93LVVwCiMgRXZlbnQgVG9kIFVORCBncmFmdC1sb3NzCiMgWmVuc3VyOiBEYXRlTGFzdFNlZW4gKDw9IGZvbGxvdy11cCkKY2Vuc29yaW5nIDwtIGMoIkRhdGUgbGFzdCBzZWVuIiwgIlRvZGVzZGF0dW0iKQpldmVudCA8LSAiVFggU3RhdHVzIgpgYGAKIyMgIMKnIDMuMy4zCmBgYHtyfQojIFplaXRyYXVtIEZvbGxvdy1VcAojIEV2ZW50OiAgVG9kCiMgWmVuc3VyICBEYXRlTGFzdFNlZW4gKDw9IGZvbGxvdy11cCkKY2Vuc29yaW5nIDwtICJEYXRlIGxhc3Qgc2VlbiIKZXZlbnQgPC0gIlRvZCIKYGBg</div>
 
 
 
