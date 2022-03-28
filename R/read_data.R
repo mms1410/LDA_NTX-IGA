@@ -105,9 +105,9 @@ data_iga2[, (tmp_iga2_dmy) := lapply(.SD, lubridate::dmy), .SDcols = tmp_iga2_dm
 
 
 ## remove names
-data_iga1 <- data_iga1[!is.na(Datum)]
-data_iga1[, `first-name`:= NULL]
-data_iga1[, `last-name` := NULL]
+#data_iga1 <- data_iga1[!is.na(Datum)]
+#data_iga1[, `first-name`:= NULL]
+#data_iga1[, `last-name` := NULL]
 ################################################################################
 # remove tmp variables not used any more
 rm( list = ls()[grep(x = ls(), pattern = "^tmp")])

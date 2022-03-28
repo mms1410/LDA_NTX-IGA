@@ -1,96 +1,105 @@
 ---
 title: "LDA_IGA-NTX"
-output: html_notebook
+author: "Sven Morlock"
+date: "28/03/2022"
+output: pdf_document
 ---
-```{r}
-
-```
 # § 1
-<!--- load libraries --->
-```{r, echo = TRUE, message = FALSE}
+
+Load required packages:
+
+```{r, message = FALSE}
 library(ggplot2)
 library(survival)
 library(survminer)
 library(xtable)
+library(data.table)
+library(readxl)
+library(forcats)
+library(lubridate)
+library(dplyr)
 ```
-<!-- load data -->
-Data is generated in seperate script:
-```{r, echo = TRUE, message = FALSE}
-# library(readxl)
-# library(data.table)
-# library(forcats)
+
+Read data using read_data.R scrip:
+
+```{r,, message = FALSE}
 source("read_data.R")
+
 ```
-preliminaries:
-```{r}
-follow_up <- lubridate::years(10)
-```
-# § 2 Desciptive Statistics
+\newpage
+---
+# § 2 EDA
 
 ## § 2.1 IGA
-Number of observations:
-```{r, echo = FALSE}
-nrow(data_iga1)
-```
-Data Structure:
-```{r, echo = FALSE}
-knitr::kable(as.data.table(as.list(lapply(data_iga1, class))))
-```
-## § 2.2 NTX
-Number of observations:
-```{r, echo = FALSE}
-nrow(data_ntx)
-```
-Data Structure:
-```{r, echo = FALSE}
-knitr::kable(as.data.table(as.list(lapply(data_ntx, class))))
+
+\newpage
+---
+# § 3 Kaplan-Meier
+
+```{r}
+follow_up <- years(10)
 ```
 
-# § 3 Survival Analysis
+## § 3.1 IGA
 
-##  § 3.1 IGA
-##  § 3.1.1
 ```{r}
-# Zeitraum: Follow-Up
-# Event:    TX_Status
-# Zensur DateLastSeen (<= follow-up) ODER Tod
+#  functions in survival and survminer package need numeric-type input
+# data_iga2[, num_t_date := as.numeric(`T-date` - `T-date`) / 365]
+# data_iga2[, num_t_dls := as.numeric(`T-dls` - `T-date`) / 365]
+# data_iga2[, num_date_biopsy := as.numeric(`date of biopsy` - `T-date`) / 365]
+# data_iga2[, num_date_birth := as.numeric(`Date of birth` - `T-date`) / 365]  # negative
+# data_iga2[, num_graft_loss := as.numeric(`graft loss date` - `T-date`) / 365]
+# data_iga2[, num_date_follow_up := as.numeric(`T-date` + follow_up) / 365]
 
+data_iga2[, time_date_biopsy := interval(`T-date`, `date of biopsy`) / years(1)]
+data_iga2[, time_t_dls := interval(`T-dls`, `T-date`) / years(1)]
+data_iga2[, time_date_birth := interval(`T-date`, `Date of birth`) / years(1)]
+data_iga2[, time_graft_loss := interval(`T-date`, `graft loss date`) / years(1)]
+data_iga2[, time_date_follow_up := interval(`T-date`,`T-date` + follow_up) / years(1)]
 ```
-##  § 3.1.2
+### § 3.1.1 
+
+- Event:
+  - graft-loss within the follow up period.
+  
+- Right censoring:
+  - if `graft loss date` after follow up period, censored by end of follow up.
+  - if `T-dls` (date last seen) within follow up period, censored by `T-dls`.
+  
+- Time period:
+  -  10 years after `T-date` (kidney transplantaion).
 ```{r}
-# Zeitraum Follow-Up
-# Event Tod UND graft-loss
-# Zensur: DateLastSeen (<= follow-up)
-censoring <- c("Date last seen", "Todesdatum")
-event <- "TX Status"
-```
-##  § 3.1.3
-```{r}
-# Zeitraum Follow-Up
-# Event:  Tod
-# Zensur  DateLastSeen (<= follow-up)
+data_iga2 <- data_iga2 %>% 
+  mutate(censor_date = case_when(
+    ## graft-loss within follow up period
+    !is.na(`graft loss date`) & `graft loss date` <  `T-date` + follow_up ~ time_graft_loss,
+    ## graft-loss after follow up period
+    !is.na(`graft loss date`) & `graft loss date` >  `T-date` + follow_up ~ time_date_follow_up,
+    ## no graft-loss and last seen within follow up
+    is.na(`graft loss date`) & !is.na(`T-dls`) & `T-dls` < `T-date` + follow_up ~ time_t_dls,
+    ## no graft-loss and last seen after follow up
+    is.na(`graft loss date`) & !is.na(`T-dls`) & `T-dls` > `T-date` + follow_up ~ time_date_follow_up,
+    ## no graft loss and no last seen 
+    is.na(`graft loss date`) & is.na(`T-dls`) ~ time_date_follow_up
+                                )
+  )
+data_iga2 <- data_iga2 %>% 
+  mutate(event = case_when(
+    ## graft-loss within follow up period
+    !is.na(`graft loss date`) & `graft loss date` <  `T-date` + follow_up ~ 1,
+    ## else censored
+    TRUE ~ 0,
+                                )
+  )
 ```
 
-##  § 3.2 NTX
-##  § 3.2.1
+##### Overall kaplan-Meier curve (no stratification)
+
 ```{r}
-# Zeitraum: Follow-Up
-# Event:    TX_Status / graft loss
-# Zensur DateLastSeen (<= follow-up) ODER Tod
-```
-##  § 3.2.2
-```{r}
-# Zeitraum Follow-Up
-# Event Tod UND graft-loss
-# Zensur: DateLastSeen (<= follow-up)
-censoring <- c("Date last seen", "Todesdatum")
-event <- "TX Status"
-```
-##  § 3.3.3
-```{r}
-# Zeitraum Follow-Up
-# Event:  Tod
-# Zensur  DateLastSeen (<= follow-up)
-censoring <- "Date last seen"
-event <- "Tod"
+model_iga_1 <- survfit(formula = Surv(time = censor_date,
+                                   event = event, type = "right")~ 1,
+                    data = data_iga2)  
+ggsurvplot(model_iga_1,
+           conf.int = FALSE,
+           cumevents = TRUE)
 ```
