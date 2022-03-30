@@ -44,15 +44,8 @@ follow_up <- years(10)
 
 ```{r}
 #  functions in survival and survminer package need numeric-type input
-# data_iga2[, num_t_date := as.numeric(`T-date` - `T-date`) / 365]
-# data_iga2[, num_t_dls := as.numeric(`T-dls` - `T-date`) / 365]
-# data_iga2[, num_date_biopsy := as.numeric(`date of biopsy` - `T-date`) / 365]
-# data_iga2[, num_date_birth := as.numeric(`Date of birth` - `T-date`) / 365]  # negative
-# data_iga2[, num_graft_loss := as.numeric(`graft loss date` - `T-date`) / 365]
-# data_iga2[, num_date_follow_up := as.numeric(`T-date` + follow_up) / 365]
-
 data_iga2[, time_date_biopsy := interval(`T-date`, `date of biopsy`) / years(1)]
-data_iga2[, time_t_dls := interval(`T-dls`, `T-date`) / years(1)]
+data_iga2[, time_t_dls := interval(`T-date`, `T-dls`) / years(1)]
 data_iga2[, time_date_birth := interval(`T-date`, `Date of birth`) / years(1)]
 data_iga2[, time_graft_loss := interval(`T-date`, `graft loss date`) / years(1)]
 data_iga2[, time_date_follow_up := interval(`T-date`,`T-date` + follow_up) / years(1)]
@@ -62,7 +55,7 @@ data_iga2[, time_date_follow_up := interval(`T-date`,`T-date` + follow_up) / yea
 - Event:
   - graft-loss within the follow up period.
   
-- Right censoring:
+- Censoring scheme:
   - if `graft loss date` after follow up period, censored by end of follow up.
   - if `T-dls` (date last seen) within follow up period, censored by `T-dls`.
   
@@ -103,3 +96,47 @@ ggsurvplot(model_iga_1,
            conf.int = FALSE,
            cumevents = TRUE)
 ```
+
+### § 3.1.2
+- Event: 
+  - `T-dls` & ``Pat death (0=alive, 1= dead)` (patient death).
+- Censoring scheme:
+  - `T-dls` (date last seen) within follow up period.
+- Time period:
+  - 10 years after `T-date` (kidney transplantaion).
+```{r}
+data_iga2 <- data_iga2 %>% 
+  mutate(censor_date = case_when(
+    ## patient death and death date within follow up
+    (`Pat death (0=alive, 1= dead)` == 1) & `T-dls` < `T-date` + follow_up ~ time_t_dls,
+    ## patient dead but after follow up
+    (`Pat death (0=alive, 1= dead)` == 1) & `T-dls` > `T-date` + follow_up ~ time_date_follow_up,
+    ## patient not death but dropped within follow up
+    (`Pat death (0=alive, 1= dead)` == 0) & `T-dls` < `T-date` + follow_up ~ time_t_dls,
+    ## patient not death but dropped after follow up
+    (`Pat death (0=alive, 1= dead)` == 0) & `T-dls` > `T-date` + follow_up ~ time_date_follow_up,
+    ## NOTE: T-dls never NA
+  )
+)
+data_iga2 <- data_iga2 %>% 
+  mutate(censor_date = case_when(
+    ## 
+    (`Pat death (0=alive, 1= dead)` == 1) & `T-dls` < `T-date` + follow_up ~ 1,
+    ## else
+    TRUE ~ 0
+  ))
+```
+
+```{r}
+model_iga_2 <- survfit(formula = Surv(time = censor_date,
+                                   event = event, type = "right")~ 1,
+                    data = data_iga2)  
+ggsurvplot(model_iga_2,
+           conf.int = FALSE,
+           cumevents = TRUE)
+```
+
+#### § 3.1.3
+- Event: graft loss and death
+- Censoring scheme:
+- Time period:
