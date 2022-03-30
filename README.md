@@ -1,6 +1,21 @@
 # LDA_NTX-IGA
 Lebenzeitanalyse fuer NTX und IGA Patienten
 
+### ToDo:
+1. LDA
+  - [ ] Kapplan-Maier-curve
+  - [ ] Cox-regression/Hazard-ratio
+2. EDA
+  - [ ] follow-up (mean)
+  - [ ] age patients (yrs.)
+  - [ ] male sex
+  - [ ] BMI (mean.)
+  - [ ] living D.
+  - [ ] deceased D.
+  - [ ] HLA-mm (0-6)
+  - [ ] age donor (mean.)
+  - [ ] cold-ischemia time (hours)
+
 #### folder structure:
 
 ```
