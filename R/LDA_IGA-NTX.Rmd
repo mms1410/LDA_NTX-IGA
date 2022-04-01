@@ -19,18 +19,84 @@ library(forcats)
 library(lubridate)
 library(dplyr)
 ```
+```{r}
+default_theme <- theme_minimal() +
+  theme(text = element_text(family = "Decima WE", size = 15)) +
+  theme(panel.grid.major = element_line(color = "grey", size = 0.3)) +
+  theme(axis.line = element_line(color = "black", size = 0.4))
+two_scale_fill <- scale_fill_manual(values=c("#69b3a2", "#404080"))
+
+```
 
 Read data using read_data.R scrip:
 
 ```{r,, message = FALSE}
 source("read_data.R")
-
 ```
 \newpage
 ---
 # § 2 EDA
 
 ## § 2.1 IGA
+
+```{r}
+ggplot(data = data_iga2) +
+  geom_histogram(mapping = aes(x = interval(`Date of birth`,`T-date`) / years(1),
+                               fill = `R-sex`),
+                 color="#e9ecef",
+                 alpha=0.6) +
+  two_scale_fill +
+  # median age total
+  geom_vline(aes(xintercept = median(
+    interval(`Date of birth`,`T-date`) / years(1))
+    ), size = 1.0, color = "red", linetype = "dashed") +
+  # median age F
+  geom_vline(aes(xintercept = median(
+    interval(`Date of birth`,`T-date`) / years(1))
+    ), data = data_iga2[`R-sex` == "F"], linetype = "dashed") +
+  # median M
+  geom_vline(aes(xintercept = median(
+    interval(`Date of birth`,`T-date`) / years(1))
+    ), data = data_iga2[`R-sex` == "M"], linetype = "dashed") +
+  ylab("Anzahl") +
+  xlab("Alter in Jahren") +
+  ggtitle("Histogram Alter in Jahren am Transplantationsdatum",
+          subtitle =  paste0("(IGA Patienten, n=",
+          sum(!is.na(data_iga2$`Date of birth`)),
+          ")", collapse = "")) +
+  labs(fill = "Geschlecht") +
+  default_theme
+```
+
+```{r}
+ggplot(data = data_iga2) +
+  geom_histogram(mapping = aes(`D-weight` * (`D-height`)^2,
+                               fill = `D-sex`),
+                 alpha = 0.6) +
+  two_scale_fill +
+  # median BMI total
+  geom_vline(aes(xintercept = median(`D-weight` * (`D-height`)^2)),
+             size = 1.0, color = "red", linetype = "dashed") +
+  # median BMI F
+  geom_vline(aes(xintercept = median(`D-weight` * (`D-height`)^2)),
+             data = data_iga2[`R-sex` == "F"], linetype = "dashed") +
+  # median BMI M
+  geom_vline(aes(xintercept = median(`D-weight` * (`D-height`)^2)),
+             data = data_iga2[`R-sex` == "M"], linetype = "dashed") +
+  ylab("Anzahl") +
+  xlab("BMI") + # Einheit???
+  ggtitle("Histogramm BMI", subtitle = paste0("(IGA Patienten, n=",
+                                              sum(!is.na(data_iga2$`R-height`)),
+                                              ")", collapse = "")) +
+  labs(fill = "Geschlecht") +
+  default_theme
+```
+```{r}
+ggplot(data = data_iga2) +
+  geom_histogram(aes(x = ))
+
+```
+## § 2.2 NTX
 
 \newpage
 ---
