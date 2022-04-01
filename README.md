@@ -15,6 +15,8 @@ Lebenzeitanalyse fuer NTX und IGA Patienten
   - [ ] HLA-mm (0-6)
   - [ ] age donor (mean.)
   - [ ] cold-ischemia time (hours)
+  - [ ] PRA current (mean)
+  - [ ] PRA highest (mean)
 3. TBA
 
 #### folder structure:
