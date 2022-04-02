@@ -6,6 +6,21 @@ Lebenzeitanalyse fuer NTX und IGA Patienten
   - [ ] Kapplan-Maier-curve
   - [ ] Cox-regression/Hazard-ratio
 2. EDA
+
+| Task                        | Status  | Comment         |
+|-----------------------------|---------|-----------------|
+| follow-up (mean)            | O.K.    |                 |
+| age patients (yrs.)         | O.K.    |                 |
+| male sex                    | O.K.    |                 |
+| BMI (mean.)                 | O.K.    |                 |
+| living D.                   | O.K.    |                 |
+| deceased D.                 | O.K.    |                 |
+| HLA-mm (0-6)                | O.K.    |                 |
+| age donor (mean.)           | O.K.    |                 |
+| cold-ischemia time (hours)  | O.K.    |                 |
+| PRA current (mean)          | O.K.    |                 |
+| PRA highest (mean)          | O.K     |                 |
+
   - [x] follow-up (mean)
   - [x] age patients (yrs.)
   - [x] male sex
@@ -17,6 +32,8 @@ Lebenzeitanalyse fuer NTX und IGA Patienten
   - [x] cold-ischemia time (hours)
   - [x] PRA current (mean)
   - [x] PRA highest (mean)
+  
+  
 3. TBA
 
 #### folder structure:
