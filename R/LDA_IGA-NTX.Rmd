@@ -40,6 +40,13 @@ source("read_data.R")
 ## § 2.1 IGA
 
 ```{r}
+# follow-up (mean)
+(interval(data_iga2$`T-date`, data_iga2$`T-dls`) / years(1)) %>% 
+  mean()
+```
+
+```{r}
+# age patients (yrs.)
 ggplot(data = data_iga2) +
   geom_histogram(mapping = aes(x = interval(`Date of birth`,`T-date`) / years(1),
                                fill = `R-sex`),
@@ -69,6 +76,12 @@ ggplot(data = data_iga2) +
 ```
 
 ```{r}
+# male sex
+summary(data_iga2$`R-sex`)
+```
+
+```{r}
+# BMI (mean.)
 ggplot(data = data_iga2) +
   geom_histogram(mapping = aes(`D-weight` * (`D-height`)^2,
                                fill = `D-sex`),
@@ -92,9 +105,60 @@ ggplot(data = data_iga2) +
   default_theme
 ```
 ```{r}
-ggplot(data = data_iga2) +
-  geom_histogram(aes(x = ))
+# deceased D.
+# living D.
+tbl_1 <- summary(data_iga2[`graft loss (0=functial, 1=loss)` == 1]$`D-type`)
+tbl_1 <- round(tbl_1 / sum(tbl_1), 3)
+tbl_2 <- summary(data_iga2[`graft loss (0=functial, 1=loss)` == 0]$`D-type`)
+tbl_2 <- round(tbl_2 / sum(tbl_2),3)
+rbind("loss" = tbl_1, "functional" = tbl_2)
 
+tbl_1 <- summary(data_iga2[`Pat death (0=alive, 1= dead)` == 1]$`D-type`)
+tbl_1 <- round(tbl_1 / sum(tbl_1), 3)
+tbl_2<- summary(data_iga2[`Pat death (0=alive, 1= dead)` == 0]$`D-type`)
+tbl_2 <-  round(tbl_2 / sum(tbl_2),3)
+rbind("dead" = tbl_1, "alive" = tbl_2)
+```
+
+```{r}
+# BMI (mean.)
+mean(data_iga2$`D-weight` * (data_iga2$`D-height`)^2)
+```
+
+```{r}
+# HLA-mm (0-6)
+tbl_1 <- as.data.table(lapply(data_iga2[, c("mm-A", "mm-B", "mm-DR")],
+                              as.numeric))
+tbl_2 <- apply(X = tbl_1,
+               MARGIN = 2,  # for each column
+               FUN = mean, na.rm = TRUE)
+
+round(tbl_2, 3)
+round(mean(tbl_2),3)
+
+tbl_2 <- apply(X = tbl_1,
+               MARGIN = 1,  # for each row
+               FUN = sum, na.rm = TRUE)
+mean(tbl_2)
+```
+
+```{r}
+# PRA current (mean)
+# PRA highest (mean)
+data_iga2[, c("Current PRA%", "Highest PRA%")] %>% 
+  apply(MARGIN = 2,
+        FUN = mean, na.rm = TRUE)
+```
+
+```{r}
+# age donor (mean.)
+mean(data_iga2$`D-age`)
+```
+
+```{r}
+# cold-ischemia time (hours)
+mean(data_iga2$`Cold ischaemic period hours`, na.rm = TRUE)
+median(data_iga2$`Cold ischaemic period hours`, na.rm = TRUE)
 ```
 ## § 2.2 NTX
 
