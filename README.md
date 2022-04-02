@@ -21,19 +21,7 @@ Lebenzeitanalyse fuer NTX und IGA Patienten
 | PRA current (mean)          | O.K.    |                 |
 | PRA highest (mean)          | O.K     |                 |
 
-  - [x] follow-up (mean)
-  - [x] age patients (yrs.)
-  - [x] male sex
-  - [x] BMI (mean.)
-  - [x] living D.
-  - [x] deceased D.
-  - [x] HLA-mm (0-6)
-  - [x] age donor (mean.)
-  - [x] cold-ischemia time (hours)
-  - [x] PRA current (mean)
-  - [x] PRA highest (mean)
-  
-  
+
 3. TBA
 
 #### folder structure:
