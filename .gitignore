@@ -2,3 +2,5 @@ misc/
 test*
 data/
 archive/
+*.pdf
+!R/*.pdf
