@@ -8,11 +8,10 @@ output: pdf_document
 
 Load required packages:
 
-```{r, message = FALSE}
+```{r, message = FALSE, echo = FALSE}
 library(ggplot2)
 library(survival)
 library(survminer)
-library(xtable)
 library(data.table)
 library(readxl)
 library(forcats)
@@ -43,39 +42,47 @@ source("read_data.R")
 ---
 # § 2 EDA
 
+```{r}
+follow_up <- years(10)
+```
+
 ## § 2.1 IGA
 
 ```{r}
 # follow-up (mean)
-(interval(data_iga2$`T-date`, data_iga2$`T-dls`) / years(1)) %>% 
+(interval(data_iga$`T-date`, data_iga$`T-dls`) / years(1)) %>% 
   mean()
+```
+```{r}
+# patient death within follow up
+nrow(data_iga[(`T-dls` <= (`T-date` + follow_up)) & `Pat death (0=alive, 1= dead)` == 1])
+```
+```{r}
+# patient drop out
+nrow(data_iga[(`T-dls` <= (`T-date` + follow_up)) & `Pat death (0=alive, 1= dead)` == 0])
+```
+
+```{r}
+# patients with graft loss 
+nrow(data_iga[`graft loss (0=functial, 1=loss)` == 1])
+# patients with graft loss within follow up period
+nrow(data_iga[`graft loss date` < `T-date` + follow_up])
 ```
 
 ```{r}
 # age patients (yrs.)
-ggplot(data = data_iga2) +
+ggplot(data = data_iga) +
   geom_histogram(mapping = aes(x = interval(`Date of birth`,`T-date`) / years(1),
                                fill = `R-sex`),
                  color="#e9ecef",
-                 alpha=0.6) +
+                 alpha=0.6,
+                 bins = 40) +
   two_scale_fill +
-  # median age total
-  geom_vline(aes(xintercept = median(
-    interval(`Date of birth`,`T-date`) / years(1))
-    ), size = 1.0, color = "red", linetype = "dashed") +
-  # median age F
-  geom_vline(aes(xintercept = median(
-    interval(`Date of birth`,`T-date`) / years(1))
-    ), data = data_iga2[`R-sex` == "F"], linetype = "dashed") +
-  # median M
-  geom_vline(aes(xintercept = median(
-    interval(`Date of birth`,`T-date`) / years(1))
-    ), data = data_iga2[`R-sex` == "M"], linetype = "dashed") +
   ylab("Anzahl") +
   xlab("Alter in Jahren") +
   ggtitle("Histogram Alter in Jahren am Transplantationsdatum",
           subtitle =  paste0("(IGA Patienten, n=",
-          sum(!is.na(data_iga2$`Date of birth`)),
+          sum(!is.na(data_iga$`Date of birth`)),
           ")", collapse = "")) +
   labs(fill = "Geschlecht") +
   default_theme
@@ -83,12 +90,12 @@ ggplot(data = data_iga2) +
 
 ```{r}
 # male sex
-summary(data_iga2$`R-sex`)
+summary(data_iga$`R-sex`)
 ```
 
 ```{r}
 # BMI (mean.)
-ggplot(data = data_iga2) +
+ggplot(data = data_iga) +
   geom_histogram(mapping = aes(`D-weight` * (`D-height`)^2,
                                fill = `D-sex`),
                  alpha = 0.6) +
@@ -98,14 +105,14 @@ ggplot(data = data_iga2) +
              size = 1.0, color = "red", linetype = "dashed") +
   # median BMI F
   geom_vline(aes(xintercept = median(`D-weight` * (`D-height`)^2)),
-             data = data_iga2[`R-sex` == "F"], linetype = "dashed") +
+             data = data_iga[`R-sex` == "F"], linetype = "dashed") +
   # median BMI M
   geom_vline(aes(xintercept = median(`D-weight` * (`D-height`)^2)),
-             data = data_iga2[`R-sex` == "M"], linetype = "dashed") +
+             data = data_iga[`R-sex` == "M"], linetype = "dashed") +
   ylab("Anzahl") +
   xlab("BMI") + # Einheit???
   ggtitle("Histogramm BMI", subtitle = paste0("(IGA Patienten, n=",
-                                              sum(!is.na(data_iga2$`R-height`)),
+                                              sum(!is.na(data_iga$`R-height`)),
                                               ")", collapse = "")) +
   labs(fill = "Geschlecht") +
   default_theme
@@ -113,78 +120,129 @@ ggplot(data = data_iga2) +
 ```{r}
 # deceased D.
 # living D.
-tbl_1 <- summary(data_iga2[`graft loss (0=functial, 1=loss)` == 1]$`D-type`)
+tbl_1 <- summary(data_iga[`graft loss (0=functial, 1=loss)` == 1]$`D-type`)
 tbl_1 <- round(tbl_1 / sum(tbl_1), 3)
-tbl_2 <- summary(data_iga2[`graft loss (0=functial, 1=loss)` == 0]$`D-type`)
-tbl_2 <- round(tbl_2 / sum(tbl_2),3)
+tbl_2 <- summary(data_iga[`graft loss (0=functial, 1=loss)` == 0]$`D-type`)
+tbl_2 <- round(tbl_2 / sum(tbl_2),3)  # in %
 rbind("loss" = tbl_1, "functional" = tbl_2)
 
-tbl_1 <- summary(data_iga2[`Pat death (0=alive, 1= dead)` == 1]$`D-type`)
+tbl_1 <- summary(data_iga[`Pat death (0=alive, 1= dead)` == 1]$`D-type`)
 tbl_1 <- round(tbl_1 / sum(tbl_1), 3)
-tbl_2<- summary(data_iga2[`Pat death (0=alive, 1= dead)` == 0]$`D-type`)
-tbl_2 <-  round(tbl_2 / sum(tbl_2),3)
+tbl_2<- summary(data_iga[`Pat death (0=alive, 1= dead)` == 0]$`D-type`)
+tbl_2 <-  round(tbl_2 / sum(tbl_2),3)  # in %
 rbind("dead" = tbl_1, "alive" = tbl_2)
 ```
 
 ```{r}
 # BMI (mean.)
-mean(data_iga2$`D-weight` * (data_iga2$`D-height`)^2)
+mean(data_iga$`D-weight` * (data_iga$`D-height`)^2)
 ```
 
 ```{r}
 # HLA-mm (0-6)
-tbl_1 <- as.data.table(lapply(data_iga2[, c("mm-A", "mm-B", "mm-DR")],
+## data.table of mm-A, mm-B and mm-DR
+tbl_1 <- as.data.table(lapply(data_iga[, c("mm-A", "mm-B", "mm-DR")],
                               as.numeric))
+## calculate mean for each column
 tbl_2 <- apply(X = tbl_1,
-               MARGIN = 2,  # for each column
+               MARGIN = 2,
                FUN = mean, na.rm = TRUE)
-
 round(tbl_2, 3)
+# mean of means
 round(mean(tbl_2),3)
 
-tbl_2 <- apply(X = tbl_1,
-               MARGIN = 1,  # for each row
+## sum of mm-A, mm-B and mm-DR
+tbl_3 <- apply(X = tbl_1,
+               MARGIN = 1,  
                FUN = sum, na.rm = TRUE)
-mean(tbl_2)
+# mean value
+mean(tbl_3)
+# median value
+sd(tbl_3)
 ```
 
 ```{r}
 # PRA current (mean)
 # PRA highest (mean)
-data_iga2[, c("Current PRA%", "Highest PRA%")] %>% 
+data_iga[, c("Current PRA%", "Highest PRA%")] %>% 
   apply(MARGIN = 2,
         FUN = mean, na.rm = TRUE)
 ```
 
 ```{r}
 # age donor (mean.)
-mean(data_iga2$`D-age`)
+mean(data_iga$`D-age`)
 ```
 
 ```{r}
 # cold-ischemia time (hours)
-mean(data_iga2$`Cold ischaemic period hours`, na.rm = TRUE)
-median(data_iga2$`Cold ischaemic period hours`, na.rm = TRUE)
+# mean
+mean(data_iga$`Cold ischaemic period hours`, na.rm = TRUE)
+# median
+median(data_iga$`Cold ischaemic period hours`, na.rm = TRUE)
+# standard error
+sd(data_iga$`Cold ischaemic period hours`, na.rm = TRUE)
 ```
+
+```{r}
+# living vs dead donator
+cbind("Living" = nrow(data_iga[`D-type` == "Living"]),
+      "Cadaver" = nrow(data_iga[`D-type` == "Cadaver"])
+)
+```
+
 ## § 2.2 NTX
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
 
 \newpage
 ---
 # § 3 Kaplan-Meier
 
-```{r}
-follow_up <- years(10)
-```
 
 ## § 3.1 IGA
 
 ```{r}
 #  functions in survival and survminer package need numeric-type input
-data_iga2[, time_date_biopsy := interval(`T-date`, `date of biopsy`) / years(1)]
-data_iga2[, time_t_dls := interval(`T-date`, `T-dls`) / years(1)]
-data_iga2[, time_date_birth := interval(`T-date`, `Date of birth`) / years(1)]
-data_iga2[, time_graft_loss := interval(`T-date`, `graft loss date`) / years(1)]
-data_iga2[, time_date_follow_up := interval(`T-date`,`T-date` + follow_up) / years(1)]
+data_iga[, time_date_biopsy := interval(`T-date`, `date of biopsy`) / years(1)]
+data_iga[, time_t_dls := interval(`T-date`, `T-dls`) / years(1)]
+data_iga[, time_date_birth := interval(`T-date`, `Date of birth`) / years(1)]
+data_iga[, time_graft_loss := interval(`T-date`, `graft loss date`) / years(1)]
+data_iga[, time_date_follow_up := interval(`T-date`,`T-date` + follow_up) / years(1)]
 ```
 ### § 3.1.1 
 
@@ -198,8 +256,8 @@ data_iga2[, time_date_follow_up := interval(`T-date`,`T-date` + follow_up) / yea
 - Time period:
   -  10 years after `T-date` (kidney transplantaion).
 ```{r}
-data_iga2 <- data_iga2 %>% 
-  mutate(censor_date = case_when(
+data_iga <- data_iga %>% 
+  mutate(status_date = case_when(
     ## graft-loss within follow up period
     !is.na(`graft loss date`) & `graft loss date` <  `T-date` + follow_up ~ time_graft_loss,
     ## graft-loss after follow up period
@@ -212,8 +270,8 @@ data_iga2 <- data_iga2 %>%
     is.na(`graft loss date`) & is.na(`T-dls`) ~ time_date_follow_up
                                 )
   )
-data_iga2 <- data_iga2 %>% 
-  mutate(event = case_when(
+data_iga <- data_iga %>% 
+  mutate(status = case_when(
     ## graft-loss within follow up period
     !is.na(`graft loss date`) & `graft loss date` <  `T-date` + follow_up ~ 1,
     ## else censored
@@ -225,9 +283,9 @@ data_iga2 <- data_iga2 %>%
 ##### Overall kaplan-Meier curve (no stratification)
 
 ```{r}
-model_iga_1 <- survfit(formula = Surv(time = censor_date,
-                                   event = event, type = "right")~ 1,
-                    data = data_iga2)  
+model_iga_1 <- survfit(formula = Surv(time = status_date,
+                                   event = status, type = "right")~ 1,
+                    data = data_iga)  
 ggsurvplot(model_iga_1,
            conf.int = FALSE,
            cumevents = TRUE)
@@ -241,8 +299,8 @@ ggsurvplot(model_iga_1,
 - Time period:
   - 10 years after `T-date` (kidney transplantaion).
 ```{r}
-data_iga2 <- data_iga2 %>% 
-  mutate(censor_date = case_when(
+data_iga <- data_iga %>% 
+  mutate(status_date = case_when(
     ## patient death and death date within follow up
     (`Pat death (0=alive, 1= dead)` == 1) & `T-dls` < `T-date` + follow_up ~ time_t_dls,
     ## patient dead but after follow up
@@ -254,19 +312,12 @@ data_iga2 <- data_iga2 %>%
     ## NOTE: T-dls never NA
   )
 )
-data_iga2 <- data_iga2 %>% 
-  mutate(censor_date = case_when(
-    ## 
-    (`Pat death (0=alive, 1= dead)` == 1) & `T-dls` < `T-date` + follow_up ~ 1,
-    ## else
-    TRUE ~ 0
-  ))
 ```
 
 ```{r}
-model_iga_2 <- survfit(formula = Surv(time = censor_date,
-                                   event = event, type = "right")~ 1,
-                    data = data_iga2)  
+model_iga_2 <- survfit(formula = Surv(time = status_date,
+                                   event = status, type = "right")~ 1,
+                    data = data_iga)  
 ggsurvplot(model_iga_2,
            conf.int = FALSE,
            cumevents = TRUE)
@@ -276,3 +327,72 @@ ggsurvplot(model_iga_2,
 - Event: graft loss and death
 - Censoring scheme:
 - Time period:
+
+# § 4 Cox regression
+
+## § 4.1 IGA
+
+```{r}
+data_iga <- data_iga %>% 
+  ## censor/event date
+  mutate(status_date = case_when(
+    ## patient dropped during follow up
+    (`T-dls` <= `T-date` + follow_up) ~ `T-dls`,
+    ## patient experienced graft loss but after follow up
+    ((!is.na(`graft loss date`)) &  (`graft loss date` > `T-date` + follow_up)) ~ `T-date` + follow_up,
+    ## patient experienced graft loss within follow up
+    ((!is.na(`graft loss date`)) &  (`graft loss date` <= `T-date` + follow_up)) ~ `graft loss date`,
+    ## patient experienced no graft loss within follow up, neither dropped
+    (is.na(`graft loss date`) & (`T-dls` > `T-date` + follow_up)) ~ `T-date` + follow_up
+  )) %>% 
+  ## status indicator
+  mutate(status = case_when(
+    ## patient dropped during follow up
+    (`T-dls` <= `T-date` + follow_up) ~ 0,
+    ## patient experienced graft loss but after follow up
+    ((!is.na(`graft loss date`)) &  (`graft loss date` > `T-date` + follow_up)) ~ 0,
+    ## patient experienced graft loss within follow up
+    ((!is.na(`graft loss date`)) &  (`graft loss date` <= `T-date` + follow_up)) ~ 1,
+    ## patient experienced no graft loss within follow up, neither dropped
+    (is.na(`graft loss date`) & (`T-dls` > `T-date` + follow_up)) ~ 0
+  ))
+```
+
+```{r}
+data_iga <- data_iga %>%  
+  ## censor/event date
+  mutate(status_date = case_when(
+    ## if graft loss within follow up
+    `graft loss date` <= `T-date` + follow_up ~ `graft loss date`,
+    ## else
+    TRUE ~ `T-dls`
+  )) %>% 
+  ## censor/event indicator
+  mutate(status = case_when(
+    ## if graft loss within follow up
+    data_iga$`graft loss date` <= data_iga$`T-date` + follow_up ~ 1,
+    ## else
+    TRUE ~ 0
+  ))
+```
+
+```{r}
+model_iga_cox <- coxph(formula = Surv(time = as.numeric(status_date),
+                                       event = status) ~ R_age_Tdate + 
+                         ##
+                         data_iga$`D-age` +
+                         data_iga$`D-sex` +
+                         data_iga$`R-sex`,
+                         data = data_iga)
+summary(model_iga_cox)
+```
+```{r}
+cox.zph(model_iga_cox)
+## all p-values are relatively large, therefore the Null hypothesis of proportional hazards can not be rejected
+```
+
+## $ 4.2 NTX
+
+```{r}
+
+```

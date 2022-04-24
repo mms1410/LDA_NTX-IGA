@@ -22,6 +22,11 @@ tbl_event <- data_iga1[ , event, with = FALSE]
 ## T-dls:
 ## T-date:
 
+y <- regmatches(x,regexpr(pattern = "^([0]?[1-9]|[1|2][0-9]|[3][0|1])[./-]([0]?[1-9]|[1][0-2])[./-]([0-9]{4}|[0-9]{2})",
+     text = x))
+
+
+
 follow_up_time <- data_iga2$`T-date` + lubridate::years(10)
 censoring_date <- c("T-dls" )
 event_date <- data_iga2$`graft loss date`
@@ -171,3 +176,17 @@ ggsurvplot(surv_fit)
 
 data_iga2$`max FUP survivial (years)`
 Surv(tome = )
+################################################################################
+data_iga2 %>% 
+  ## censor/event date
+  mutate(censor_date = case_when(
+    ## patient dropped during follow up
+    (`T-dls` <= `T-date` + follow_up) ~ `T-dls`,
+    ## patient experienced graft loss but after follow up
+    ((!is.na(`graft loss date`)) &  (`graft loss date` > `T-date` + follow_up)) ~ `T-date` + follow_up,
+    ## patient experienced graft loss within follow up
+    ((!is.na(`graft loss date`)) &  (`graft loss date` <= `T-date` + follow_up)) ~ `graft loss date`
+  )) 
+################################################################################
+
+data_iga2[!is.na(data_iga2$`graft loss date`) && (data_iga2$`graft loss date` <= data_iga2$`T-date` + follow_up)]
