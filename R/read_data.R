@@ -101,6 +101,8 @@ data_ntx[, R_age_Datum := interval(Geburtsdatum, Datum) / years(1)]
 ## drop certain patients
 data_ntx <- data_ntx[R_age_Datum > 18]
 data_ntx <- data_ntx[is.na(`Transplantatfunktionsende 3[NTX PatientenInformation]`) & is.na(`Transplantatfunktionsende 5[NTX PatientenInformation]`) & is.na(`Transplantatfunktionsende 6[NTX PatientenInformation]`)] 
+data_ntx[, tdls := fcase(!is.na(`Date last seen[NTX PatientenInformation]`), `Date last seen[NTX PatientenInformation]`,
+      !is.na(`Todesdatum[NTX PatientenInformation]`), `Todesdatum[NTX PatientenInformation]`)]
 ################################## iga #########################################
 data_iga <- fread(tmp_data_iga_path, 
                    select = tmp_iga2_select,
@@ -112,6 +114,14 @@ data_iga <- data_iga[!is.na(`T-date`)]
 data_iga[, (tmp_iga2_dmy) := lapply(.SD, lubridate::dmy), .SDcols = tmp_iga2_dmy]
 data_iga[, R_age_Tdate := interval(`Date of birth`, `T-date`) / years(1)]
 data_iga <- data_iga[R_age_Tdate > 18]
+
+tmp_to_merge <- c("Transplantatfunktionsende 1[NTX PatientenInformation]",
+                  "Transplantatfunktionsende 2[NTX PatientenInformation]",
+                  "Transplantatfunktionsende 3[NTX PatientenInformation]",
+                  "Transplantatfunktionsende 5[NTX PatientenInformation]",
+                  "Transplantatfunktionsende 6[NTX PatientenInformation]")
+data_ntx[, Transplantatfunktionsende := fcoalesce(
+  data_ntx[ ,tmp_to_merge, with = FALSE])]  ## NOTE: only the first non NA value will be chosen in fcoalesce
 ################################################################################
 # remove tmp variables not used any more
 rm( list = ls()[grep(x = ls(), pattern = "^tmp")])

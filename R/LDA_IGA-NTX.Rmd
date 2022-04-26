@@ -194,7 +194,75 @@ cbind("Living" = nrow(data_iga[`D-type` == "Living"]),
 ## § 2.2 NTX
 
 ```{r}
+# follow_up mean
+pmin(
+  # follow up
+  interval(data_ntx$Datum, (data_ntx$Datum + follow_up)) / years(1),
+  # last seen
+  interval(data_ntx$Datum, data_ntx$tdls) / years(1)
+) %>%
+  mean()
+```
 
+```{r}
+# patient death within follow up
+nrow(data_ntx[`Todesdatum[NTX PatientenInformation]` < (Datum + follow_up)])
+```
+
+```{r}
+# patient drop out
+nrow(data_ntx[`Date last seen[NTX PatientenInformation]` <= (Datum + follow_up) & `Patienten Status[NTX PatientenInformation]` == "1 - lebt"])
+```
+
+```{r}
+# patients with graft loss
+nrow(data_ntx[data_ntx$`TX Status[NTX PatientenInformation]` == "2 - ohne Transplantatfunktion"])
+```
+
+```{r}
+# age patients (yrs.)
+ggplot(data = data_ntx) +
+  geom_histogram(mapping = aes(x = R_age_Datum, fill = Geschlecht),
+                 color = "#e9ecef", alpha = 0.6) +
+  two_scale_fill +
+  ylab("Anzahl") +
+  xlab("Alter in Jahren") +
+  ggtitle("Histogram Alter in Jahren am Transplantationsdatum",
+          subtitle = paste0("(NTX Patienten, n=", sum(!is.na(data_ntx$R_age_Datum)),
+                            ")", collapse = "")) +
+  labs(fill = "Geschlecht") +
+  default_theme
+```
+
+```{r}
+# male sex
+summary(data_ntx$Geschlecht)
+```
+
+```{r}
+# BMI (mean.)
+## NO DATA AVAILABLE
+```
+
+```{r}
+# deceased D.
+# living D.
+## NO DATA AVAILABLE
+```
+
+```{r}
+# HLA-mm
+## NO DATA AVAILABLE
+```
+
+```{r}
+# PPR
+## NO DATA AVAILABLE
+```
+
+```{r}
+# living vs dead donator
+## NO DATA AVAILABLE
 ```
 
 ```{r}
@@ -225,9 +293,6 @@ cbind("Living" = nrow(data_iga[`D-type` == "Living"]),
 
 ```
 
-```{r}
-
-```
 
 \newpage
 ---
@@ -297,7 +362,7 @@ ggsurvplot(model_iga_1,
 - Censoring scheme:
   - `T-dls` (date last seen) within follow up period.
 - Time period:
-  - 10 years after `T-date` (kidney transplantaion).
+  - 10 years after `T-date` (kidney transplantation).
 ```{r}
 data_iga <- data_iga %>% 
   mutate(status_date = case_when(
@@ -328,10 +393,120 @@ ggsurvplot(model_iga_2,
 - Censoring scheme:
 - Time period:
 
+\newpage
+## § 3.2 IGA
+
+### § 3.2.1
+- Event: `TX Status[NTX PatientenInformation]`
+- Censoring scheme: 
+  -if `TX Status[NTX PatientenInformation]` within follow up period then then event
+  - if died within follow up  and before no graft loss then censored
+  - if last seen within follow up and before no graft loss then censored
+  - if graft loss after follow up then censored
+- Time period: 10 years after `Datum`
+
+```{r}
+data_ntx <- data_ntx %>%
+  mutate(status_date = case_when(
+    ## patient experienced graft loss
+    !is.na(Transplantatfunktionsende) & Transplantatfunktionsende <= (Datum + follow_up) ~ interval(Datum, Transplantatfunktionsende) / years(1),
+    ## patient died within follow up
+    `Todesdatum[NTX PatientenInformation]` < (Datum + follow_up) ~ interval(Datum, `Todesdatum[NTX PatientenInformation]`) / years(1),
+    ## patiend last seen within follow up
+    `Date last seen[NTX PatientenInformation]` < (Datum + follow_up) ~ interval(Datum, `Date last seen[NTX PatientenInformation]`) / years(1),
+    ## else follow up
+    TRUE ~ interval(Datum, (Datum + follow_up)) / years(1)
+    )
+  )
+
+data_ntx <- data_ntx %>%
+  mutate(status = case_when(
+    ## patient experienced graft loss
+    !is.na(Transplantatfunktionsende) & Transplantatfunktionsende <= (Datum + follow_up) ~ 1,
+    ## patient died within follow up 
+    `Todesdatum[NTX PatientenInformation]` < (Datum + follow_up) ~ 0,
+    ## patiend last seen within follow up
+    `Date last seen[NTX PatientenInformation]` < (Datum + follow_up) ~ 0,
+    ## else follow up
+    TRUE ~ 0
+    )
+  )
+```
+
+```{r}
+model_ntx_1 <- survfit(formula = Surv(time = status_date,
+                                      event = status, type = "right") ~ 1,
+                       data = data_ntx)
+
+ggsurvplot(model_ntx_1,
+           conf.int = FALSE,
+           cumevents = TRUE)
+```
+
+### § 3.2.2
+
+- Event: patient died within follow up period
+- Censoring scheme:
+  - patient died within follow up then event
+  - patient dropped from study within  follow up then censored
+
+```{r}
+data_ntx <- data_ntx %>%
+  mutate(status_date = case_when(
+    ## patient died within follow up
+    `Todesdatum[NTX PatientenInformation]` <= (Datum + follow_up) ~ interval(Datum, `Todesdatum[NTX PatientenInformation]`) / years(1),
+    ## patient died after follow up
+    `Todesdatum[NTX PatientenInformation]` > (Datum + follow_up) ~ interval(Datum, (Datum + follow_up)) / years(1),
+    ## patient dropped within follow up
+    `Date last seen[NTX PatientenInformation]` <= (Datum + follow_up) ~ interval(Datum, `Date last seen[NTX PatientenInformation]`) / years(1),
+    ## patient dropped after follow up
+    `Date last seen[NTX PatientenInformation]` > (Datum + follow_up) ~ interval(Datum, (Datum + follow_up)) / years(1)
+  )
+)
+
+
+data_ntx <- data_ntx %>%
+  mutate(status = case_when(
+    ## patient died within follow up
+    `Todesdatum[NTX PatientenInformation]` <= (Datum + follow_up) ~ 1,
+    ## patient died after follow up
+    `Todesdatum[NTX PatientenInformation]` > (Datum + follow_up) ~ 0,
+    ## patient dropped within follow up
+    `Date last seen[NTX PatientenInformation]` <= (Datum + follow_up) ~ 0,
+    ## patient dropped after follow up
+    `Date last seen[NTX PatientenInformation]` > (Datum + follow_up) ~ 0
+  )
+)
+```
+
+```{r}
+model_ntx_2 <- survfit(Surv(time = status_date, event = status,
+                            type = "right") ~1, data = data_ntx)
+
+ggsurvplot(model_ntx_2,
+           conf.int = FALSE,
+           cumevents = TRUE)
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+\newpage
 # § 4 Cox regression
 
 ## § 4.1 IGA
 
+- Event:
+  - graft loss within follow up
+- Censoring scheme:
+  - if patient dropped within follow up, then censored by time dropped
+  - if patient patient experienced graft loss after follow up, then censored by follow up end
+  - if patient experienced death within follow up, then censored by death date else by follow up end
 ```{r}
 data_iga <- data_iga %>% 
   ## censor/event date
@@ -393,6 +568,45 @@ cox.zph(model_iga_cox)
 
 ## $ 4.2 NTX
 
-```{r}
 
+```{r}
+data_ntx <- data_ntx %>%
+  mutate(status_date = case_when(
+    ## patient died within follow up
+    `Todesdatum[NTX PatientenInformation]` <= (Datum + follow_up) ~ interval(Datum, `Todesdatum[NTX PatientenInformation]`) / years(1),
+    ## patient died after follow up
+    `Todesdatum[NTX PatientenInformation]` > (Datum + follow_up) ~ interval(Datum, Datum + follow_up) / years(1),
+    ## patient dropped within follow up
+    `Date last seen[NTX PatientenInformation]` <= (Datum + follow_up) ~ interval(Datum, `Date last seen[NTX PatientenInformation]`) / years(1),
+    ## patient dropped after follow up
+    `Date last seen[NTX PatientenInformation]` > (Datum + follow_up) ~ interval(Datum, Datum + follow_up) / years(1)
+  )
+)
+
+data_ntx <- data_ntx %>%
+  mutate(status = case_when(
+    ## patient died within follow up
+    `Todesdatum[NTX PatientenInformation]` <= (Datum + follow_up) ~ 1,
+    ## patient died after follow up
+    `Todesdatum[NTX PatientenInformation]` > (Datum + follow_up) ~ 0,
+    ## patient dropped within follow up
+    `Date last seen[NTX PatientenInformation]` <= (Datum + follow_up) ~ 0,
+    ## patient dropped after follow up
+    `Date last seen[NTX PatientenInformation]` > (Datum + follow_up) ~ 0
+    
+  )
+)
+```
+
+```{r}
+model_ntx_cox <- coxph(formula = Surv(time = status_date, event = status) ~ R_age_Datum +
+                         Geschlecht + `TX Status[NTX PatientenInformation]`,
+                       data = data_ntx)
+
+summary(model_ntx_cox)
+```
+
+```{r}
+cox.zph(model_ntx_cox)
+## all p-values are relatively large, therefore the Null hypothesis of proportional hazards can not be rejected
 ```

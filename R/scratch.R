@@ -190,3 +190,10 @@ data_iga2 %>%
 ################################################################################
 
 data_iga2[!is.na(data_iga2$`graft loss date`) && (data_iga2$`graft loss date` <= data_iga2$`T-date` + follow_up)]
+################################################################################
+sum(
+  data_ntx$`Date last seen[NTX PatientenInformation]` < data_ntx$Datum + follow_up,
+  na.rm = TRUE
+  )
+dplyr::coalesce(data_ntx$`Transplantatfunktionsende 1[NTX PatientenInformation]`,
+                data_ntx$`Transplantatfunktionsende 2[NTX PatientenInformation]`)
