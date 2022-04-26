@@ -5,3 +5,5 @@ archive/
 *.pdf
 !R/*.pdf
 *.save
+/archive
+scratch.R
