@@ -4,12 +4,17 @@ author: "Sven Morlock"
 date: "28/03/2022"
 output: pdf_document
 ---
+```{r setup, include = FALSE}
+#knitr::opts_chunck$set(fig.align = "left")
+```
+
 # § 1
 
 Load required packages:
 
 ```{r, message = FALSE, echo = FALSE}
 library(ggplot2)
+library(patchwork)
 library(survival)
 library(survminer)
 library(data.table)
@@ -18,6 +23,7 @@ library(forcats)
 library(lubridate)
 library(dplyr)
 ```
+
 ```{r}
 #if (Sys.info()["sysname"] != "Darwin"){
 #  default_theme <- theme_minimal() +
@@ -30,7 +36,6 @@ library(dplyr)
 #}
 default_theme <- theme_minimal()
 two_scale_fill <- scale_fill_manual(values=c("#69b3a2", "#404080"))
-
 ```
 
 Read data using read_data.R scrip:
@@ -44,34 +49,74 @@ source("read_data.R")
 
 ```{r}
 follow_up <- years(10)
+data_iga$follow_up_truncated <-pmin(data_iga$`T-dls`, data_iga$`T-date` + follow_up)
+
+data_iga_pos <- data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 1]
+data_iga_neg <- data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 0]
 ```
 
 ## § 2.1 IGA
 
 ```{r}
-# follow-up (mean)
-(interval(data_iga$`T-date`, data_iga$`T-dls`) / years(1)) %>% 
-  mean()
+# follow-up mean
+tbl_iga_follow_up_mean <- data.frame(
+  iga_all = mean((interval(data_iga$`T-date`, data_iga$`T-dls`) / years(1))),
+  iga_pos = mean((interval(data_iga_pos$`T-date`, data_iga_pos$`T-dls`) / years(1))),
+  iga_neg = mean((interval(data_iga_neg$`T-date`, data_iga_neg$`T-dls`) / years(1)))
+)
 ```
+
+
+
 ```{r}
-# patient death within follow up
-nrow(data_iga[(`T-dls` <= (`T-date` + follow_up)) & `Pat death (0=alive, 1= dead)` == 1])
-```
-```{r}
-# patient drop out
-nrow(data_iga[(`T-dls` <= (`T-date` + follow_up)) & `Pat death (0=alive, 1= dead)` == 0])
+# follow_up mean (trucnated)
+tbl_iga_follow_up_mean_truncated <- data.frame(
+  iga_all = mean((interval(data_iga$`T-date`, data_iga$follow_up_truncated) / years(1))),
+  iga_pos = mean((interval(data_iga_pos$`T-date`, data_iga_pos$follow_up_truncated) / years(1))),
+  iga_neg = mean((interval(data_iga_neg$`T-date`, data_iga_neg$follow_up_truncated) / years(1)))
+)
 ```
 
 ```{r}
+# patient death within follow up
+tbl_iga_pat_death <- data.frame(
+  iga_all = nrow(data_iga[(`T-dls` <= (`T-date` + follow_up)) & `Pat death (0=alive, 1= dead)` == 1]),
+  iga_pos = nrow(data_iga_pos[(`T-dls` <= (`T-date` + follow_up)) & `Pat death (0=alive, 1= dead)` == 1]),
+  iga_neg = nrow(data_iga_neg[(`T-dls` <= (`T-date` + follow_up)) & `Pat death (0=alive, 1= dead)` == 1])
+)
+```
+
+```{r}
+# patient drop out within follow up
+tbl_iga_pat_drop <- data.frame(
+  iga_all = nrow(data_iga[(`T-dls` <= (`T-date` + follow_up)) & `Pat death (0=alive, 1= dead)` == 0]),
+  iga_pos = nrow(data_iga_pos[(`T-dls` <= (`T-date` + follow_up)) & `Pat death (0=alive, 1= dead)` == 0]),
+  iga_neg = nrow(data_iga_neg[(`T-dls` <= (`T-date` + follow_up)) & `Pat death (0=alive, 1= dead)` == 0])
+)
+```
+
+
+```{r}
 # patients with graft loss 
-nrow(data_iga[`graft loss (0=functial, 1=loss)` == 1])
+tbl_iga_graft_loss <- data.frame(
+  iga_all = nrow(data_iga[`graft loss (0=functial, 1=loss)` == 1]),
+  iga_pos = nrow(data_iga_pos[`graft loss (0=functial, 1=loss)` == 1]),
+  iga_neg = nrow(data_iga_neg[`graft loss (0=functial, 1=loss)` == 1])
+)
+```
+
+```{r}
 # patients with graft loss within follow up period
-nrow(data_iga[`graft loss date` < `T-date` + follow_up])
+tbl_iga_graft_loss_follow_up <- data.frame(
+  iga_all = nrow(data_iga[`graft loss date` < `T-date` + follow_up]),
+  iga_pos = nrow(data_iga_pos[`graft loss date` < `T-date` + follow_up]),
+  iga_neg = nrow(data_iga_neg[`graft loss date` < `T-date` + follow_up])
+)
 ```
 
 ```{r}
 # age patients (yrs.)
-ggplot(data = data_iga) +
+p1 <- ggplot(data = data_iga) +
   geom_histogram(mapping = aes(x = interval(`Date of birth`,`T-date`) / years(1),
                                fill = `R-sex`),
                  color="#e9ecef",
@@ -86,11 +131,104 @@ ggplot(data = data_iga) +
           ")", collapse = "")) +
   labs(fill = "Geschlecht") +
   default_theme
+
+p2 <- ggplot(data = data_iga_pos) +
+  geom_histogram(mapping = aes(x = interval(`Date of birth`,`T-date`) / years(1),
+                               fill = `R-sex`),
+                 color="#e9ecef",
+                 alpha=0.6,
+                 bins = 40) +
+  two_scale_fill +
+  ylab("Anzahl") +
+  xlab("Alter in Jahren") +
+  ggtitle("Histogram Alter in Jahren am Transplantationsdatum",
+          subtitle =  paste0("(IGA Patienten, n=",
+          sum(!is.na(data_iga$`Date of birth`)),
+          ")", collapse = "")) +
+  labs(fill = "Geschlecht") +
+  default_theme
+
+p3 <- ggplot(data = data_iga_neg) +
+  geom_histogram(mapping = aes(x = interval(`Date of birth`,`T-date`) / years(1),
+                               fill = `R-sex`),
+                 color="#e9ecef",
+                 alpha=0.6,
+                 bins = 40) +
+  two_scale_fill +
+  ylab("Anzahl") +
+  xlab("Alter in Jahren") +
+  ggtitle("Histogram Alter in Jahren am Transplantationsdatum",
+          subtitle =  paste0("(IGA Patienten, n=",
+          sum(!is.na(data_iga$`Date of birth`)),
+          ")", collapse = "")) +
+  labs(fill = "Geschlecht") +
+  default_theme
+
+p1 /p2 / p3
+```
+
+```{r}
+## IQR
+tbl_iga_iqr <- data.frame(
+  iga_all = IQR(data_iga$R_age_Tdate),
+  iga_po = IQR(data_iga_pos$R_age_Tdate),
+  iga_neg = IQR(data_iga_neg$R_age_Tdate)
+)
+```
+
+```{r}
+## boxpot
+
+p1 <- ggplot(data = data_iga) +
+  geom_boxplot(aes(x = R_age_Tdate)) +
+  coord_flip() +
+  ggtitle("IGA") +
+  default_theme +
+  theme(axis.ticks.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.title.x=element_blank())
+
+p2 <- ggplot(data = data_iga_pos) +
+  geom_boxplot(aes(x = R_age_Tdate)) +
+  coord_flip() +
+  ggtitle("IGA Pos.") +
+  default_theme +
+  theme(axis.ticks.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.title.x=element_blank())
+
+p3 <- ggplot(data = data_iga_neg) +
+  geom_boxplot(aes(x = R_age_Tdate)) +
+  coord_flip()+
+  ggtitle("IGA Neg.") +
+  default_theme +
+  theme(axis.ticks.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.title.x=element_blank())
+
+
+patch <- p1 | p2 | p3
+patch + plot_annotation(
+  title = "Boxplot Altersverteilung"
+) 
 ```
 
 ```{r}
 # male sex
-summary(data_iga$`R-sex`)
+tbl_iga_sex_abs <- data.frame(
+  iga_all = summary(data_iga$`R-sex`),
+  iga_pos = summary(data_iga_pos$`R-sex`),
+  iga_neg = summary(data_iga_neg$`R-sex`)
+)
+```
+
+```{r}
+# male sex precent
+tbl_iga_sex_percent <- data.frame(
+  iga_all = round(summary(data_iga$`R-sex`) / nrow(data_iga), 2),
+  iga_pos = round(summary(data_iga_pos$`R-sex`) / nrow(data_iga_pos), 2),
+  iga_neg = round(summary(data_iga_neg$`R-sex`) / nrow(data_iga_neg), 2)
+)
 ```
 
 ```{r}
@@ -117,79 +255,157 @@ ggplot(data = data_iga) +
   labs(fill = "Geschlecht") +
   default_theme
 ```
+
 ```{r}
 # deceased D.
 # living D.
-tbl_1 <- summary(data_iga[`graft loss (0=functial, 1=loss)` == 1]$`D-type`)
-tbl_1 <- round(tbl_1 / sum(tbl_1), 3)
-tbl_2 <- summary(data_iga[`graft loss (0=functial, 1=loss)` == 0]$`D-type`)
-tbl_2 <- round(tbl_2 / sum(tbl_2),3)  # in %
-rbind("loss" = tbl_1, "functional" = tbl_2)
+tbl_iga_1 <- summary(data_iga[`graft loss (0=functial, 1=loss)` == 1]$`D-type`)
+tbl_iga_1 <- round(tbl_iga_1 / sum(tbl_iga_1), 3)
+tbl_iga_2 <- summary(data_iga[`graft loss (0=functial, 1=loss)` == 0]$`D-type`)
+tbl_iga_2 <- round(tbl_iga_2 / sum(tbl_iga_2),3)  # in %
+rbind("loss" = tbl_iga_1, "functional" = tbl_iga_2)
 
-tbl_1 <- summary(data_iga[`Pat death (0=alive, 1= dead)` == 1]$`D-type`)
-tbl_1 <- round(tbl_1 / sum(tbl_1), 3)
-tbl_2<- summary(data_iga[`Pat death (0=alive, 1= dead)` == 0]$`D-type`)
-tbl_2 <-  round(tbl_2 / sum(tbl_2),3)  # in %
-rbind("dead" = tbl_1, "alive" = tbl_2)
+
+tbl_iga_1 <- summary(data_iga[`Pat death (0=alive, 1= dead)` == 1]$`D-type`)
+tbl_iga_1 <- round(tbl_iga_1 / sum(tbl_iga_1), 3)
+tbl_iga_2<- summary(data_iga[`Pat death (0=alive, 1= dead)` == 0]$`D-type`)
+tbl_iga_2 <-  round(tbl_iga_2 / sum(tbl_iga_2),3)  # in %
+rbind("dead" = tbl_iga_1, "alive" = tbl_iga_2)
 ```
 
 ```{r}
 # BMI (mean.)
-mean(data_iga$`D-weight` * (data_iga$`D-height`)^2)
+tbl_iga_bmi <- data.table(
+  iga_all = mean(data_iga$`D-weight` * (data_iga$`D-height`)^2),
+  iga_pos = mean(data_iga_pos$`D-weight` * (data_iga_pos$`D-height`)^2),
+  iga_neg = mean(data_iga_neg$`D-weight` * (data_iga_neg$`D-height`)^2)
+)
 ```
 
 ```{r}
 # HLA-mm (0-6)
 ## data.table of mm-A, mm-B and mm-DR
-tbl_1 <- as.data.table(lapply(data_iga[, c("mm-A", "mm-B", "mm-DR")],
+tbl_iga_1 <- as.data.table(lapply(data_iga[, c("mm-A", "mm-B", "mm-DR")],
                               as.numeric))
 ## calculate mean for each column
-tbl_2 <- apply(X = tbl_1,
+tbl_iga_2 <- apply(X = tbl_iga_1,
                MARGIN = 2,
                FUN = mean, na.rm = TRUE)
-round(tbl_2, 3)
+round(tbl_iga_2, 3)
 # mean of means
-round(mean(tbl_2),3)
+round(mean(tbl_iga_2),3)
 
 ## sum of mm-A, mm-B and mm-DR
-tbl_3 <- apply(X = tbl_1,
+tbl_iga_3 <- apply(X = tbl_iga_1,
                MARGIN = 1,  
                FUN = sum, na.rm = TRUE)
 # mean value
-mean(tbl_3)
+mean(tbl_iga_3)
 # median value
-sd(tbl_3)
+sd(tbl_iga_3)
 ```
 
 ```{r}
 # PRA current (mean)
+tbl_iga_pra_curr_mean <- data.frame(
+  iga_all = mean(data_iga$`Current PRA%`, na.rm = TRUE),
+  iga_pos = mean(data_iga_pos$`Current PRA%`, na.rm = TRUE),
+  iga_neg = mean(data_iga_neg$`Current PRA%`, na.rm = TRUE)
+)
 # PRA highest (mean)
-data_iga[, c("Current PRA%", "Highest PRA%")] %>% 
-  apply(MARGIN = 2,
-        FUN = mean, na.rm = TRUE)
+tbl_iga_pra_high <- data.frame(
+  iga_all = mean(data_iga$`Highest PRA%`, na.rm = TRUE),
+  iga_pos = mean(data_iga_pos$`Highest PRA%`, na.rm = TRUE),
+  iga_neg = mean(data_iga_neg$`Highest PRA%`, na.rm = TRUE)
+)
+
 ```
 
 ```{r}
 # age donor (mean.)
-mean(data_iga$`D-age`)
+tbl_iga_age_donor <- data.frame(
+  iga_all = mean(data_iga$`D-age`),
+  iga_pos =  mean(data_iga_pos$`D-age`),
+  iga_neg =  mean(data_iga_neg$`D-age`)
+)
 ```
 
 ```{r}
 # cold-ischemia time (hours)
 # mean
-mean(data_iga$`Cold ischaemic period hours`, na.rm = TRUE)
+tbl_iga_cis_mean <- data.frame(
+  iga_all = mean(data_iga$`Cold ischaemic period hours`, na.rm = TRUE),
+  iga_pos = mean(data_iga_pos$`Cold ischaemic period hours`, na.rm = TRUE),
+  iga_neg = mean(data_iga_neg$`Cold ischaemic period hours`, na.rm = TRUE)
+)
 # median
-median(data_iga$`Cold ischaemic period hours`, na.rm = TRUE)
+tbl_iga_cis_median <- data.frame(
+  iga_all = median(data_iga$`Cold ischaemic period hours`, na.rm = TRUE),
+  iga_pos = median(data_iga_pos$`Cold ischaemic period hours`, na.rm = TRUE),
+  iga_neg = median(data_iga_neg$`Cold ischaemic period hours`, na.rm = TRUE)
+)
 # standard error
-sd(data_iga$`Cold ischaemic period hours`, na.rm = TRUE)
+tbl_iga_cis_sd <- data.frame(
+  iga_all = sd(data_iga$`Cold ischaemic period hours`, na.rm = TRUE),
+  iga_pos = sd(data_iga_pos$`Cold ischaemic period hours`, na.rm = TRUE),
+  iga_neg = sd(data_iga_neg$`Cold ischaemic period hours`, na.rm = TRUE)
+)
 ```
 
 ```{r}
 # living vs dead donator
-cbind("Living" = nrow(data_iga[`D-type` == "Living"]),
-      "Cadaver" = nrow(data_iga[`D-type` == "Cadaver"])
+tbl_iga_don_living_abs <- data.frame(
+  iga_all = nrow(data_iga[`D-type` == "Living"]),
+  iga_pos = nrow(data_iga_pos[`D-type` == "Living"]),
+  iga_neg = nrow(data_iga_neg[`D-type` == "Living"])
+)
+
+tbl_iga_don_dead_abs <- data.frame(
+  iga_all = nrow(data_iga[`D-type` == "Cadaver"]),
+  iga_pos = nrow(data_iga_pos[`D-type` == "Cadaver"]),
+  iga_neg = nrow(data_iga_neg[`D-type` == "Cadaver"])
+)
+
+
+tbl_iga_don_living_rel <- data.frame(
+  iga_all = nrow(data_iga[`D-type` == "Living"]) / nrow(data_iga),
+  iga_pos = nrow(data_iga_pos[`D-type` == "Living"]) / nrow(data_iga_pos),
+  iga_neg = nrow(data_iga_neg[`D-type` == "Living"]) / nrow(data_iga_neg)
+)
+
+tbl_iga_don_dead_rel <- data.frame(
+  iga_all = nrow(data_iga[`D-type` == "Cadaver"]) / nrow(data_iga),
+  iga_pos = nrow(data_iga_pos[`D-type` == "Cadaver"]) / nrow(data_iga_pos),
+  iga_neg = nrow(data_iga_neg[`D-type` == "Cadaver"]) / nrow(data_iga_neg)
 )
 ```
+
+
+```{r}
+iga_table <- rbindlist(
+  list(
+    iga_dropout = data.frame(
+      cbind(name = "dropout",tbl_iga_pat_drop)),
+    iga_graftloss = data.frame(
+      cbind(name = "graftloss", tbl_iga_graft_loss)),
+    iga_graftloss_follow_up = data.frame(
+      cbind(name = "graftloss_followup", tbl_iga_graft_loss_follow_up)),
+    iga_pat_death = data.frame(
+      cbind(name = "pat_death", tbl_iga_pat_death)),
+    iga_don_dead_abs = data.frame(
+      cbind(name = "don_dead_abs", tbl_iga_don_dead_abs)),
+    iga_don_dead_rel = data.frame(
+      cbind(name = "don_dead_rel", tbl_iga_don_dead_rel)),
+    iga_don_living_abs = data.frame(
+      cbind(name = "don_living_abs", tbl_iga_don_living_abs)),
+    iga_don_living_rel = data.frame(
+      cbind(name = "don_living_rel", tbl_iga_don_living_rel))
+    ))
+
+
+iga_table
+```
+
 
 ## § 2.2 NTX
 
