@@ -100,6 +100,7 @@ data_ntx[, (tmp_ntx_dmy) := lapply(.SD, lubridate::dmy), .SDcols = tmp_ntx_dmy]
 data_ntx[, R_age_Datum := interval(Geburtsdatum, Datum) / years(1)]
 ## drop certain patients
 data_ntx <- data_ntx[R_age_Datum > 18]
+## no more than 2 transplantations
 data_ntx <- data_ntx[is.na(`Transplantatfunktionsende 3[NTX PatientenInformation]`) & is.na(`Transplantatfunktionsende 5[NTX PatientenInformation]`) & is.na(`Transplantatfunktionsende 6[NTX PatientenInformation]`)] 
 data_ntx[, tdls := fcase(!is.na(`Date last seen[NTX PatientenInformation]`), `Date last seen[NTX PatientenInformation]`,
       !is.na(`Todesdatum[NTX PatientenInformation]`), `Todesdatum[NTX PatientenInformation]`)]
@@ -113,8 +114,8 @@ data_iga <- fread(tmp_data_iga_path,
 data_iga <- data_iga[!is.na(`T-date`)]
 data_iga[, (tmp_iga2_dmy) := lapply(.SD, lubridate::dmy), .SDcols = tmp_iga2_dmy]
 data_iga[, R_age_Tdate := interval(`Date of birth`, `T-date`) / years(1)]
+## drop patients younger than 18
 data_iga <- data_iga[R_age_Tdate > 18]
-
 tmp_to_merge <- c("Transplantatfunktionsende 1[NTX PatientenInformation]",
                   "Transplantatfunktionsende 2[NTX PatientenInformation]",
                   "Transplantatfunktionsende 3[NTX PatientenInformation]",

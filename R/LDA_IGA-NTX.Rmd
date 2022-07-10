@@ -2,6 +2,11 @@
 title: "LDA_IGA-NTX"
 author: "Sven Morlock"
 date: "28/03/2022"
+header-includes:
+  - \usepackage{xspace}
+  - \usepackage{tikz}
+  - \usetikzlibrary{shapes.geometric,arrows}
+  
 output: pdf_document
 ---
 ```{r setup, include = FALSE}
@@ -15,6 +20,7 @@ Load required packages:
 ```{r, message = FALSE, echo = FALSE}
 library(ggplot2)
 library(patchwork)
+library(kableExtra)
 library(survival)
 library(survminer)
 library(data.table)
@@ -56,27 +62,47 @@ data_iga_neg <- data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 0]
 ```
 
 ## § 2.1 IGA
-
+<!-- ################################## FOLLOW UP #####################  -->
 ```{r}
-# follow-up mean
+# follow-up mean / median 
 tbl_iga_follow_up_mean <- data.frame(
   iga_all = mean((interval(data_iga$`T-date`, data_iga$`T-dls`) / years(1))),
   iga_pos = mean((interval(data_iga_pos$`T-date`, data_iga_pos$`T-dls`) / years(1))),
   iga_neg = mean((interval(data_iga_neg$`T-date`, data_iga_neg$`T-dls`) / years(1)))
 )
+tbl_iga_follow_up_median <- data.frame(
+  iga_all = median((interval(data_iga$`T-date`, data_iga$`T-dls`) / years(1))),
+  iga_pos = median((interval(data_iga_pos$`T-date`, data_iga_pos$`T-dls`) / years(1))),
+  iga_neg = median((interval(data_iga_neg$`T-date`, data_iga_neg$`T-dls`) / years(1)))
+)
 ```
 
-
+```{r}
+## ToDo: All IGA
+ggplot() +
+  geom_boxplot(aes(x = `biopsy proven recurrence (0=no, 1=yes)`, y = interval(data_iga$`T-date`, data_iga$`T-dls`) / years(1)), data = data_iga) +
+  default_theme +
+  ggtitle("Boxplot: Follow Up Period") +
+  ylab("Jahre") +
+  xlab("") +
+  scale_x_discrete(labels = c("ohne", "mit"))
+```
 
 ```{r}
-# follow_up mean (trucnated)
+# follow_up mean/median (truncated)
 tbl_iga_follow_up_mean_truncated <- data.frame(
   iga_all = mean((interval(data_iga$`T-date`, data_iga$follow_up_truncated) / years(1))),
   iga_pos = mean((interval(data_iga_pos$`T-date`, data_iga_pos$follow_up_truncated) / years(1))),
   iga_neg = mean((interval(data_iga_neg$`T-date`, data_iga_neg$follow_up_truncated) / years(1)))
 )
+tbl_iga_follow_up_median_truncated <- data.frame(
+  iga_all = median((interval(data_iga$`T-date`, data_iga$follow_up_truncated) / years(1))),
+  iga_pos = median((interval(data_iga_pos$`T-date`, data_iga_pos$follow_up_truncated) / years(1))),
+  iga_neg = median((interval(data_iga_neg$`T-date`, data_iga_neg$follow_up_truncated) / years(1)))
+)
 ```
 
+<!-- ################################## DEATH WITHIN FOLLOW UP #####################  -->
 ```{r}
 # patient death within follow up
 tbl_iga_pat_death <- data.frame(
@@ -85,7 +111,7 @@ tbl_iga_pat_death <- data.frame(
   iga_neg = nrow(data_iga_neg[(`T-dls` <= (`T-date` + follow_up)) & `Pat death (0=alive, 1= dead)` == 1])
 )
 ```
-
+<!-- ################################## DROP OUT WITHIN FOLLOW UP #####################  -->
 ```{r}
 # patient drop out within follow up
 tbl_iga_pat_drop <- data.frame(
@@ -95,7 +121,7 @@ tbl_iga_pat_drop <- data.frame(
 )
 ```
 
-
+<!-- ################################## GRAFT LOSS           #####################  -->
 ```{r}
 # patients with graft loss 
 tbl_iga_graft_loss <- data.frame(
@@ -113,63 +139,60 @@ tbl_iga_graft_loss_follow_up <- data.frame(
   iga_neg = nrow(data_iga_neg[`graft loss date` < `T-date` + follow_up])
 )
 ```
-
+<!-- ############################################ AGE #################################  -->
 ```{r}
 # age patients (yrs.)
-p1 <- ggplot(data = data_iga) +
+ggplot(data = data_iga) +
   geom_histogram(mapping = aes(x = interval(`Date of birth`,`T-date`) / years(1),
                                fill = `R-sex`),
                  color="#e9ecef",
                  alpha=0.6,
-                 bins = 40) +
+                 bins = 40,
+                 position = "dodge") +
   two_scale_fill +
   ylab("Anzahl") +
   xlab("Alter in Jahren") +
   ggtitle("Histogram Alter in Jahren am Transplantationsdatum",
-          subtitle =  paste0("(IGA Patienten, n=",
-          sum(!is.na(data_iga$`Date of birth`)),
-          ")", collapse = "")) +
+          subtitle =  "IGA all") +
   labs(fill = "Geschlecht") +
   default_theme
-
-p2 <- ggplot(data = data_iga_pos) +
-  geom_histogram(mapping = aes(x = interval(`Date of birth`,`T-date`) / years(1),
-                               fill = `R-sex`),
-                 color="#e9ecef",
-                 alpha=0.6,
-                 bins = 40) +
-  two_scale_fill +
-  ylab("Anzahl") +
-  xlab("Alter in Jahren") +
-  ggtitle("Histogram Alter in Jahren am Transplantationsdatum",
-          subtitle =  paste0("(IGA Patienten, n=",
-          sum(!is.na(data_iga$`Date of birth`)),
-          ")", collapse = "")) +
-  labs(fill = "Geschlecht") +
-  default_theme
-
-p3 <- ggplot(data = data_iga_neg) +
-  geom_histogram(mapping = aes(x = interval(`Date of birth`,`T-date`) / years(1),
-                               fill = `R-sex`),
-                 color="#e9ecef",
-                 alpha=0.6,
-                 bins = 40) +
-  two_scale_fill +
-  ylab("Anzahl") +
-  xlab("Alter in Jahren") +
-  ggtitle("Histogram Alter in Jahren am Transplantationsdatum",
-          subtitle =  paste0("(IGA Patienten, n=",
-          sum(!is.na(data_iga$`Date of birth`)),
-          ")", collapse = "")) +
-  labs(fill = "Geschlecht") +
-  default_theme
-
-p1 /p2 / p3
+```
+```{r}
+ggplot(data = data_iga_pos) +
+ geom_histogram(mapping = aes(x = interval(`Date of birth`,`T-date`) / years(1),
+                              fill = `R-sex`),
+                color="#e9ecef",
+                alpha=0.6,
+                bins = 40,
+                position = "dodge") +
+ two_scale_fill +
+ ylab("Anzahl") +
+ xlab("Alter in Jahren") +
+ ggtitle("Histogram Alter in Jahren am Transplantationsdatum",
+         subtitle =  "IGA+") +
+ labs(fill = "Geschlecht") +
+ default_theme
+```
+```{r}
+ggplot(data = data_iga_neg) +
+ geom_histogram(mapping = aes(x = interval(`Date of birth`,`T-date`) / years(1),
+                              fill = `R-sex`),
+                color="#e9ecef",
+                alpha=0.6,
+                bins = 40,
+                position = "dodge") +
+ two_scale_fill +
+ ylab("Anzahl") +
+ xlab("Alter in Jahren") +
+ ggtitle("Histogram Alter in Jahren am Transplantationsdatum",
+         subtitle =  "IGA-") +
+ labs(fill = "Geschlecht") +
+ default_theme
 ```
 
 ```{r}
 ## IQR
-tbl_iga_iqr <- data.frame(
+tbl_iga_iqr_age <- data.frame(
   iga_all = IQR(data_iga$R_age_Tdate),
   iga_po = IQR(data_iga_pos$R_age_Tdate),
   iga_neg = IQR(data_iga_neg$R_age_Tdate)
@@ -182,39 +205,34 @@ tbl_iga_iqr <- data.frame(
 p1 <- ggplot(data = data_iga) +
   geom_boxplot(aes(x = R_age_Tdate)) +
   coord_flip() +
-  ggtitle("IGA") +
-  default_theme +
-  theme(axis.ticks.x=element_blank(),
-        axis.text.x=element_blank(),
-        axis.title.x=element_blank())
+  ggtitle("IGA (all)") +
+  default_theme 
 
 p2 <- ggplot(data = data_iga_pos) +
   geom_boxplot(aes(x = R_age_Tdate)) +
   coord_flip() +
-  ggtitle("IGA Pos.") +
-  default_theme +
-  theme(axis.ticks.x=element_blank(),
-        axis.text.x=element_blank(),
-        axis.title.x=element_blank())
+  ggtitle("IGA r+") +
+  default_theme 
 
 p3 <- ggplot(data = data_iga_neg) +
   geom_boxplot(aes(x = R_age_Tdate)) +
   coord_flip()+
-  ggtitle("IGA Neg.") +
-  default_theme +
-  theme(axis.ticks.x=element_blank(),
-        axis.text.x=element_blank(),
-        axis.title.x=element_blank())
+  ggtitle("IGA r-") +
+  default_theme
 
+p1$labels$x <- p2$labels$x <- p3$labels$x <- ""
+p1$labels$y<- p2$labels$y <- p3$labels$y <- ""
 
 patch <- p1 | p2 | p3
-patch + plot_annotation(
+patch <- patch + plot_annotation(
   title = "Boxplot Altersverteilung"
-) 
+)
+patch & xlim(0, 80) & theme(axis.ticks.x = element_blank(),
+                            axis.text.x = element_blank()) & xlab("Alter")
 ```
 
 ```{r}
-# male sex
+# sex
 tbl_iga_sex_abs <- data.frame(
   iga_all = summary(data_iga$`R-sex`),
   iga_pos = summary(data_iga_pos$`R-sex`),
@@ -223,7 +241,42 @@ tbl_iga_sex_abs <- data.frame(
 ```
 
 ```{r}
-# male sex precent
+p1 <- data.frame(group = rownames(tbl_iga_sex_abs),
+           value = tbl_iga_sex_abs$iga_all) %>% 
+  ggplot(aes(x = "", y = value, fill = group)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  guides(fill=guide_legend(title = "Geschlecht")) +
+  theme_void() +
+  two_scale_fill +
+  ggtitle("iga all")
+  
+p2 <- data.frame(group = rownames(tbl_iga_sex_abs),
+           value = tbl_iga_sex_abs$iga_pos) %>% 
+  ggplot(aes(x = "", y = value, fill = group)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  guides(fill=guide_legend(title = "Geschlecht")) +
+  theme_void() +
+  two_scale_fill +
+  ggtitle("iga +")
+
+p3 <- data.frame(group = rownames(tbl_iga_sex_abs),
+           value = tbl_iga_sex_abs$iga_neg) %>% 
+  ggplot(aes(x = "", y = value, fill = group)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  guides(fill=guide_legend(title = "Geschlecht")) +
+  theme_void() +
+  two_scale_fill +
+  ggtitle("iga -")
+
+patch <- p1 | p2 | p3
+patch + plot_annotation(title = "Kreisdiagramme Geschlecht (absolut)")
+```
+
+```{r}
+# sex percent
 tbl_iga_sex_percent <- data.frame(
   iga_all = round(summary(data_iga$`R-sex`) / nrow(data_iga), 2),
   iga_pos = round(summary(data_iga_pos$`R-sex`) / nrow(data_iga_pos), 2),
@@ -249,11 +302,49 @@ ggplot(data = data_iga) +
              data = data_iga[`R-sex` == "M"], linetype = "dashed") +
   ylab("Anzahl") +
   xlab("BMI") + # Einheit???
-  ggtitle("Histogramm BMI", subtitle = paste0("(IGA Patienten, n=",
-                                              sum(!is.na(data_iga$`R-height`)),
-                                              ")", collapse = "")) +
+  ggtitle("Histogramm BMI Iga") +
   labs(fill = "Geschlecht") +
   default_theme
+```
+
+```{r}
+p1 <- data.frame(group = c("Lebendspende", "Todspende"),
+           value = c(nrow(data_iga[`Pat death (0=alive, 1= dead)` == 0]),
+                      nrow(data_iga[`Pat death (0=alive, 1= dead)` == 1]))) %>% 
+  ggplot(aes(x = "", y = value, fill = group)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  guides(fill=guide_legend(title = "Spender")) +
+  theme_void() +
+  two_scale_fill +
+  ggtitle("iga all")
+
+p2 <- data.frame(group = c("Lebendspende", "Todspende"),
+           value = c(nrow(data_iga_pos[`Pat death (0=alive, 1= dead)` == 0]),
+                      nrow(data_iga_pos[`Pat death (0=alive, 1= dead)` == 1]))) %>% 
+  ggplot(aes(x = "", y = value, fill = group)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  guides(fill=guide_legend(title = "Spender")) +
+  theme_void() +
+  two_scale_fill +
+  ggtitle("iga +")
+
+p3 <- data.frame(group = c("Lebendspende", "Todspende"),
+           value = c(nrow(data_iga_neg[`Pat death (0=alive, 1= dead)` == 0]),
+                      nrow(data_iga_neg[`Pat death (0=alive, 1= dead)` == 1]))) %>% 
+  ggplot(aes(x = "", y = value, fill = group)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  guides(fill=guide_legend(title = "Spender")) +
+  theme_void() +
+  two_scale_fill +
+  ggtitle("iga -")
+
+
+patch <- p1 | p2 | p3
+patch + plot_annotation(title = "Kreisdiagramme Spender")
+  
 ```
 
 ```{r}
@@ -262,16 +353,21 @@ ggplot(data = data_iga) +
 tbl_iga_1 <- summary(data_iga[`graft loss (0=functial, 1=loss)` == 1]$`D-type`)
 tbl_iga_1 <- round(tbl_iga_1 / sum(tbl_iga_1), 3)
 tbl_iga_2 <- summary(data_iga[`graft loss (0=functial, 1=loss)` == 0]$`D-type`)
-tbl_iga_2 <- round(tbl_iga_2 / sum(tbl_iga_2),3)  # in %
-rbind("loss" = tbl_iga_1, "functional" = tbl_iga_2)
+tbl_iga_2 <- round(tbl_iga_2 / sum(tbl_iga_2),3)
+rbind("loss" = tbl_iga_1, "functional" = tbl_iga_2) %>% 
+  as.data.frame()
+```
 
-
+```{r}
+# dead/alive
 tbl_iga_1 <- summary(data_iga[`Pat death (0=alive, 1= dead)` == 1]$`D-type`)
 tbl_iga_1 <- round(tbl_iga_1 / sum(tbl_iga_1), 3)
 tbl_iga_2<- summary(data_iga[`Pat death (0=alive, 1= dead)` == 0]$`D-type`)
 tbl_iga_2 <-  round(tbl_iga_2 / sum(tbl_iga_2),3)  # in %
-rbind("dead" = tbl_iga_1, "alive" = tbl_iga_2)
+rbind("dead" = tbl_iga_1, "alive" = tbl_iga_2) %>% 
+  as.data.frame()
 ```
+
 
 ```{r}
 # BMI (mean.)
@@ -299,9 +395,9 @@ round(mean(tbl_iga_2),3)
 tbl_iga_3 <- apply(X = tbl_iga_1,
                MARGIN = 1,  
                FUN = sum, na.rm = TRUE)
-# mean value
+# mean value of col sum
 mean(tbl_iga_3)
-# median value
+# median value of col sum
 sd(tbl_iga_3)
 ```
 
@@ -353,6 +449,41 @@ tbl_iga_cis_sd <- data.frame(
 ```
 
 ```{r}
+p1 <- data_iga %>% 
+ggplot() +
+geom_boxplot(aes(x = `Cold ischaemic period hours`)) +
+  coord_flip() +
+  ggtitle("IGA (all)") +
+  default_theme 
+
+p2 <- data_iga_pos %>% 
+  ggplot() +
+  geom_boxplot(aes(x = `Cold ischaemic period hours`)) +
+  coord_flip() +
+  ggtitle("IGA +") +
+  default_theme 
+
+p3 <- data_iga_neg %>% 
+  ggplot() +
+  geom_boxplot(aes(x = `Cold ischaemic period hours`)) +
+  coord_flip() +
+  ggtitle("IGA -") +
+  default_theme 
+
+p1$labels$x <- p2$labels$x <- p3$labels$x <- ""
+p1$labels$y<- p2$labels$y <- p3$labels$y <- ""
+
+patch <- p1 | p2 | p3
+patch <- patch + plot_annotation(
+  title = "Boxplot Cold Isch. Time h"
+)
+patch & xlim(0, 40) & theme(axis.ticks.x = element_blank(),
+                           axis.text.x = element_blank()) & xlab("Cold Isch Time")
+```
+
+
+
+```{r}
 # living vs dead donator
 tbl_iga_don_living_abs <- data.frame(
   iga_all = nrow(data_iga[`D-type` == "Living"]),
@@ -399,12 +530,18 @@ iga_table <- rbindlist(
     iga_don_living_abs = data.frame(
       cbind(name = "don_living_abs", tbl_iga_don_living_abs)),
     iga_don_living_rel = data.frame(
-      cbind(name = "don_living_rel", tbl_iga_don_living_rel))
+      cbind(name = "don_living_rel", tbl_iga_don_living_rel)),
+    iga_cis_h_mean = data.frame(
+      cbind(name = "cold_h_mean", tbl_iga_cis_mean)),
+    iga_cis_h_sd = data.frame(
+      cbind(name = "cold_h_sd", tbl_iga_cis_sd))
     ))
 
+kable(iga_table, col.names = c("Merkmal", "IgA (all)", "IgA r+", "IgA r-")) %>% 
+  kable_styling(latex_options = "hold_position")
 
-iga_table
 ```
+
 
 
 ## § 2.2 NTX
@@ -418,6 +555,16 @@ pmin(
   interval(data_ntx$Datum, data_ntx$tdls) / years(1)
 ) %>%
   mean()
+```
+
+```{r}
+ggplot() +
+  geom_boxplot(aes(x = data_ntx$`TX Status[NTX PatientenInformation]`,
+                   y = interval(data_ntx$Datum, data_ntx$tdls) / years(1)), data = data_ntx) +
+  default_theme +
+  ggtitle("Boxplot: Follow Up Period") +
+  ylab("Jahre") +
+  xlab("") 
 ```
 
 ```{r}
@@ -439,20 +586,40 @@ nrow(data_ntx[data_ntx$`TX Status[NTX PatientenInformation]` == "2 - ohne Transp
 # age patients (yrs.)
 ggplot(data = data_ntx) +
   geom_histogram(mapping = aes(x = R_age_Datum, fill = Geschlecht),
-                 color = "#e9ecef", alpha = 0.6) +
+                 color = "#e9ecef", alpha = 0.6, position = "dodge") +
   two_scale_fill +
   ylab("Anzahl") +
   xlab("Alter in Jahren") +
-  ggtitle("Histogram Alter in Jahren am Transplantationsdatum",
-          subtitle = paste0("(NTX Patienten, n=", sum(!is.na(data_ntx$R_age_Datum)),
-                            ")", collapse = "")) +
+  ggtitle("Histogram Alter in Jahren am Transplantationsdatum") +
   labs(fill = "Geschlecht") +
   default_theme
 ```
+```{r}
+ggplot(data = data_ntx) +
+  geom_boxplot(aes(x = data_ntx$Geschlecht, y = data_ntx$R_age_Datum))  +
+  default_theme +
+  ggtitle("Boxplot Alter NTX") +
+  xlab("Geschlecht") + 
+  ylab("Alter")
+
+```
+
 
 ```{r}
 # male sex
 summary(data_ntx$Geschlecht)
+```
+
+```{r}
+data.frame(group = names(summary(data_ntx$Geschlecht)),
+              value = c(summary(data_ntx$Geschlecht))) %>% 
+  ggplot(aes(x = "", y = value, fill = group)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  guides(fill=guide_legend(title = "Geschlecht")) +
+  theme_void() +
+  two_scale_fill +
+  ggtitle("NTX")
 ```
 
 ```{r}
@@ -768,13 +935,14 @@ data_iga <- data_iga %>%
 ```
 
 ```{r}
-model_iga_cox <- coxph(formula = Surv(time = as.numeric(status_date),
-                                       event = status) ~ R_age_Tdate + 
-                         ##
-                         data_iga$`D-age` +
-                         data_iga$`D-sex` +
-                         data_iga$`R-sex`,
-                         data = data_iga)
+model_iga_cox <- coxph(data = data_iga, formula = Surv(time = as.numeric(status_date),
+                                      event = status) ~ R_age_Tdate +
+                         data_iga$`R-sex` +
+                         data_iga$`D-type` +
+                         ## hla mismatch???
+                         data_iga$`mm-A` +
+                         data_iga$`Cold ischaemic period hours` +
+                         data_iga$`D-age`)
 summary(model_iga_cox)
 ```
 ```{r}
