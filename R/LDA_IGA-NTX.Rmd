@@ -546,6 +546,7 @@ tbl_iga_don_dead_rel <- data.frame(
 
 
 ```{r}
+# ToDo: Auch fuer graft loss
 # Überleben MEdian IQR
 tbl_iga_surv_median <- data.frame(
   iga_all = median(data_iga[`Pat death (0=alive, 1= dead)` == 1, R_age_Tdls], na.rm = TRUE),
@@ -994,6 +995,8 @@ data_iga <- data_iga %>%
 
 
 ```{r}
+data_iga$mismatch_sum
+
 data_iga_pos <- data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 1]
 data_iga_neg <- data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 0]
 ```
@@ -1003,58 +1006,58 @@ model_iga_cox <- coxph(data = data_iga, formula = Surv(time = as.numeric(status_
                                       event = status) ~ R_age_Tdate +
                          data_iga$`R-sex` +
                          data_iga$`D-type` +
-                         ## hla mismatch???
+                         data_iga$mismatch_sum +
                          data_iga$`mm-A` +
                          data_iga$`Cold ischaemic period hours` +
                          data_iga$`D-age`)
 summary(model_iga_cox)
 ```
 ```{r}
-cox.zph(model_iga_cox)
-## all p-values are relatively large, therefore the Null hypothesis of proportional hazards can not be rejected
-```
-
-## $ 4.2 NTX
-
-
-```{r}
-data_ntx <- data_ntx %>%
-  mutate(status_date = case_when(
-    ## patient died within follow up
-    `Todesdatum[NTX PatientenInformation]` <= (Datum + follow_up) ~ interval(Datum, `Todesdatum[NTX PatientenInformation]`) / years(1),
-    ## patient died after follow up
-    `Todesdatum[NTX PatientenInformation]` > (Datum + follow_up) ~ interval(Datum, Datum + follow_up) / years(1),
-    ## patient dropped within follow up
-    `Date last seen[NTX PatientenInformation]` <= (Datum + follow_up) ~ interval(Datum, `Date last seen[NTX PatientenInformation]`) / years(1),
-    ## patient dropped after follow up
-    `Date last seen[NTX PatientenInformation]` > (Datum + follow_up) ~ interval(Datum, Datum + follow_up) / years(1)
-  )
-)
-
-data_ntx <- data_ntx %>%
-  mutate(status = case_when(
-    ## patient died within follow up
-    `Todesdatum[NTX PatientenInformation]` <= (Datum + follow_up) ~ 1,
-    ## patient died after follow up
-    `Todesdatum[NTX PatientenInformation]` > (Datum + follow_up) ~ 0,
-    ## patient dropped within follow up
-    `Date last seen[NTX PatientenInformation]` <= (Datum + follow_up) ~ 0,
-    ## patient dropped after follow up
-    `Date last seen[NTX PatientenInformation]` > (Datum + follow_up) ~ 0
-    
-  )
-)
-```
-
-```{r}
-model_ntx_cox <- coxph(formula = Surv(time = status_date, event = status) ~ R_age_Datum +
-                         Geschlecht + `TX Status[NTX PatientenInformation]`,
-                       data = data_ntx)
-
-summary(model_ntx_cox)
+# cox.zph(model_iga_cox)
+# ## all p-values are relatively large, therefore the Null hypothesis of proportional hazards can not be rejected
+# ```
+# 
+# ## $ 4.2 NTX
+# 
+# 
+# ```{r}
+# data_ntx <- data_ntx %>%
+#   mutate(status_date = case_when(
+#     ## patient died within follow up
+#     `Todesdatum[NTX PatientenInformation]` <= (Datum + follow_up) ~ interval(Datum, `Todesdatum[NTX PatientenInformation]`) / years(1),
+#     ## patient died after follow up
+#     `Todesdatum[NTX PatientenInformation]` > (Datum + follow_up) ~ interval(Datum, Datum + follow_up) / years(1),
+#     ## patient dropped within follow up
+#     `Date last seen[NTX PatientenInformation]` <= (Datum + follow_up) ~ interval(Datum, `Date last seen[NTX PatientenInformation]`) / years(1),
+#     ## patient dropped after follow up
+#     `Date last seen[NTX PatientenInformation]` > (Datum + follow_up) ~ interval(Datum, Datum + follow_up) / years(1)
+#   )
+# )
+# 
+# data_ntx <- data_ntx %>%
+#   mutate(status = case_when(
+#     ## patient died within follow up
+#     `Todesdatum[NTX PatientenInformation]` <= (Datum + follow_up) ~ 1,
+#     ## patient died after follow up
+#     `Todesdatum[NTX PatientenInformation]` > (Datum + follow_up) ~ 0,
+#     ## patient dropped within follow up
+#     `Date last seen[NTX PatientenInformation]` <= (Datum + follow_up) ~ 0,
+#     ## patient dropped after follow up
+#     `Date last seen[NTX PatientenInformation]` > (Datum + follow_up) ~ 0
+#     
+#   )
+# )
 ```
 
 ```{r}
-cox.zph(model_ntx_cox)
+# model_ntx_cox <- coxph(formula = Surv(time = status_date, event = status) ~ R_age_Datum +
+#                          Geschlecht + `TX Status[NTX PatientenInformation]`,
+#                        data = data_ntx)
+# 
+# summary(model_ntx_cox)
+```
+
+```{r}
+#cox.zph(model_ntx_cox)
 ## all p-values are relatively large, therefore the Null hypothesis of proportional hazards can not be rejected
 ```
