@@ -25,6 +25,26 @@ tbl_event <- data_iga1[ , event, with = FALSE]
 y <- regmatches(x,regexpr(pattern = "^([0]?[1-9]|[1|2][0-9]|[3][0|1])[./-]([0]?[1-9]|[1][0-2])[./-]([0-9]{4}|[0-9]{2})",
      text = x))
 
+# BMI (mean.)
+ggplot(data = data_iga) +
+  geom_histogram(mapping = aes(`D-weight` * (`D-height`)^2,
+                               fill = `D-sex`),
+                 alpha = 0.6) +
+  two_scale_fill +
+  # median BMI total
+  geom_vline(aes(xintercept = median(`D-weight` * (`D-height`)^2)),
+             size = 1.0, color = "red", linetype = "dashed") +
+  # median BMI F
+  geom_vline(aes(xintercept = median(`D-weight` * (`D-height`)^2)),
+             data = data_iga[`R-sex` == "F"], linetype = "dashed") +
+  # median BMI M
+  geom_vline(aes(xintercept = median(`D-weight` * (`D-height`)^2)),
+             data = data_iga[`R-sex` == "M"], linetype = "dashed") +
+  ylab("Anzahl") +
+  xlab("BMI") + # Einheit???
+  ggtitle("Histogramm BMI Iga") +
+  labs(fill = "Geschlecht") +
+  default_theme
 
 
 follow_up_time <- data_iga2$`T-date` + lubridate::years(10)

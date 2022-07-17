@@ -113,6 +113,7 @@ data_iga <- fread(tmp_data_iga_path,
 data_iga <- data_iga[!is.na(`T-date`)]
 data_iga[, (tmp_iga2_dmy) := lapply(.SD, lubridate::dmy), .SDcols = tmp_iga2_dmy]
 data_iga[, R_age_Tdate := interval(`Date of birth`, `T-date`) / years(1)]
+data_iga[, R_age_Tdls := interval(`Date of birth`, `T-dls`) / years(1)]
 data_iga <- data_iga[R_age_Tdate > 18]
 
 tmp_to_merge <- c("Transplantatfunktionsende 1[NTX PatientenInformation]",
@@ -127,7 +128,7 @@ data_ntx[, Transplantatfunktionsende := fcoalesce(
 data_ntx$`TX Status[NTX PatientenInformation]` <-fct_collapse(data_ntx$`TX Status[NTX PatientenInformation]`,
                                                                     "1 - mit Transplantatfunktion" = c("1 - mit Transplantatfunktion"),
                                                               "2 - ohne Transplantatfunktion" = c("2 - ohne Transplantatfunktion", "2- ohne Transplantatfunktion"))
-
+data_ntx[, R_age_Tdls := interval(Geburtsdatum, `Date last seen[NTX PatientenInformation]`) / years(1)]
 ################################################################################
 # remove tmp variables not used any more
 rm( list = ls()[grep(x = ls(), pattern = "^tmp")])

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Debian) (preloaded format=pdflatex 2022.6.23)  14 JUL 2022 09:55
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Debian) (preloaded format=pdflatex 2022.6.23)  14 JUL 2022 21:45
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -934,7 +934,7 @@ File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-12-1.pdf Graphic file (type
 pdf)
 <use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-12-1.pdf>
 Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-12-1.pdf 
- used on input line 291.
+ used on input line 292.
 (pdftex.def)             Requested size: 453.6939pt x 316.18047pt.
 [4 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-12-1.pdf>]
 <LDA_IGA-NTX_files/figure-latex/unnamed-chunk-13-1.pdf, id=59, 453.695pt x 316.
@@ -943,7 +943,7 @@ File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-13-1.pdf Graphic file (type
 pdf)
 <use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-13-1.pdf>
 Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-13-1.pdf 
- used on input line 312.
+ used on input line 313.
 (pdftex.def)             Requested size: 453.6939pt x 316.18047pt.
 [5 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-13-1.pdf>]
 <LDA_IGA-NTX_files/figure-latex/unnamed-chunk-14-1.pdf, id=74, 453.695pt x 316.
@@ -952,10 +952,10 @@ File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-14-1.pdf Graphic file (type
 pdf)
 <use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-14-1.pdf>
 Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-14-1.pdf 
- used on input line 333.
+ used on input line 334.
 (pdftex.def)             Requested size: 453.6939pt x 316.18047pt.
 
-Underfull \vbox (badness 5939) detected at line 378
+Underfull \vbox (badness 5939) detected at line 379
  []
 
 [6 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-14-1.pdf>]
@@ -965,10 +965,10 @@ File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-16-1.pdf Graphic file (type
 pdf)
 <use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-16-1.pdf>
 Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-16-1.pdf 
- used on input line 380.
+ used on input line 381.
 (pdftex.def)             Requested size: 449.6789pt x 294.09802pt.
 
-Underfull \vbox (badness 1509) detected at line 428
+Underfull \vbox (badness 1509) detected at line 429
  []
 
 [7 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-16-1.pdf>]
@@ -978,10 +978,10 @@ File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-18-1.pdf Graphic file (type
 pdf)
 <use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-18-1.pdf>
 Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-18-1.pdf 
- used on input line 430.
+ used on input line 431.
 (pdftex.def)             Requested size: 458.71263pt x 119.44594pt.
 
-Underfull \vbox (badness 2689) detected at line 466
+Underfull \vbox (badness 2689) detected at line 467
  []
 
 [8 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-18-1.pdf>]
@@ -991,10 +991,10 @@ File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-20-1.pdf Graphic file (type
 pdf)
 <use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-20-1.pdf>
 Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-20-1.pdf 
- used on input line 472.
+ used on input line 473.
 (pdftex.def)             Requested size: 453.6939pt x 313.16922pt.
 
-Underfull \vbox (badness 1308) detected at line 523
+Underfull \vbox (badness 1308) detected at line 524
  []
 
 [9 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-20-1.pdf>]
@@ -1004,7 +1004,7 @@ File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-21-1.pdf Graphic file (type
 pdf)
 <use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-21-1.pdf>
 Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-21-1.pdf 
- used on input line 525.
+ used on input line 526.
 (pdftex.def)             Requested size: 458.73363pt x 95.36037pt.
 [10 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-21-1.pdf>]
 <LDA_IGA-NTX_files/figure-latex/unnamed-chunk-25-1.pdf, id=141, 448.67625pt x 2
@@ -1013,10 +1013,10 @@ File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-25-1.pdf Graphic file (type
 pdf)
 <use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-25-1.pdf>
 Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-25-1.pdf 
- used on input line 618.
+ used on input line 620.
 (pdftex.def)             Requested size: 448.68884pt x 283.06543pt.
 [11] [12 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-25-1.pdf>]
-Underfull \vbox (badness 10000) detected at line 761
+Underfull \vbox (badness 10000) detected at line 763
  []
 
 [13]
@@ -1026,133 +1026,133 @@ File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-30-1.pdf Graphic file (type
 pdf)
 <use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-30-1.pdf>
 Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-30-1.pdf 
- used on input line 775.
+ used on input line 777.
 (pdftex.def)             Requested size: 452.69014pt x 294.09802pt.
 [14 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-30-1.pdf>]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 840.
+(Font)              <10> on input line 842.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 840.
+(Font)              <7> on input line 842.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 840.
+(Font)              <5> on input line 842.
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[15]
-<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-34-1.pdf, id=181, 459.7175pt x 30
-3.1325pt>
-File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-34-1.pdf Graphic file (type 
-pdf)
-<use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-34-1.pdf>
-Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-34-1.pdf 
- used on input line 899.
-(pdftex.def)             Requested size: 459.72337pt x 303.13638pt.
 
-Overfull \vbox (0.27469pt too high) detected at line 906
+Overfull \vbox (0.48001pt too high) detected at line 889
  []
 
-[16 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-34-1.pdf>]
-<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-38-1.pdf, id=193, 453.695pt x 316
-.18124pt>
-File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-38-1.pdf Graphic file (type 
+[15]
+<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-35-1.pdf, id=181, 459.7175pt x 30
+3.1325pt>
+File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-35-1.pdf Graphic file (type 
 pdf)
-<use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-38-1.pdf>
-Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-38-1.pdf 
- used on input line 953.
-(pdftex.def)             Requested size: 453.6939pt x 316.18047pt.
-[17 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-38-1.pdf>]
-<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-39-1.pdf, id=208, 459.7175pt x 31
-3.17pt>
+<use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-35-1.pdf>
+Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-35-1.pdf 
+ used on input line 908.
+(pdftex.def)             Requested size: 459.72337pt x 303.13638pt.
+[16 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-35-1.pdf>]
+<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-39-1.pdf, id=193, 453.695pt x 316
+.18124pt>
 File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-39-1.pdf Graphic file (type 
 pdf)
 <use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-39-1.pdf>
 Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-39-1.pdf 
- used on input line 966.
-(pdftex.def)             Requested size: 459.7304pt x 313.17877pt.
-<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-41-1.pdf, id=209, 371.3875pt x 29
-0.08376pt>
-File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-41-1.pdf Graphic file (type 
+ used on input line 962.
+(pdftex.def)             Requested size: 453.6939pt x 316.18047pt.
+[17 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-39-1.pdf>]
+<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-40-1.pdf, id=208, 459.7175pt x 31
+3.17pt>
+File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-40-1.pdf Graphic file (type 
 pdf)
-<use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-41-1.pdf>
-Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-41-1.pdf 
- used on input line 994.
+<use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-40-1.pdf>
+Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-40-1.pdf 
+ used on input line 975.
+(pdftex.def)             Requested size: 459.7304pt x 313.17877pt.
+<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-42-1.pdf, id=209, 371.3875pt x 29
+0.08376pt>
+File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-42-1.pdf Graphic file (type 
+pdf)
+<use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-42-1.pdf>
+Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-42-1.pdf 
+ used on input line 1003.
 (pdftex.def)             Requested size: 371.3979pt x 290.09189pt.
-[18 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-39-1.pdf>] [19 <./LDA_IGA-N
-TX_files/figure-latex/unnamed-chunk-41-1.pdf>]
+[18 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-40-1.pdf>] [19 <./LDA_IGA-N
+TX_files/figure-latex/unnamed-chunk-42-1.pdf>]
 LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 1
-058.
+067.
 (/usr/share/texmf/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-56-1.pdf, id=235, 464.73625pt x 3
+<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-57-1.pdf, id=235, 464.73625pt x 3
 01.125pt>
-File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-56-1.pdf Graphic file (type 
-pdf)
-<use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-56-1.pdf>
-Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-56-1.pdf 
- used on input line 1128.
-(pdftex.def)             Requested size: 464.74928pt x 301.13344pt.
-
-Overfull \hbox (137.568pt too wide) in paragraph at lines 1128--1129
- []\T1/lmr/bx/n/10 (-20) Overall kaplan-Meier curve[] [] 
- []
-
-[20]
-<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-57-1.pdf, id=250, 459.7175pt x 30
-1.125pt>
 File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-57-1.pdf Graphic file (type 
 pdf)
 <use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-57-1.pdf>
 Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-57-1.pdf 
- used on input line 1141.
-(pdftex.def)             Requested size: 459.74442pt x 301.14262pt.
-[21 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-56-1.pdf>]
-<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-58-1.pdf, id=263, 459.7175pt x 30
+ used on input line 1137.
+(pdftex.def)             Requested size: 464.74928pt x 301.13344pt.
+
+Overfull \hbox (137.568pt too wide) in paragraph at lines 1137--1138
+ []\T1/lmr/bx/n/10 (-20) Overall kaplan-Meier curve[] [] 
+ []
+
+[20]
+<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-58-1.pdf, id=250, 459.7175pt x 30
 1.125pt>
 File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-58-1.pdf Graphic file (type 
 pdf)
 <use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-58-1.pdf>
 Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-58-1.pdf 
- used on input line 1155.
+ used on input line 1150.
 (pdftex.def)             Requested size: 459.74442pt x 301.14262pt.
-[22 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-57-1.pdf>]
-<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-59-1.pdf, id=275, 459.7175pt x 30
+[21 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-57-1.pdf>]
+<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-59-1.pdf, id=263, 459.7175pt x 30
 1.125pt>
 File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-59-1.pdf Graphic file (type 
 pdf)
 <use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-59-1.pdf>
 Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-59-1.pdf 
- used on input line 1169.
+ used on input line 1164.
 (pdftex.def)             Requested size: 459.74442pt x 301.14262pt.
-[23 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-58-1.pdf>]
-<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-61-1.pdf, id=287, 464.73625pt x 3
+[22 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-58-1.pdf>]
+<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-60-1.pdf, id=275, 459.7175pt x 30
+1.125pt>
+File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-60-1.pdf Graphic file (type 
+pdf)
+<use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-60-1.pdf>
+Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-60-1.pdf 
+ used on input line 1178.
+(pdftex.def)             Requested size: 459.74442pt x 301.14262pt.
+[23 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-59-1.pdf>]
+<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-62-1.pdf, id=287, 464.73625pt x 3
 01.125pt>
-File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-61-1.pdf Graphic file (type 
+File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-62-1.pdf Graphic file (type 
 pdf)
-<use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-61-1.pdf>
-Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-61-1.pdf 
- used on input line 1231.
+<use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-62-1.pdf>
+Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-62-1.pdf 
+ used on input line 1240.
 (pdftex.def)             Requested size: 464.74928pt x 301.13344pt.
-[24 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-59-1.pdf>] [25 <./LDA_IGA-N
-TX_files/figure-latex/unnamed-chunk-61-1.pdf>]
-<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-63-1.pdf, id=316, 459.7175pt x 30
+[24 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-60-1.pdf>] [25 <./LDA_IGA-N
+TX_files/figure-latex/unnamed-chunk-62-1.pdf>]
+<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-64-1.pdf, id=316, 459.7175pt x 30
 1.125pt>
-File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-63-1.pdf Graphic file (type 
+File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-64-1.pdf Graphic file (type 
 pdf)
-<use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-63-1.pdf>
-Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-63-1.pdf 
- used on input line 1318.
+<use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-64-1.pdf>
+Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-64-1.pdf 
+ used on input line 1329.
 (pdftex.def)             Requested size: 459.74442pt x 301.14262pt.
-[26] [27 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-63-1.pdf>]
-<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-65-1.pdf, id=338, 459.7175pt x 30
+[26] [27 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-64-1.pdf>]
+<LDA_IGA-NTX_files/figure-latex/unnamed-chunk-66-1.pdf, id=338, 459.7175pt x 30
 1.125pt>
-File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-65-1.pdf Graphic file (type 
+File: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-66-1.pdf Graphic file (type 
 pdf)
-<use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-65-1.pdf>
-Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-65-1.pdf 
- used on input line 1381.
+<use LDA_IGA-NTX_files/figure-latex/unnamed-chunk-66-1.pdf>
+Package pdftex.def Info: LDA_IGA-NTX_files/figure-latex/unnamed-chunk-66-1.pdf 
+ used on input line 1392.
 (pdftex.def)             Requested size: 459.74442pt x 301.14262pt.
-[28 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-65-1.pdf>] [29] [30] [31] [
+[28 <./LDA_IGA-NTX_files/figure-latex/unnamed-chunk-66-1.pdf>] [29] [30] [31] [
 32] (./LDA_IGA-NTX.aux) ) 
 Here is how much of TeX's memory you used:
  26104 strings out of 479304
@@ -1170,7 +1170,7 @@ mf/fonts/type1/public/lm/lmr10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr1
 /type1/public/lm/lmtk10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtko10.pfb
 ></usr/share/texmf/fonts/type1/public/lm/lmtt10.pfb></usr/share/texmf/fonts/typ
 e1/public/lm/lmtti10.pfb>
-Output written on LDA_IGA-NTX.pdf (32 pages, 395599 bytes).
+Output written on LDA_IGA-NTX.pdf (32 pages, 397827 bytes).
 PDF statistics:
  473 PDF objects out of 1000 (max. 8388607)
  363 compressed objects within 4 object streams

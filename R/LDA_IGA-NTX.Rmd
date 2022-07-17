@@ -80,15 +80,24 @@ tbl_iga_follow_up_median <- data.frame(
 ```
 
 ```{r}
-## ToDo: All IGA
-ggplot() +
+p1 <- ggplot() +
+  geom_boxplot(aes(x = "", y = interval(data_iga$`T-date`, data_iga$`T-dls`) / years(1)), data = data_iga) +
+                 default_theme +
+  ylab("Jahre") +
+  xlab("")
+
+p2 <- ggplot() +
   geom_boxplot(aes(x = `biopsy proven recurrence (0=no, 1=yes)`, y = interval(data_iga$`T-date`, data_iga$`T-dls`) / years(1)), data = data_iga) +
   default_theme +
-  ggtitle("Boxplot: Follow Up Period") +
   ylab("Jahre") +
   xlab("") +
-  scale_x_discrete(labels = c("ohne", "mit"))
+  scale_x_discrete(labels = c("IgA-", "IgA+"))
+  
+patch <- p1 | p2
+
+patch
 ```
+
 
 ```{r}
 # follow_up mean/median (truncated)
@@ -143,6 +152,7 @@ tbl_iga_graft_loss_follow_up <- data.frame(
 ```
 <!-- ############################################ AGE #################################  -->
 ```{r}
+# ToDo: median IQR
 # age patients (yrs.)
 ggplot(data = data_iga) +
   geom_histogram(mapping = aes(x = interval(`Date of birth`,`T-date`) / years(1),
@@ -286,29 +296,6 @@ tbl_iga_sex_percent <- data.frame(
 )
 ```
 
-```{r}
-# BMI (mean.)
-ggplot(data = data_iga) +
-  geom_histogram(mapping = aes(`D-weight` * (`D-height`)^2,
-                               fill = `D-sex`),
-                 alpha = 0.6) +
-  two_scale_fill +
-  # median BMI total
-  geom_vline(aes(xintercept = median(`D-weight` * (`D-height`)^2)),
-             size = 1.0, color = "red", linetype = "dashed") +
-  # median BMI F
-  geom_vline(aes(xintercept = median(`D-weight` * (`D-height`)^2)),
-             data = data_iga[`R-sex` == "F"], linetype = "dashed") +
-  # median BMI M
-  geom_vline(aes(xintercept = median(`D-weight` * (`D-height`)^2)),
-             data = data_iga[`R-sex` == "M"], linetype = "dashed") +
-  ylab("Anzahl") +
-  xlab("BMI") + # Einheit???
-  ggtitle("Histogramm BMI Iga") +
-  labs(fill = "Geschlecht") +
-  default_theme
-```
-
 
 ```{r}
 # death donator
@@ -361,6 +348,7 @@ patch + plot_annotation(title = "Kreisdiagramme Spender")
 ```
 
 ```{r}
+# ToDo: iga all + -
 # deceased D.
 # living D.
 tbl_iga_1 <- summary(data_iga[`graft loss (0=functial, 1=loss)` == 1]$`D-type`)
@@ -558,6 +546,21 @@ tbl_iga_don_dead_rel <- data.frame(
 
 
 ```{r}
+# Überleben MEdian IQR
+tbl_iga_surv_median <- data.frame(
+  iga_all = median(data_iga[`Pat death (0=alive, 1= dead)` == 1, R_age_Tdls], na.rm = TRUE),
+  iga_pos = median(data_iga_pos[`Pat death (0=alive, 1= dead)` == 1, R_age_Tdls], na.rm = TRUE),
+  iga_neg = median(data_iga_neg[`Pat death (0=alive, 1= dead)` == 1, R_age_Tdls], na.rm = TRUE))
+
+tbl_iga_surv_iqr <- data.frame(
+  iga_all = IQR(data_iga[`Pat death (0=alive, 1= dead)` == 1, R_age_Tdls], na.rm = TRUE),
+  iga_pos = IQR(data_iga_pos[`Pat death (0=alive, 1= dead)` == 1, R_age_Tdls], na.rm = TRUE),
+  iga_neg = IQR(data_iga_neg[`Pat death (0=alive, 1= dead)` == 1, R_age_Tdls], na.rm = TRUE)
+)
+
+```
+
+```{r}
 iga_table <- rbindlist(
   list(
     iga_dropout = data.frame(
@@ -579,14 +582,17 @@ iga_table <- rbindlist(
     iga_cis_h_mean = data.frame(
       cbind(name = "cold_h_mean", tbl_iga_cis_mean)),
     iga_cis_h_sd = data.frame(
-      cbind(name = "cold_h_sd", tbl_iga_cis_sd))
+      cbind(name = "cold_h_sd", tbl_iga_cis_sd)),
+    iga_median_survtime = data.frame(
+      cbind(name = "median survival time", tbl_iga_surv_median)),
+    iga_iqr_survtime = data.frame(
+      cbind(name = "IQR survival time", tbl_iga_surv_iqr))
     ))
 
 kable(iga_table, col.names = c("Merkmal", "IgA (all)", "IgA r+", "IgA r-")) %>% 
   kable_styling(latex_options = "hold_position")
 
 ```
-
 
 
 ## § 2.2 NTX
@@ -604,7 +610,7 @@ pmin(
 
 ```{r}
 ggplot() +
-  geom_boxplot(aes(x = data_ntx$`TX Status[NTX PatientenInformation]`,
+  geom_boxplot(aes(x = "",
                    y = interval(data_ntx$Datum, data_ntx$tdls) / years(1)), data = data_ntx) +
   default_theme +
   ggtitle("Boxplot: Follow Up Period") +
@@ -668,37 +674,11 @@ data.frame(group = names(summary(data_ntx$Geschlecht)),
 ```
 
 ```{r}
-# BMI (mean.)
-## NO DATA AVAILABLE
+median(interval(data_ntx$Geburtsdatum, data_ntx$`Todesdatum[NTX PatientenInformation]`) / years(1), na.rm = TRUE)
 ```
 
 ```{r}
-# deceased D.
-# living D.
-## NO DATA AVAILABLE
-```
-
-```{r}
-# HLA-mm
-## NO DATA AVAILABLE
-```
-
-```{r}
-# PPR
-## NO DATA AVAILABLE
-```
-
-```{r}
-# living vs dead donator
-## NO DATA AVAILABLE
-```
-
-```{r}
-
-```
-
-```{r}
-
+IQR(interval(data_ntx$Geburtsdatum, data_ntx$`Todesdatum[NTX PatientenInformation]`) / years(1), na.rm = TRUE)
 ```
 
 ```{r}
@@ -846,6 +826,8 @@ model_iga_2 <- survfit(formula = Surv(time = status_date,
 ggsurvplot(model_iga_2,
            conf.int = FALSE)
 ```
+
+ASDFGHJKLKJHGFDSASDFGHJKLKJHGFDS
 
 #### § 3.1.3
 - Event: graft loss and death
