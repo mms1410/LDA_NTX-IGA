@@ -1,199 +1,85 @@
-data_iga1$`Date last seen`
-data_iga1$Todesdatum
-date1 <- data_iga1$`Date last seen`[4]
-date2 <- data_iga1$Todesdatum[1]
-nrow(data_iga1[!is.na(data_iga1$`Date last seen`) | !is.na(data_iga1$Todesdatum)])
-col_names <- c("Date last seen", "Todesdatum")
-data_iga1[, col_names, with=FALSE]
-data_iga1[, censor_date :=  min(`Date last seen`, Todesdatum, na.rm = TRUE)] # columnwise ((
-data_iga2[, censor_date := mapply(FUN = min())]
-date_min <- function(x) {
-  min(x, na.rm = TRUE)
-}
-
-censoring <- c("Date last seen", "Todesdatum")
-event <- "TX Status"
-tbl_censoring <- data_iga1[ , censoring, with = FALSE]
-tbl_event <- data_iga1[ , event, with = FALSE]
-
-################################################################################
-# iga
-## KTX:
-## T-dls:
-## T-date:
-
-y <- regmatches(x,regexpr(pattern = "^([0]?[1-9]|[1|2][0-9]|[3][0|1])[./-]([0]?[1-9]|[1][0-2])[./-]([0-9]{4}|[0-9]{2})",
-     text = x))
+stderr <- function(x) sd(x, na.rm = TRUE) / sqrt(length(!is.na(x)))
+c(mean = mean(data_iga[`D-type` == "Living", `D-age`]),
+  stderr = stderr(data_iga[`D-type` == "Living", `D-age`]))
 
 
+data_iga$`Cold ischaemic period minutes`
+sum(is.na(data_iga$`Cold ischaemic period hours`))
 
-follow_up_time <- data_iga2$`T-date` + lubridate::years(10)
-censoring_date <- c("T-dls" )
-event_date <- data_iga2$`graft loss date`
+data_iga_pos[!is.na(`Cold ischaemic period hours`),
+         .(`Cold ischaemic period hours`,
+           `Cold ischaemic period minutes`)][,
+        minutes_total := `Cold ischaemic period hours` * 60][,
+        lapply(.SD,function(x){ifelse(is.na(x),0,x)})][, minutes_total := minutes_total + `Cold ischaemic period minutes`][, minutes_total] %>% 
+  mean()
+data_iga_pos[!is.na(`Cold ischaemic period hours`),
+         .(`Cold ischaemic period hours`,
+           `Cold ischaemic period minutes`)][,
+        minutes_total := `Cold ischaemic period hours` * 60][,
+        lapply(.SD,function(x){ifelse(is.na(x),0,x)})][, minutes_total := minutes_total + `Cold ischaemic period minutes`][, minutes_total] %>% 
+  stderr()
 
-##
-obs <- data_iga2[4,]
+data_iga_neg[!is.na(`Cold ischaemic period hours`),
+             .(`Cold ischaemic period hours`,
+               `Cold ischaemic period minutes`)][,
+                                                 minutes_total := `Cold ischaemic period hours` * 60][,
+                                                                                                      lapply(.SD,function(x){ifelse(is.na(x),0,x)})][, minutes_total := minutes_total + `Cold ischaemic period minutes`][, minutes_total] %>% 
+  mean()
+data_iga_neg[!is.na(`Cold ischaemic period hours`),
+             .(`Cold ischaemic period hours`,
+               `Cold ischaemic period minutes`)][,
+                                                 minutes_total := `Cold ischaemic period hours` * 60][,
+                                                                                                      lapply(.SD,function(x){ifelse(is.na(x),0,x)})][, minutes_total := minutes_total + `Cold ischaemic period minutes`][, minutes_total] %>% 
+  stderr()
+  
+data_iga[!is.na(`Cold ischaemic period hours`),
+             .(`Cold ischaemic period hours`,
+               `Cold ischaemic period minutes`)][,
+                                                 minutes_total := `Cold ischaemic period hours` * 60][,
+                                                                                                      lapply(.SD,function(x){ifelse(is.na(x),0,x)})][, minutes_total := minutes_total + `Cold ischaemic period minutes`][, minutes_total] %>% 
+  quantile()
+data_iga[!is.na(`Cold ischaemic period hours`),
+             .(`Cold ischaemic period hours`,
+               `Cold ischaemic period minutes`)][,
+                                                 minutes_total := `Cold ischaemic period hours` * 60][,
+                                                                                                      lapply(.SD,function(x){ifelse(is.na(x),0,x)})][, minutes_total := minutes_total + `Cold ischaemic period minutes`][, minutes_total] %>% 
+  IQR()
 
-apply(data_iga2, MARGIN = 1, FUN = survival_right)
 
-data_iga2[, censor := survival_right(`graft loss date`, `T-date`, `T-dls`)]
-
-###############################################################################
-# numeric preprocessing
-data_iga2[, num_t_date := as.numeric(`T-date` - `T-date`)]
-data_iga2[, num_t_dls := as.numeric(`T-dls` - `T-date`)]
-data_iga2[, num_date_biopsy := as.numeric(`date of biopsy` - `T-date`)]
-data_iga2[, num_date_birth := as.numeric(`Date of birth` - `T-date`)]
-data_iga2[, num_graft_loss := as.numeric(`graft loss date` - `T-date`)]
-
-follow_up <- 10 * 365
-################################################################################
-censor <- ifelse(!is.na(data_iga2$num_graft_loss),
-                 ## YES, graft loss occured
-                 ifelse( data_iga2$num_graft_loss > data_iga2$num_t_date + follow_up,
-                         ## YES, graft loss occured but after follow up period
-                         c("censoring" = data_iga2$num_t_date + follow_up,
-                           "event" = 0 ),
-                         ## NO, graft loss occured withi follow up period
-                         c("censoring" = data_iga2$num_graft_loss,
-                           "event" = 1)
-                 ),
-                 ## NO, no graft loss occured
-                 ifelse( (!is.na(data_iga2$num_t_dls) & (data_iga2$num_t_dls < (data_iga2$num_t_date + follow_up))),
-                         ## YES, but right censored before follow_up
-                         c("censoring" = data_iga2$num_t_dls,
-                           "event" = 0),
-                         ## NO, 
-                         c("censoring" = data_iga2$num_t_date + follow_up,
-                           "event" = 0)
-                 )
+p1 <- gg_boxplot(data = data_iga, column = "cold_time_sum_min",
+                 xlab = "IGA all", ylab = "Cold isch time")
+p2 <- gg_boxplot(data = data_iga_neg, column = "cold_time_sum_min", xlab = "IGA -")
+p3 <- gg_boxplot(data = data_iga_pos, column = "cold_time_sum_min", xlab = "IGA +")
+patch <- p1 | p2 | p3
+patch <- patch + plot_annotation(
+  title = "Boxplot Cold Isch. Time min"
 )
-event <- ifelse(!is.na(data_iga2$num_graft_loss),
-                ## YES, graft loss occured
-                ifelse( data_iga2$num_graft_loss > data_iga2$num_t_date + follow_up,
-                        ## YES, graft loss occured but after follow up period
-                        0,
-                        ## NO, graft loss occured withi follow up period
-                        1
-                ),
-                ## NO, no graft loss occured
-                ifelse( (!is.na(data_iga2$num_t_dls) & (data_iga2$num_t_dls < (data_iga2$num_t_date + follow_up))),
-                        ## YES, but right censored before follow_up
-                        0,
-                        ## NO, 
-                        0
-                )
-)
-
-surv_fit <- survfit(formula = Surv(time = censor,
-                                   event = event, type = "right")~ 1,
-                    data = data_iga2)
-surv_fit
-ggsurvplot(surv_fit)
-################################################################################
+patch & ylim(0, 1600) & theme(axis.ticks.x = element_blank(),
+                              axis.text.x = element_blank())
+mismatch_out(data_iga)
+mismatch_out(data_iga_neg)
+mismatch_out(data_iga_pos)
 ################################################################################
 
+levs <- levels(unlist(data[, ..x.column]))
+levs
+names <- c("1" = "mit", "0" = "ohne")
+names(names)
+unname(names[order(names(names), levs)])
+
+data <- data_iga[, .(R_age_Tdate, `R-sex`)]
+x.column <- "R-sex"
+y.column <- "R_age_Tdate"
+
+data[, ..y.column]
 
 
-censor <- ifelse(!is.na(data_iga2$`graft loss date`),
-       ## YES, graft loss occured
-       ifelse( data_iga2$`graft loss date` > data_iga2$`T-date` + follow_up,
-               ## YES, graft loss occured but after follow up period
-               c("censoring" = data_iga2$`T-date` + follow_up,
-                 "event" = 0 ),
-               ## NO, graft loss occured withi follow up period
-               c("censoring" = data_iga2$`graft loss date`,
-                 "event" = 1)
-               ),
-       ## NO, no graft loss occured
-       ifelse( (!is.na(data_iga2$`T-dls`) & (data_iga2$`T-dls` < (data_iga2$`T-date` + follow_up))),
-               ## YES, but right censored before follow_up
-               c("censoring" = data_iga2$`T-dls`,
-                 "event" = 0),
-               ## NO, 
-               c("censoring" = data_iga2$`T-date` + follow_up,
-                 "event" = 0)
-       )
-)
-event <- ifelse(!is.na(data_iga2$`graft loss date`),
-                 ## YES, graft loss occured
-                 ifelse( data_iga2$`graft loss date` > data_iga2$`T-date` + follow_up,
-                         ## YES, graft loss occured but after follow up period
-                         0,
-                         ## NO, graft loss occured withi follow up period
-                         1
-                 ),
-                 ## NO, no graft loss occured
-                 ifelse( (!is.na(data_iga2$`T-dls`) & (data_iga2$`T-dls` < (data_iga2$`T-date` + follow_up))),
-                         ## YES, but right censored before follow_up
-                         0,
-                         ## NO, 
-                         0
-                 )
-)
-surv_fit_biopsy <- survfit(formula = Surv(time = censor, event = event, type = "right") ~ data_iga2$`biopsy proven recurrence (0=no, 1=yes)`)
-surv_fit <- survfit(formula = Surv(time = censor, event = event, type = "right") ~ 1)
-p_biopsy <- ggsurvplot(surv_fit_biopsy, data = data_iga2)
-p <- ggsurvplot(surv_fit, data = data_iga2)
-p_biopsy
-p
-################################################################################
-censor <- ifelse( data_iga2$`Pat death (0=alive, 1= dead)` == 1,
-  ## YES patient died
-  ifelse( data_iga2$`T-dls` > data_iga2$`T-date` + follow_up, 
-    ## YES patient died but after follow up -> right censored
-    data_iga2$`T-date` + follow_up,
-    ## NO, patient died within follow up
-    data_iga2$`T-dls`
-  ),
-  ifelse(data_iga2$`T-dls` < data_iga2$`T-date` + follow_up,
-         data_iga2$`T-dls`,
-         data_iga2$`T-date` + follow_up
-  )
-)
-event <- ifelse( data_iga2$`Pat death (0=alive, 1= dead)` == 1,
-                 ## YES patient died
-                 ifelse( data_iga2$`T-dls` > data_iga2$`T-date` + follow_up, 
-                         ## YES patient died but after follow up -> right censored
-                         0,
-                         ## NO, patient died within follow up
-                         1
-                 ),
-                 ifelse(data_iga2$`T-dls` < data_iga2$`T-date` + follow_up,
-                        0,
-                        0
-                 )
-)
-surv_fit <- survfit(formula = Surv(time = censor, event = event, type = "right") ~ 1)
-p <- ggsurvplot(surv_fit, data = data_iga2)
-p
-###
-surv_fit <- survfit(formula = Surv(time = data_iga2$`max FUP survivial (years)` * 365,
-                          event = data_iga2$`Pat death (0=alive, 1= dead)`,
-                          type = "right") ~ 1, data = data_iga2, conf.type = "none")
-surv_fit
-ggsurvplot(surv_fit)
-
-data_iga2$`max FUP survivial (years)`
-Surv(tome = )
-################################################################################
-data_iga2 %>% 
-  ## censor/event date
-  mutate(censor_date = case_when(
-    ## patient dropped during follow up
-    (`T-dls` <= `T-date` + follow_up) ~ `T-dls`,
-    ## patient experienced graft loss but after follow up
-    ((!is.na(`graft loss date`)) &  (`graft loss date` > `T-date` + follow_up)) ~ `T-date` + follow_up,
-    ## patient experienced graft loss within follow up
-    ((!is.na(`graft loss date`)) &  (`graft loss date` <= `T-date` + follow_up)) ~ `graft loss date`
-  )) 
-################################################################################
-
-data_iga2[!is.na(data_iga2$`graft loss date`) && (data_iga2$`graft loss date` <= data_iga2$`T-date` + follow_up)]
-################################################################################
-sum(
-  data_ntx$`Date last seen[NTX PatientenInformation]` < data_ntx$Datum + follow_up,
-  na.rm = TRUE
-  )
-dplyr::coalesce(data_ntx$`Transplantatfunktionsende 1[NTX PatientenInformation]`,
-                data_ntx$`Transplantatfunktionsende 2[NTX PatientenInformation]`)
+ggplot() +
+  geom_histogram(aes(x = unlist(data[, ..y.column]), fill = unlist(data[, ..x.column])),
+                 color="#e9ecef",
+                 alpha=0.9,
+                 position = "dodge") +
+  two_scale_fill +
+  xlab("") +
+  ylab("") +
+  default_theme
