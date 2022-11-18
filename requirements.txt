@@ -1,5 +1,6 @@
 readxl
 data.table
+checkmate
 forcats
 lubridate
 ggplot2
