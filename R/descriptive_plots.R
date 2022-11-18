@@ -106,7 +106,7 @@ gg.boxplot(data_iga_pos[!is.na(mismatch_sum)], y.column = "mismatch_sum", x.colu
 save.plot("boxplot_iga_pos_hla_sex.jpg")
 # time of biopsy
 ## IGA all
-gg.boxplot(data = data_iga, y.column = "time of biopsy (years after KTX)", x.column = "biopsy proven recurrence (0=no, 1=yes)",
+gg.boxplot(data = data_iga[], y.column = "time of biopsy (years after KTX)", x.column = "biopsy proven recurrence (0=no, 1=yes)",
            x.ticks = c("0" = "Ohne", "1" = "Mit"),
            ylab = "Jahre nach KTX", title = "IGA: Jahre nach KTX")
 save.plot("boxplot_iga_yearsKTX.jpg")
