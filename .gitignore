@@ -7,3 +7,5 @@ archive/
 *.save
 /archive
 scratch.R
+R/*.Rmd
+R/*.docx
