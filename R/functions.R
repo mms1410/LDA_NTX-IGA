@@ -2,6 +2,7 @@
 # this script contains functions used in other scripts in this project
 ################################################################################
 save.plot <- function(plot.name) {
+  # TODO check .jpg
   ggsave(paste0(dir.assets, .Platform$file.sep, plot.name), bg = "white", dpi = 400, scale = 2.5)
 }
 
@@ -195,3 +196,47 @@ mismatch.out <- function(data) {
   c(mean = mean(sum_all, na.rm = TRUE), std.err = stderr(sum_all))
 }
 stderr <- function(x) sd(x, na.rm = TRUE) / sqrt(length(!is.na(x)))
+
+
+create_iga_regime1 <- function(data_iga) {
+  data_iga <- data_iga %>% 
+    mutate(status_date = case_when(
+      ## graft-loss within follow up period
+      !is.na(`graft loss date`) & `graft loss date` <  `T-date` + follow_up ~ time_graft_loss,
+      ## graft-loss after follow up period
+      !is.na(`graft loss date`) & `graft loss date` >  `T-date` + follow_up ~ time_date_follow_up,
+      ## no graft-loss and last seen within follow up
+      is.na(`graft loss date`) & !is.na(`T-dls`) & `T-dls` < `T-date` + follow_up ~ time_t_dls,
+      ## no graft-loss and last seen after follow up
+      is.na(`graft loss date`) & !is.na(`T-dls`) & `T-dls` > `T-date` + follow_up ~ time_date_follow_up,
+      ## no graft loss and no last seen 
+      is.na(`graft loss date`) & is.na(`T-dls`) ~ time_date_follow_up
+    )
+    )
+  data_iga <- data_iga %>% 
+    mutate(status = case_when(
+      ## graft-loss within follow up period
+      !is.na(`graft loss date`) & `graft loss date` <  `T-date` + follow_up ~ 1,
+      ## else censored
+      TRUE ~ 0,
+    )
+    )
+  data_iga
+}
+
+create_iga_regime2 <- function(data_iga) {
+  data_iga <- data_iga %>% 
+    mutate(status_date = case_when(
+      ## patient death and death date within follow up
+      (`Pat death (0=alive, 1= dead)` == 1) & `T-dls` < `T-date` + follow_up ~ time_t_dls,
+      ## patient dead but after follow up
+      (`Pat death (0=alive, 1= dead)` == 1) & `T-dls` > `T-date` + follow_up ~ time_date_follow_up,
+      ## patient not death but dropped within follow up
+      (`Pat death (0=alive, 1= dead)` == 0) & `T-dls` < `T-date` + follow_up ~ time_t_dls,
+      ## patient not death but dropped after follow up
+      (`Pat death (0=alive, 1= dead)` == 0) & `T-dls` > `T-date` + follow_up ~ time_date_follow_up,
+      ## NOTE: T-dls never NA
+    )
+    )
+  data_iga
+}
