@@ -236,7 +236,58 @@ create_iga_regime2 <- function(data_iga) {
       ## patient not death but dropped after follow up
       (`Pat death (0=alive, 1= dead)` == 0) & `T-dls` > `T-date` + follow_up ~ time_date_follow_up,
       ## NOTE: T-dls never NA
-    )
-    )
+    ))
   data_iga
+}
+
+create_ntx_regime1 <- function(data_ntx) {
+  data_ntx <- data_ntx %>%
+    mutate(status_date = case_when(
+      ## patient experienced graft loss
+      !is.na(Transplantatfunktionsende) & Transplantatfunktionsende <= (Datum + follow_up) ~ interval(Datum, Transplantatfunktionsende) / years(1),
+      ## patient died within follow up
+      `Todesdatum[NTX PatientenInformation]` < (Datum + follow_up) ~ interval(Datum, `Todesdatum[NTX PatientenInformation]`) / years(1),
+      ## patiend last seen within follow up
+      `Date last seen[NTX PatientenInformation]` < (Datum + follow_up) ~ interval(Datum, `Date last seen[NTX PatientenInformation]`) / years(1),
+      ## else follow up
+      TRUE ~ interval(Datum, (Datum + follow_up)) / years(1)
+    ))
+  data_ntx <- data_ntx %>%
+    mutate(status = case_when(
+      ## patient experienced graft loss
+      !is.na(Transplantatfunktionsende) & Transplantatfunktionsende <= (Datum + follow_up) ~ 1,
+      ## patient died within follow up 
+      `Todesdatum[NTX PatientenInformation]` < (Datum + follow_up) ~ 0,
+      ## patiend last seen within follow up
+      `Date last seen[NTX PatientenInformation]` < (Datum + follow_up) ~ 0,
+      ## else follow up
+      TRUE ~ 0
+    ))
+  data_ntx
+}
+
+create_ntx_regime2 <- function(data_ntx) {
+  data_ntx <- data_ntx %>%
+    mutate(status_date = case_when(
+      ## patient died within follow up
+      `Todesdatum[NTX PatientenInformation]` <= (Datum + follow_up) ~ interval(Datum, `Todesdatum[NTX PatientenInformation]`) / years(1),
+      ## patient died after follow up
+      `Todesdatum[NTX PatientenInformation]` > (Datum + follow_up) ~ interval(Datum, (Datum + follow_up)) / years(1),
+      ## patient dropped within follow up
+      `Date last seen[NTX PatientenInformation]` <= (Datum + follow_up) ~ interval(Datum, `Date last seen[NTX PatientenInformation]`) / years(1),
+      ## patient dropped after follow up
+      `Date last seen[NTX PatientenInformation]` > (Datum + follow_up) ~ interval(Datum, (Datum + follow_up)) / years(1)
+    ))
+  data_ntx <- data_ntx %>%
+    mutate(status = case_when(
+      ## patient died within follow up
+      `Todesdatum[NTX PatientenInformation]` <= (Datum + follow_up) ~ 1,
+      ## patient died after follow up
+      `Todesdatum[NTX PatientenInformation]` > (Datum + follow_up) ~ 0,
+      ## patient dropped within follow up
+      `Date last seen[NTX PatientenInformation]` <= (Datum + follow_up) ~ 0,
+      ## patient dropped after follow up
+      `Date last seen[NTX PatientenInformation]` > (Datum + follow_up) ~ 0
+    ))
+  data_ntx
 }

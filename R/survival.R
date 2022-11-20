@@ -50,9 +50,65 @@ save.plot("kaplan-meier_regime1_iganeg.jpg")
 surv_median(model_iga_1.3)
 summary(model_iga_1.3, times = c(1:10))
 
+## NTX
+data_ntx <- create_ntx_regime1(data_ntx)
+model_ntx_1 <- survfit(formula = Surv(time = status_date, event = status,
+                                      type = "right") ~ 1, data = data_ntx)
+ggsurvplot(model_ntx_1, conf.int = FALSE, cumevents = TRUE)
+save.plot("kaplan-meier_regime1_ntx.jpg")
+surv_median(model_ntx_1)
+summary(model_ntx_1, times = c(1:10))
+###############################################################################
+# Log Rank Tests
+data.stack <- rbindlist(list(
+  data_iga[, .(status, status_date, group="iga")],
+  data_ntx[, .(status, status_date, group ="ntx")]
+))
+### IGA-all vs NTX-all
+survdiff(Surv(time = status_date, event = status) ~ group, data = data.stack)
 
+### IGA-neg vs. NTX-all
+data.stack <- rbindlist(list(
+  data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 0, .(status, status_date, group="iga")],
+  data_ntx[, .(status, status_date, group ="ntx")]
+))
+survdiff(Surv(time = status_date, event = status) ~ group, data = data.stack)
+
+#### IGA-pos vs. NTX.all
+data.stack <- rbindlist(list(
+  data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 1, .(status, status_date, group="iga")],
+  data_ntx[, .(status, status_date, group ="ntx")]
+))
+survdiff(Surv(time = status_date, event = status) ~ group, data = data.stack)
+
+#### IGA-neg vs- IGA-pos
+survdiff(Surv(time = status_date, event = status,
+        type = "right") ~ data_iga$`biopsy proven recurrence (0=no, 1=yes)`, data_iga)
 
 ################################################################################
+# Cox Regression
+
+model_cox_iga_1 <- coxph(formula = Surv(time = as.numeric(status_date),
+                                                       event = status) ~ R_age_Tdate +
+                         `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_min + mismatch_sum , data = data_iga)
+
+summary(model_cox_iga_1)
+ggsurvplot(survfit(model_cox_iga_1, data = data_iga), conf.int = FALSE)
+save.plot("cox-regression_iga_1.jpg")
+#### age -> 18-39 ,40-59, >60
+data_iga$R_age_Tdate_class <- cut(data_iga$R_age_Tdate, breaks = c(0, 39, 40, 59, Inf))
+#### hla-mm 0-2, 3-5, > 5
+data_iga$mismatch_sum_class <- cut(data_iga$mismatch_sum, breaks = c(0, 2, 5, Inf))
+#### cold 0-12, >12
+data_iga$cold_time_sum_class <- cut(data_iga$cold_time_sum_min, breaks = c(0, 12 * 60, Inf))
+
+model_cox_iga_1_class <- coxph(formula = Surv(time = as.numeric(status_date),
+                                        event = status) ~ R_age_Tdate_class +
+                           `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_class + mismatch_sum_class , data = data_iga)
+summary(model_cox_iga_1_class)
+ggsurvplot(survfit(model_cox_iga_1_class, data = data_iga), conf.int = FALSE)
+save.plot("cox-regression_iga_1_class.jpg")
+ ################################################################################
 # regime 2
 ################################################################################
 data_iga <- create_iga_regime2(data_iga)
@@ -87,4 +143,64 @@ ggsurvplot(model_iga_2_neg, conf.int = FALSE, cumevents = TRUE)
 save.plot("kaplan-meier_regime2_iganeg.jpg")
 surv_median(model_iga_2_neg)
 summary(model_iga_2_neg, times = c(1:10))
+
+## NTX
+data_ntx <- create_ntx_regime2(data_ntx)
+model_ntx_2 <- survfit(Surv(time = status_date, event = status,
+                            type = "right") ~1, data = data_ntx)
+ggsurvplot(model_ntx_2, conf.int = FALSE, cumevents = TRUE)
+save.plot("kaplan-,eier_regime2_ntx.jpg")
+surv_median(model_ntx_2)
+summary(model_ntx_2, times = c(1:10))
+###############################################################################
+# Log Rank Tests
+
+#### IGA-all vs. NTX-all
+data.stack <- rbindlist(list(
+  data_iga[, .(status, status_date, group="iga")],
+  data_ntx[, .(status, status_date, group ="ntx")]
+))
+survdiff(Surv(time = status_date, event = status) ~ group, data = data.stack)
+
+#### IGA-neg vs. NTX-all
+data.stack <- rbindlist(list(
+  data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 0, .(status, status_date, group="iga")],
+  data_ntx[, .(status, status_date, group ="ntx")]
+))
+survdiff(Surv(time = status_date, event = status) ~ group, data = data.stack)
+
+
+#### IGA-pos vs. NTX-all
+data.stack <- rbindlist(list(
+  data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 1, .(status, status_date, group="iga")],
+  data_ntx[, .(status, status_date, group ="ntx")]
+))
+survdiff(Surv(time = status_date, event = status) ~ group, data = data.stack)
+
+#### IGA-neg vs. IGA-pos
+survdiff(Surv(time = status_date, event = status, type = "right") ~ data_iga$`biopsy proven recurrence (0=no, 1=yes)`, data_iga)
+
+################################################################################
+# Cox Regression
+
+model_cox_iga_2 <- coxph(formula = Surv(time = as.numeric(status_date),
+                                        event = status) ~ R_age_Tdate +
+                           `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_min + mismatch_sum , data = data_iga)
+
+summary(model_cox_iga_2)
+ggsurvplot(survfit(model_cox_iga_2, data = data_iga), conf.int = FALSE)
+save.plot("cox-regression_iga_2.jpg")
+#### age -> 18-39 ,40-59, >60
+data_iga$R_age_Tdate_class <- cut(data_iga$R_age_Tdate, breaks = c(0, 39, 40, 59, Inf))
+#### hla-mm 0-2, 3-5, > 5
+data_iga$mismatch_sum_class <- cut(data_iga$mismatch_sum, breaks = c(0, 2, 5, Inf))
+#### cold 0-12, >12
+data_iga$cold_time_sum_class <- cut(data_iga$cold_time_sum_min, breaks = c(0, 12 * 60, Inf))
+
+model_cox_iga_2_class <- coxph(formula = Surv(time = as.numeric(status_date),
+                                              event = status) ~ R_age_Tdate_class +
+                                 `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_class + mismatch_sum_class , data = data_iga)
+summary(model_cox_iga_2_class)
+ggsurvplot(survfit(model_cox_iga_2_class, data = data_iga), conf.int = FALSE)
+save.plot("cox-regression_iga_2_class.jpg")
 
