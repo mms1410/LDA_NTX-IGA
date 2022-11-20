@@ -149,7 +149,7 @@ data_ntx <- create_ntx_regime2(data_ntx)
 model_ntx_2 <- survfit(Surv(time = status_date, event = status,
                             type = "right") ~1, data = data_ntx)
 ggsurvplot(model_ntx_2, conf.int = FALSE, cumevents = TRUE)
-save.plot("kaplan-,eier_regime2_ntx.jpg")
+save.plot("kaplan-meier_regime2_ntx.jpg")
 surv_median(model_ntx_2)
 summary(model_ntx_2, times = c(1:10))
 ###############################################################################
