@@ -291,3 +291,17 @@ create_ntx_regime2 <- function(data_ntx) {
     ))
   data_ntx
 }
+simple.cox.surv <- function(data, covariate) {
+  #'
+  #' @data data.table with status and status_date column
+  #' @covariate string of column name in 'data' used as regressor
+  #'
+  #'
+  assertString(covariate, na.ok = FALSE)
+  assertDataTable(data)
+  assert(all(c("status", "status_date") %in% colnames(data)))
+  assert(covariate %in% colnames(data))
+  ##
+  coxph(formula = Surv(time = as.numeric(status_date),
+                       event = status) ~ data[[covariate]], data = data_iga)
+}
