@@ -45,5 +45,6 @@ data_iga[, cold_time_sum_min := cold.time.add(`Cold ischaemic period hours`, `Co
 data_iga_pos <- data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 1]
 data_iga_neg <- data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 0]
 ####
-# source(paste0(dir.scripts, .Platform$file.sep, "descriptive_plots.R"))
-# source(paste0(dir.scripts, .Platform$file.sep, "descriptive_metrics.R"))
+source(paste0(dir.scripts, .Platform$file.sep, "descriptive_plots.R"))
+source(paste0(dir.scripts, .Platform$file.sep, "descriptive_metrics.R"))
+source(paste0(dir.scripts, .Platform$file.sep, "survival.R"))

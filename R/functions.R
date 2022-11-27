@@ -305,3 +305,4 @@ simple.cox.surv <- function(data, covariate) {
   coxph(formula = Surv(time = as.numeric(status_date),
                        event = status) ~ data[[covariate]], data = data_iga)
 }
+  
