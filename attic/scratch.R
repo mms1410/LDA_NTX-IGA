@@ -83,3 +83,23 @@ ggplot() +
   xlab("") +
   ylab("") +
   default_theme
+###################
+model_cox_iga_1 <- coxph(formula = Surv(time = as.numeric(status_date),
+                                        event = status) ~ R_age_Tdate +
+                           `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_min + mismatch_sum , data = data_iga)
+
+model_cox_iga_1 <- coxph(formula = Surv(time = as.numeric(status_date),
+                                        event = status) ~ R_age_Tdate +
+                           `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_min , data = data_iga)
+
+y <- summary(model_cox_iga_1)
+model_cox_iga_1 <- coxph(formula = Surv(time = as.numeric(status_date),
+                                        event = status) ~ R_age_Tdate +
+                           `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_min + mismatch_sum , data = data_iga)
+
+x <- summary(model_cox_iga_1)
+
+
+data_iga$mismatch_sum
+
+steps <- step(model_cox_iga_1)
