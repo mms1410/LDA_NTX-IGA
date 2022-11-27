@@ -12,6 +12,7 @@ packages <- scan(file = paste0(dir.project, .Platform$file.sep, "requirements.tx
      sep = "\t", what = character())
 
 sapply(packages, require, character.only = TRUE)
+library(MuMIn)
 #######
 default_theme <- theme_minimal()
 scale_fill_manual_values <- c("#69b3a2", "#404080")
@@ -44,5 +45,5 @@ data_iga[, cold_time_sum_min := cold.time.add(`Cold ischaemic period hours`, `Co
 data_iga_pos <- data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 1]
 data_iga_neg <- data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 0]
 ####
-source(paste0(dir.scripts, .Platform$file.sep, "descriptive_plots.R"))
-source(paste0(dir.scripts, .Platform$file.sep, "descriptive_metrics.R"))
+# source(paste0(dir.scripts, .Platform$file.sep, "descriptive_plots.R"))
+# source(paste0(dir.scripts, .Platform$file.sep, "descriptive_metrics.R"))
