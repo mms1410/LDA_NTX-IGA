@@ -1,3 +1,4 @@
+rstudioapi
 readxl
 data.table
 checkmate
