@@ -1,52 +1,15 @@
 # LDA_NTX-IGA
-Lebenzeitanalyse fuer NTX und IGA Patienten
+Survival analysis of iga and ntx patients.
 
-### ToDo:
-1. LDA
-  - [ ] Kapplan-Maier-curve
-  - [ ] Cox-regression/Hazard-ratio
-2. EDA
+## Structure
+The `R` folder contains all relevant scripts for execution.
+The necessary data is expected to be stored in the corresponding `data` folder.
+The workload is spitted into several scripts which are combined/'sourced' in the `main.R` script.
+Images and other data created during excecution in saved into `assets` folder.
 
-| Task                        | Status  | Comment         |
-|-----------------------------|---------|-----------------|
-| follow-up (mean)            | O.K.    |                 |
-| age patients (yrs.)         | O.K.    |                 |
-| male sex                    | O.K.    |                 |
-| BMI (mean.)                 | O.K.    |                 |
-| living D.                   | O.K.    |                 |
-| deceased D.                 | O.K.    |                 |
-| HLA-mm (0-6)                | O.K.    |                 |
-| age donor (mean.)           | O.K.    |                 |
-| cold-ischemia time (hours)  | O.K.    |                 |
-| PRA current (mean)          | O.K.    |                 |
-| PRA highest (mean)          | O.K     |                 |
-
-
-3. TBA
-
-#### folder structure:
-
-```
-.
-├── archive
-│   ├── ...
-│   ├── ...
-│   └── etc.
-├── data (.gitignore)
-│   ├── IgA_masterfile-Tango_2020_04_21 NEU.xlsx
-│   ├── iga_sheet1.csv
-│   ├── iga_sheet2.csv
-│   ├── ntx_daten.csv
-│   └── ntx-fu-alina_Aussortierte_Daten.xlsx
-├── misc (.gitignore)
-│   ├── ...
-│   ├── ...
-│   └── etc.
-├── R
-│   ├── LDA_IGA-NTX.nb.html
-│   ├── LDA_IGA-NTX.Rmd
-│   ├── read_data.R
-│   └── scratch.R
-└── README.md
-
-```
+## Content
+Iga and ntx data is pre-processed in the `read_data.R` script. Patients younger than 18 years are dropped, levels of some columns are adapted to actual content (most of the time transformed into factors when appropriate).<br>
+After pre-processing several descriptive statistics are computed, most commonly this is done by stating [5-number summaries](https://en.wikipedia.org/wiki/Five-number_summary) either as console output when running the script or in form of a boxplots.<br>
+After pure descriptive statistics several survival analysis are conducted, each for both the event of graft loss ('Regime1') and patient death within follow up period ('Regime2') (see corresponding function in `functions.R` for event and censoring definition):<br>
+First the Kaplan-Meier estimator is used to calculate survivor functions for iga and ntx patients. Afterwards a Log Rank test is used to assess differences in survival probabilities between iga patients with and without a proven recurrent biopsy and total ntx patients. <br>
+Finally a Cox-Regression for iga patients is conducted where certain numerical covariables are additionally converted into groups. The Cox-regressions include one large regression and several univariate regressions. 
