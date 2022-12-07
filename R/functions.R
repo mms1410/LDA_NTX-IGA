@@ -1,6 +1,8 @@
 ################################################################################
 # this script contains functions used in other scripts in this project
 ################################################################################
+stderr <- function(x) sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x)))
+
 save.plot <- function(plot.name) {
   # TODO check .jpg
   ggsave(paste0(dir.assets, .Platform$file.sep, plot.name), bg = "white", dpi = 400, scale = 2.5)
@@ -8,8 +10,10 @@ save.plot <- function(plot.name) {
 
 write.summary <- function(data, file.name) {
   #'
+  #'create data.table pf psych output and write csv into assets folder 
   #'
-  #'
+  #'@param data: data.table with data
+  #'@param filename: string containing file name inclusive of ending format (csv)
   #'
   #'
   data.numeric <- data[, .SD, .SDcols = is.numeric]
@@ -188,15 +192,78 @@ cold.time.add <- function(time.h, time.m) {
   time.h * 60 + time.m
 }
 
+
+create.summary.num <- function(data_iga, var.name, subset.name) {
+  #'
+  #' create named vector of essential summary statistics
+  #'
+  #' @param data_iga: data.table with data
+  #' @var.name: string of variable name in column of data
+  #' @subset.name: string of names given to iga subsets
+  #'
+  #'
+  data <- unlist(data_iga[, ..var.name])
+  c("name" = subset.name, "mean" = mean(data, na.rm = TRUE), "mean.stdr" = stderr(data),
+    "median" = median(data, na.rm = TRUE),
+    "q1" = summary(data)[[2]],
+    "q2" = summary(data)[[5]],
+    "IQR" = IQR(data, na.rm = FALSE),
+    "n_total" = length(data),
+    "n" = sum(!is.na(data)),
+    "n_na" = sum(is.na(data))
+  )
+}
+
+create.summary.num.ntx <- function(data_ntx, var.name, name) {
+  #'
+  #'create data.table of essential summary statistics
+  #'
+  #' @param data_ntx: data.table with data
+  #' @param var.name: string with columnname
+  #' @param name: name to be given in name column
+  #'
+  #'
+  assertDataTable(data_ntx)
+  assert(var.name %in% colnames(data_ntx))
+  assert("numeric" %in% class(unlist((data_ntx[, ..var.name]))))
+  data <- unlist(data_ntx[, ..var.name])
+  data.table(name = name, mean = mean(data, na.rm = TRUE), mean.stdr = stderr(data),
+             median = median(data, na.rm = TRUE), q1 = summary(data)[[2]],
+             q2 = summary(data)[[5]], IQR = IQR(data, na.rm = TRUE),
+             n_total = length(data), n = sum(!is.na(data)), n_na = sum(is.na(data))
+            )
+}
+
+create.summary.num.iga <- function(data_iga, var.name, subset.names) {
+  #'
+  #' uses create.summary function to create summary for iga data
+  #'
+  #' @param data_iga: data.table with data
+  #' @param var.name: string with variable names
+  #' @param subset.names: string with name for iga subsets
+  #'
+  #'
+  assertDataTable(data_iga)
+  assert(var.name %in% colnames(data_iga))
+  assert("numeric" %in% class(unlist((data_iga[, ..var.name]))))
+  assertCharacter(subset.names, any.missing = FALSE, len = 3)
+  
+  as.data.table(rbind(
+  create.summary(data_iga, var.name, subset.names[[1]]),
+  create.summary(data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 0], var.name, subset.names[[2]]),
+  create.summary(data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 1], var.name, subset.names[[3]])))
+  
+}
+
 mismatch.out <- function(data) {
-  stderr <- function(x) sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x)))
+  # stderr <- function(x) sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x)))
   sum_all <- data[, .(as.numeric(as.character(`mm-A`)), as.numeric(as.character(`mm-DR`)), as.numeric(as.character(`mm-B`)))]
   sum_all <- apply(X = sum_all, MARGIN = 1, FUN = sum, na.rm = TRUE)
   sum_all[sum_all == 0] <- NA
   c(mean = mean(sum_all, na.rm = TRUE), std.err = stderr(sum_all))
 }
-stderr <- function(x) sd(x, na.rm = TRUE) / sqrt(length(!is.na(x)))
 
+stderr <- function(x) sd(x, na.rm = TRUE) / sqrt(length(!is.na(x)))
 
 create_iga_regime1 <- function(data_iga) {
   data_iga <- data_iga %>% 
@@ -291,6 +358,7 @@ create_ntx_regime2 <- function(data_ntx) {
     ))
   data_ntx
 }
+
 simple.cox.surv <- function(data, covariate) {
   #'
   #' @data data.table with status and status_date column

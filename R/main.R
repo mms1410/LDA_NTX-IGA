@@ -12,7 +12,6 @@ packages <- scan(file = paste0(dir.project, .Platform$file.sep, "requirements.tx
      sep = "\t", what = character())
 
 sapply(packages, require, character.only = TRUE)
-library(MuMIn)
 #######
 default_theme <- theme_minimal()
 scale_fill_manual_values <- c("#69b3a2", "#404080")
