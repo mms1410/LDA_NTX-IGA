@@ -249,9 +249,9 @@ create.summary.num.iga <- function(data_iga, var.name, subset.names) {
   assertCharacter(subset.names, any.missing = FALSE, len = 3)
   
   as.data.table(rbind(
-  create.summary(data_iga, var.name, subset.names[[1]]),
-  create.summary(data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 0], var.name, subset.names[[2]]),
-  create.summary(data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 1], var.name, subset.names[[3]])))
+  create.summary.num(data_iga, var.name, subset.names[[1]]),
+  create.summary.num(data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 0], var.name, subset.names[[2]]),
+  create.summary.num(data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 1], var.name, subset.names[[3]])))
   
 }
 
