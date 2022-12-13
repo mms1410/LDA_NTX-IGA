@@ -13,3 +13,9 @@ After pre-processing several descriptive statistics are computed, most commonly 
 After pure descriptive statistics several survival analysis are conducted, each for both the event of graft loss ('Regime1') and patient death within follow up period ('Regime2') (see corresponding function in `functions.R` for event and censoring definition):<br>
 First the Kaplan-Meier estimator is used to calculate survivor functions for iga and ntx patients. Afterwards a Log Rank test is used to assess differences in survival probabilities between iga patients with and without a proven recurrent biopsy and total ntx patients. <br>
 Finally a Cox-Regression for iga patients is conducted where certain numerical covariables are additionally converted into groups. The Cox-regressions include one large regression and several univariate regressions. 
+
+
+### Cox-Regression
+The general form of a cox regression model reads as $h(t)=h_{0}(t)\exp(\Sigma_{i}^{n}\overbrace{b_{i}}^{:=coef}\times x_{i})$ <br>
+where $h_{0}(t)$ denotes the baseline hazard and $\exp(b_{i})$ are called the hazard ratios. A value smaller than one indicates a reduction in hazard, a value greater than one an increase in hazard and a value of exactly one no effect.
+

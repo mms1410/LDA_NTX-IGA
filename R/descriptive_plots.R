@@ -110,3 +110,5 @@ gg.boxplot(data = data_iga[], y.column = "time of biopsy (years after KTX)", x.c
            x.ticks = c("0" = "Ohne", "1" = "Mit"),
            ylab = "Jahre nach KTX", title = "IGA: Jahre nach KTX")
 save.plot("boxplot_iga_yearsKTX.jpg")
+# current PRA
+gg.histogram(data = data_iga, column = "Current PRA%")

@@ -103,3 +103,19 @@ x <- summary(model_cox_iga_1)
 data_iga$mismatch_sum
 
 steps <- step(model_cox_iga_1)
+####################
+test <- sapply(model_cox_iga_1, function(x) c(summary(x), type = class(x)))
+path.test <- paste0(dir.project, .Platform$file.sep, "attic", .Platform$file.sep,
+                    "test.csv")
+
+y <- broom::glance(model_cox_iga_1)
+####################
+ggplot(data = data_iga, aes(x = `Current PRA%`, fill = `graft loss (0=functial, 1=loss)`)) +
+  geom_histogram(data = data_iga,position = "identity") +
+  default_theme 
+
+ggplot() +
+  geom_histogram(data = data_iga, aes(x = `Highest PRA%`, fill = `graft loss (0=functial, 1=loss)`)) +
+  default_theme
+
+                 

@@ -98,7 +98,7 @@ model_cox_iga_1 <- coxph(formula = Surv(time = as.numeric(status_date),
 summary(model_cox_iga_1)
 ggsurvplot(survfit(model_cox_iga_1, data = data_iga), conf.int = FALSE)
 save.plot("cox-regression_iga_1.jpg")
-fwrite(tidy(model_cox_iga_1),
+fwrite(tidy(model_cox_iga_1, conf.int = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_1_all.csv"))
 #### all permutations
 lapply(X = covariates_iga, FUN = function(x){simple.cox.surv(data = data_iga, covariate = x, name.prefix = "iga_1_")})
@@ -110,7 +110,7 @@ model_cox_iga_1_no_mismatch <- coxph(formula = Surv(time = as.numeric(status_dat
 summary(model_cox_iga_1_no_mismatch)
 ggsurvplot(survfit(model_cox_iga_1, data = data_iga), conf.int = FALSE)
 save.plot("cox-regression_iga_1_no_mismatch.jpg")
-fwrite(tidy(model_cox_iga_1_no_mismatch),
+fwrite(tidy(model_cox_iga_1_no_mismatch, conf.int = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_1_no_mismatch.csv"))
 
 #### age -> 18-39 ,40-59, >60
@@ -136,7 +136,7 @@ model_cox_iga_1_class <- coxph(formula = Surv(time = as.numeric(status_date),
 summary(model_cox_iga_1_class)
 ggsurvplot(survfit(model_cox_iga_1_class, data = data_iga), conf.int = FALSE)
 save.plot("cox-regression_iga_1_class.jpg")
-fwrite(tidy(model_cox_iga_1_class),
+fwrite(tidy(model_cox_iga_1_class, conf.int = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_1_all_class.csv"))
 
 
@@ -150,7 +150,7 @@ model_cox_iga_1_class_no_mismatch <- coxph(formula = Surv(time = as.numeric(stat
 summary(model_cox_iga_1_class_no_mismatch)
 ggsurvplot(survfit(model_cox_iga_1_class, data = data_iga), conf.int = FALSE)
 save.plot("cox-regression_iga_1_class_no_mismatch.jpg")
-fwrite(tidy(model_cox_iga_1_class_no_mismatch),
+fwrite(tidy(model_cox_iga_1_class_no_mismatch, conf.int = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_1_no_mismatch_class.csv"))
 
  ################################################################################
@@ -235,7 +235,7 @@ model_cox_iga_2 <- coxph(formula = Surv(time = as.numeric(status_date),
 summary(model_cox_iga_2)
 ggsurvplot(survfit(model_cox_iga_2, data = data_iga), conf.int = FALSE)
 save.plot("cox-regression_iga_2.jpg")
-fwrite(tidy(model_cox_iga_2),
+fwrite(tidy(model_cox_iga_2, conf.int = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_2_all.csv"))
 
 #### all permutations
@@ -250,7 +250,7 @@ model_cox_iga_2_no_mismatch <- coxph(formula = Surv(time = as.numeric(status_dat
 summary(model_cox_iga_2_no_mismatch)
 ggsurvplot(survfit(model_cox_iga_2_no_mismatch, data = data_iga), conf.int = FALSE)
 save.plot("cox-regression_iga_2_no_mismatch.jpg")
-fwrite(tidy(model_cox_iga_2_no_mismatch),
+fwrite(tidy(model_cox_iga_2_no_mismatch, conf.int = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_2_no_mismatch.csv"))
 
 
@@ -276,7 +276,7 @@ model_cox_iga_2_class <- coxph(formula = Surv(time = as.numeric(status_date),
 summary(model_cox_iga_2_class)
 ggsurvplot(survfit(model_cox_iga_2_class, data = data_iga), conf.int = FALSE)
 save.plot("cox-regression_iga_2_class.jpg")
-fwrite(tidy(model_cox_iga_2_class),
+fwrite(tidy(model_cox_iga_2_class, conf.int = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_2_all_class.csv"))
 
 
@@ -290,5 +290,5 @@ model_cox_iga_2_class_no_mismatch <- coxph(formula = Surv(time = as.numeric(stat
 summary(model_cox_iga_2_class_no_mismatch)
 ggsurvplot(survfit(model_cox_iga_2_class_no_mismatch, data = data_iga), conf.int = FALSE)
 save.plot("cox-regression_iga_2_class.jpg")
-fwrite(tidy(model_cox_iga_2_class_no_mismatch),
+fwrite(tidy(model_cox_iga_2_class_no_mismatch, conf.int = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_2_no_mismatch_class.csv"))

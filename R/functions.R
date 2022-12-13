@@ -154,7 +154,7 @@ gg.histogram <- function(data, column, interval = FALSE, interval.devisor = 1, f
   #'
   #'
   if (interval) {
-    assertString(column, any.missing = FALSE, len = 2)
+    assertCharacter(column, any.missing = FALSE, len = 2)
     #TODO: assert time data
     start <- column[1]
     end <- column[2]
@@ -169,11 +169,11 @@ gg.histogram <- function(data, column, interval = FALSE, interval.devisor = 1, f
     
     data.interval <- interval(start, end) / interval.divisor
   } else {
-    assertString(column, any.missing = FALSE, len = 1)
+    assertCharacter(column, any.missing = FALSE, len = 1)
     assert(all(column %in% colnames(data)))
   }
   if (!is.null(fill)) {
-    assertString(fill, any.missing = FALSE, len = 1)
+    assertCharacter(fill, any.missing = FALSE, len = 1)
     assert(fill %in% colnames(data))
   }
   ggplot(data) +
@@ -377,6 +377,17 @@ simple.cox.surv <- function(data, covariate, write.summary = TRUE, name.prefix =
   model <- coxph(formula = Surv(time = as.numeric(status_date),
                        event = status) ~ data[[covariate]], data = data_iga)
   file.name <- paste0(dir.assets.csv, .Platform$file.sep, paste0("cox_",name.prefix, covariate, name.suffix, ".csv"))
-  fwrite(broom::tidy(model), file = file.name)
+  fwrite(broom::tidy(model, conf.int = TRUE), file = file.name)
   model
+}
+merge.cox.files <- function(){
+  #'
+  #'
+  #'
+  #'
+  #'
+  assert("dir.assets.csv" %in% ls(envir=.GlobalEnv))
+  cox.files <- list.files(dir.assets.csv)
+  cox.files.iga.noclass <- cox.files[grep(pattern = "^cox_iga_\\d_(?!class)", cox.files, perl = TRUE)]
+  
 }
