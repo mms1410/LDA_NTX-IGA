@@ -7,7 +7,7 @@
 covariates_iga <- c("R_age_Tdate", "D-age", "R-sex",  "D-sex",  "D-type", "Current PRA%", "Highest PRA%",
                     "cold_time_sum_min", "mismatch_sum")
 covariates_iga_class <- c("R_age_Tdate_class","D-age", "R-sex", "D-sex",
-                          "D-type", "cold_time_sum_class", "mismatch_sum_class")
+                          "D-type","Current PRA%", "Highest PRA%", "cold_time_sum_class", "mismatch_sum_class")
 data_iga[, time_date_biopsy := interval(`T-date`, `date of biopsy`) / years(1)]
 data_iga[, time_t_dls := interval(`T-date`, `T-dls`) / years(1)]
 data_iga[, time_date_birth := interval(`T-date`, `Date of birth`) / years(1)]
