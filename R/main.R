@@ -21,6 +21,14 @@ if (!file.exists(paste0(dir.project, .Platform$file.sep, "assets"))) {
   dir.create(paste0(dir.project, .Platform$file.sep, "assets"))
 }
 dir.assets <- paste0(dir.project, .Platform$file.sep, "assets")
+if (!file.exists(paste0(dir.assets, .Platform$file.sep, "csv"))) {
+  dir.create(paste0(dir.assets, .Platform$file.sep, "csv"))
+}
+dir.assets.csv <- paste0(dir.assets, .Platform$file.sep, "csv")
+if (!file.exists(paste0(dir.assets, .Platform$file.sep, "png"))) {
+  dir.create(paste0(dir.assets, .Platform$file.sep, "png"))
+}
+dir.assets.png <- paste0(dir.assets, .Platform$file.sep, "png")
 ##
 dir.scripts <- rstudioapi::getSourceEditorContext()$path  #.../R/main.R
 dir.scripts <- dirname(dir.scripts)  #.../R

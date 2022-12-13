@@ -4,7 +4,7 @@
 ## event: 1 if event observed, 0 if censored
 ################################################################################
 # Kaplan Meier estimation preliminaries
-covariates_iga <- c("R_age_Tdate", "D-age", "R-sex",  "D-sex",  "D-type",
+covariates_iga <- c("R_age_Tdate", "D-age", "R-sex",  "D-sex",  "D-type", "Current PRA%", "Highest PRA%",
                     "cold_time_sum_min", "mismatch_sum")
 covariates_iga_class <- c("R_age_Tdate_class","D-age", "R-sex", "D-sex",
                           "D-type", "cold_time_sum_class", "mismatch_sum_class")
@@ -29,7 +29,6 @@ ggsurvplot(model_iga_1,
            conf.int = FALSE, cumevents = TRUE)
 save.plot("kaplan-meier_regime1_iga1.jpg")
 surv_median(model_iga_1)
-summary(model_iga_1, times = c(1:10))
 
 ## IGA positive
 model_iga_1.2 <- survfit(formula = Surv(time = status_date,
@@ -94,22 +93,25 @@ survdiff(Surv(time = status_date, event = status,
 ### all 
 model_cox_iga_1 <- coxph(formula = Surv(time = as.numeric(status_date),
                                                        event = status) ~ R_age_Tdate +
-                         `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_min + mismatch_sum , data = data_iga)
+                         `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_min + mismatch_sum + `Current PRA%` + `Highest PRA%`, data = data_iga)
 
 summary(model_cox_iga_1)
 ggsurvplot(survfit(model_cox_iga_1, data = data_iga), conf.int = FALSE)
 save.plot("cox-regression_iga_1.jpg")
-
+fwrite(tidy(model_cox_iga_1),
+       file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_1_all.csv"))
 #### all permutations
-lapply(X = covariates_iga, FUN = function(x){simple.cox.surv(data = data_iga, covariate = x)})
+lapply(X = covariates_iga, FUN = function(x){simple.cox.surv(data = data_iga, covariate = x, name.prefix = "iga_1_")})
 
 ### all no mismatch
 model_cox_iga_1_no_mismatch <- coxph(formula = Surv(time = as.numeric(status_date),
                                         event = status) ~ R_age_Tdate +
-                           `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_min , data = data_iga)
+                           `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_min + mismatch_sum + `Current PRA%` + `Highest PRA%`, data = data_iga)
 summary(model_cox_iga_1_no_mismatch)
 ggsurvplot(survfit(model_cox_iga_1, data = data_iga), conf.int = FALSE)
 save.plot("cox-regression_iga_1_no_mismatch.jpg")
+fwrite(tidy(model_cox_iga_1_no_mismatch),
+       file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_1_no_mismatch.csv"))
 
 #### age -> 18-39 ,40-59, >60
 data_iga$R_age_Tdate_class <- cut(data_iga$R_age_Tdate, breaks = c(0, 39, 59, Inf), include.lowest = TRUE)
@@ -130,21 +132,27 @@ data_iga$cold_time_sum_class <- cut(data_iga$cold_time_sum_min, breaks = c(0, 12
 ### all
 model_cox_iga_1_class <- coxph(formula = Surv(time = as.numeric(status_date),
                                         event = status) ~ R_age_Tdate_class +
-                           `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_class + mismatch_sum_class , data = data_iga)
+                           `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_class + mismatch_sum_class + mismatch_sum + `Current PRA%` + `Highest PRA%` , data = data_iga)
 summary(model_cox_iga_1_class)
 ggsurvplot(survfit(model_cox_iga_1_class, data = data_iga), conf.int = FALSE)
 save.plot("cox-regression_iga_1_class.jpg")
+fwrite(tidy(model_cox_iga_1_class),
+       file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_1_all_class.csv"))
+
 
 #### all permutations
-lapply(X = covariates_iga_class, FUN = function(x){simple.cox.surv(data = data_iga, covariate = x)})
+lapply(X = covariates_iga_class, FUN = function(x){simple.cox.surv(data = data_iga, covariate = x, name.prefix = "iga_1_class_")})
 
 ### no mismatch
 model_cox_iga_1_class_no_mismatch <- coxph(formula = Surv(time = as.numeric(status_date),
                                               event = status) ~ R_age_Tdate_class +
-                                 `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_class, data = data_iga)
+                                 `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_class + mismatch_sum + `Current PRA%` + `Highest PRA%`, data = data_iga)
 summary(model_cox_iga_1_class_no_mismatch)
 ggsurvplot(survfit(model_cox_iga_1_class, data = data_iga), conf.int = FALSE)
 save.plot("cox-regression_iga_1_class_no_mismatch.jpg")
+fwrite(tidy(model_cox_iga_1_class_no_mismatch),
+       file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_1_no_mismatch_class.csv"))
+
  ################################################################################
 # regime 2
 ################################################################################
@@ -170,7 +178,6 @@ model_iga_2_pos <- survfit(formula = Surv(time = status_date,
 ggsurvplot(model_iga_2_pos, conf.int = FALSE, cumevents = TRUE)
 save.plot("kaplan-meier_regime2_igapos.jpg")
 surv_median(model_iga_2_pos)
-summary(model_iga_2_pos, times = c(1:10))
 
 ## IGA negative
 model_iga_2_neg <- survfit(formula = Surv(time = status_date,
@@ -223,24 +230,29 @@ survdiff(Surv(time = status_date, event = status, type = "right") ~ data_iga$`bi
 ### all
 model_cox_iga_2 <- coxph(formula = Surv(time = as.numeric(status_date),
                                         event = status) ~ R_age_Tdate +
-                           `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_min + mismatch_sum , data = data_iga)
+                           `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_min + mismatch_sum + mismatch_sum + `Current PRA%` + `Highest PRA%`, data = data_iga)
 
 summary(model_cox_iga_2)
 ggsurvplot(survfit(model_cox_iga_2, data = data_iga), conf.int = FALSE)
 save.plot("cox-regression_iga_2.jpg")
+fwrite(tidy(model_cox_iga_2),
+       file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_2_all.csv"))
 
 #### all permutations
-lapply(X = covariates_iga, FUN = function(x){simple.cox.surv(data = data_iga, covariate = x)})
+lapply(X = covariates_iga, FUN = function(x){simple.cox.surv(data = data_iga, covariate = x, name.prefix = "iga_2_")})
 
 
 ## no mismatch
 model_cox_iga_2_no_mismatch <- coxph(formula = Surv(time = as.numeric(status_date),
                                         event = status) ~ R_age_Tdate +
-                           `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_min , data = data_iga)
+                           `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_min + mismatch_sum + `Current PRA%` + `Highest PRA%`, data = data_iga)
 
 summary(model_cox_iga_2_no_mismatch)
 ggsurvplot(survfit(model_cox_iga_2_no_mismatch, data = data_iga), conf.int = FALSE)
 save.plot("cox-regression_iga_2_no_mismatch.jpg")
+fwrite(tidy(model_cox_iga_2_no_mismatch),
+       file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_2_no_mismatch.csv"))
+
 
 #### age -> 18-39 ,40-59, >60
 data_iga$R_age_Tdate_class <- cut(data_iga$R_age_Tdate, breaks = c(0, 39, 59, Inf), include.lowest = TRUE)
@@ -260,18 +272,23 @@ data_iga$cold_time_sum_class <- cut(data_iga$cold_time_sum_min, breaks = c(0, 12
 ### all
 model_cox_iga_2_class <- coxph(formula = Surv(time = as.numeric(status_date),
                                               event = status) ~ R_age_Tdate_class +
-                                 `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_class + mismatch_sum_class , data = data_iga)
+                                 `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_class + mismatch_sum_class + mismatch_sum + `Current PRA%` + `Highest PRA%` , data = data_iga)
 summary(model_cox_iga_2_class)
 ggsurvplot(survfit(model_cox_iga_2_class, data = data_iga), conf.int = FALSE)
 save.plot("cox-regression_iga_2_class.jpg")
+fwrite(tidy(model_cox_iga_2_class),
+       file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_2_all_class.csv"))
+
 
 #### all permutations
-lapply(X = covariates_iga_class, FUN = function(x){simple.cox.surv(data = data_iga, covariate = x)})
+lapply(X = covariates_iga_class, FUN = function(x){simple.cox.surv(data = data_iga, covariate = x, name.prefix = "iga_2_class_")})
 
 ### no mismatch
 model_cox_iga_2_class_no_mismatch <- coxph(formula = Surv(time = as.numeric(status_date),
                                               event = status) ~ R_age_Tdate_class +
-                                 `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_class , data = data_iga)
+                                 `D-age` + `R-sex` + `D-sex` + `D-type` + cold_time_sum_class + mismatch_sum + `Current PRA%` + `Highest PRA%`, data = data_iga)
 summary(model_cox_iga_2_class_no_mismatch)
 ggsurvplot(survfit(model_cox_iga_2_class_no_mismatch, data = data_iga), conf.int = FALSE)
 save.plot("cox-regression_iga_2_class.jpg")
+fwrite(tidy(model_cox_iga_2_class_no_mismatch),
+       file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_2_no_mismatch_class.csv"))

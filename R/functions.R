@@ -5,7 +5,7 @@ stderr <- function(x) sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x)))
 
 save.plot <- function(plot.name) {
   # TODO check .jpg
-  ggsave(paste0(dir.assets, .Platform$file.sep, plot.name), bg = "white", dpi = 400, scale = 2.5)
+  ggsave(paste0(dir.assets.png, .Platform$file.sep, plot.name), bg = "white", dpi = 400, scale = 2.5)
 }
 
 write.summary <- function(data, file.name) {
@@ -359,7 +359,7 @@ create_ntx_regime2 <- function(data_ntx) {
   data_ntx
 }
 
-simple.cox.surv <- function(data, covariate) {
+simple.cox.surv <- function(data, covariate, write.summary = TRUE, name.prefix = NULL, name.suffix = NULL) {
   #'
   #' @data data.table with status and status_date column
   #' @covariate string of column name in 'data' used as regressor
@@ -369,8 +369,14 @@ simple.cox.surv <- function(data, covariate) {
   assertDataTable(data)
   assert(all(c("status", "status_date") %in% colnames(data)))
   assert(covariate %in% colnames(data))
+  if( write.summary) {
+    assert("dir.assets.csv" %in% ls(envir=.GlobalEnv))
+    
+  }
   ##
-  coxph(formula = Surv(time = as.numeric(status_date),
+  model <- coxph(formula = Surv(time = as.numeric(status_date),
                        event = status) ~ data[[covariate]], data = data_iga)
+  file.name <- paste0(dir.assets.csv, .Platform$file.sep, paste0("cox_",name.prefix, covariate, name.suffix, ".csv"))
+  fwrite(broom::tidy(model), file = file.name)
+  model
 }
-  
