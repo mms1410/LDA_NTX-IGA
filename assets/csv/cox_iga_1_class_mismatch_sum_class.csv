@@ -1,0 +1,3 @@
+term,estimate,std.error,statistic,p.value
+"data[[covariate]](2,5]",-0.204525048703587,0.60592886620641,-0.337539701622197,0.735710088740331
+"data[[covariate]](5,Inf]",,0,,
