@@ -359,7 +359,7 @@ create_ntx_regime2 <- function(data_ntx) {
   data_ntx
 }
 
-simple.cox.surv <- function(data, covariate, write.summary = TRUE, name.prefix = NULL, name.suffix = NULL) {
+simple.cox.surv <- function(data, covariate, write.summary = TRUE, name.prefix = NULL, name.suffix = NULL, exponentiate = TRUE) {
   #'
   #' @data data.table with status and status_date column
   #' @covariate string of column name in 'data' used as regressor
@@ -377,7 +377,7 @@ simple.cox.surv <- function(data, covariate, write.summary = TRUE, name.prefix =
   model <- coxph(formula = Surv(time = as.numeric(status_date),
                        event = status) ~ data[[covariate]], data = data_iga)
   file.name <- paste0(dir.assets.csv, .Platform$file.sep, paste0("cox_",name.prefix, covariate, name.suffix, ".csv"))
-  fwrite(broom::tidy(model, conf.int = TRUE), file = file.name)
+  fwrite(broom::tidy(model, conf.int = TRUE, exponentiate = exponentiate), file = file.name)
   model
 }
 merge.cox.files <- function(){
