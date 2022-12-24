@@ -23,12 +23,20 @@ data_iga_pos <- data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 1]
 data_iga_neg <- data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 0]
 
 ## IGA all
+## Kaplan Meier all iga
 model_iga_1 <- survfit(formula = Surv(time = status_date, event = status,
                                       type = "right") ~ 1, data = data_iga)
 ggsurvplot(model_iga_1,
            conf.int = FALSE, cumevents = TRUE)
 save.plot("kaplan-meier_regime1_iga1.jpg")
 surv_median(model_iga_1)
+## Kaplan Meier iga+/iga-
+model_iga_1.1 <- survfit(formula = Surv(time = status_date,
+                                        event = status,
+                                        type = "right") ~ data_iga$`biopsy proven recurrence (0=no, 1=yes)`,
+                                        data = data_iga)
+ggsurvplot(model_iga_1.1, pval = TRUE)
+save.plot("kapla-meier_regime1_iga_LogRank.jpg")
 
 ## IGA positive
 model_iga_1.2 <- survfit(formula = Surv(time = status_date,
@@ -69,6 +77,14 @@ data.stack <- rbindlist(list(
 ))
 ### IGA-all vs NTX-all
 survdiff(Surv(time = status_date, event = status) ~ group, data = data.stack)
+#### kaplan meier
+model_log_rank_1 <- survfit(formula = Surv(time = status_date,
+                                           event = status,
+                                           type = "right") ~ data.stack$group,
+                            data = data.stack)
+ggsurvplot(model_log_rank_1, pval = TRUE)
+save.plot("kaplan-meier_log-rank_1.jpg")
+
 
 ### IGA-neg vs. NTX-all
 data.stack <- rbindlist(list(
@@ -161,6 +177,7 @@ data_iga_pos <- data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 1]
 data_iga_neg <- data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 0]
 
 ## IGA all
+## kaplan-meier all iga
 model_iga_2 <- survfit(formula = Surv(time = status_date,
                                       event = status, type = "right") ~ 1,
                        data = data_iga)  
@@ -169,6 +186,14 @@ ggsurvplot(model_iga_2,
 save.plot("kaplan-meier_regime2_iga.jpg")
 surv_median(model_iga_2)
 summary(model_iga_2, times = c(1:10))
+## kaplan-meier iga+/iga-
+model_iga_2.1 <- survfit(formula = Surv(time = status_date,
+                                        event = status,
+                                        type = "right") ~ data_iga$`biopsy proven recurrence (0=no, 1=yes)`,
+                         data = data_iga)
+ggsurvplot(model_iga_2.1, pval = TRUE)
+save.plot("kapla-meier_regime2_iga_LogRank.jpg")
+
 
 ## IGA positive
 model_iga_2_pos <- survfit(formula = Surv(time = status_date,
@@ -205,6 +230,13 @@ data.stack <- rbindlist(list(
   data_ntx[, .(status, status_date, group ="ntx")]
 ))
 survdiff(Surv(time = status_date, event = status) ~ group, data = data.stack)
+## kaplan -meier
+model_log_rank_2 <- survfit(formula = Surv(time = status_date,
+                                           event = status,
+                                           type = "right") ~ data.stack$group,
+                            data = data.stack)
+ggsurvplot(model_log_rank_2, pval = TRUE)
+save.plot("kaplan-meier_log-rank_2.jpg")
 
 #### IGA-neg vs. NTX-all
 data.stack <- rbindlist(list(
