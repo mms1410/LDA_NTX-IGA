@@ -9,7 +9,7 @@ stderr <- function(x){
   }
 }
 
-´save.plot <- function(plot.name) {
+save.plot <- function(plot.name) {
   # TODO check .jpg
   ggsave(paste0(dir.assets.png, .Platform$file.sep, plot.name), bg = "white", dpi = 400, scale = 2.5)
 }
