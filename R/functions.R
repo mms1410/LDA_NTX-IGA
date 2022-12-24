@@ -1,9 +1,15 @@
 ################################################################################
 # this script contains functions used in other scripts in this project
 ################################################################################
-stderr <- function(x) sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x)))
+stderr <- function(x){
+  if (length(x) > 1) {
+    sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x)))
+  } else {
+   0 
+  }
+}
 
-save.plot <- function(plot.name) {
+´save.plot <- function(plot.name) {
   # TODO check .jpg
   ggsave(paste0(dir.assets.png, .Platform$file.sep, plot.name), bg = "white", dpi = 400, scale = 2.5)
 }
@@ -214,6 +220,7 @@ create.summary.num <- function(data_iga, var.name, subset.name) {
   )
 }
 
+
 create.summary.num.ntx <- function(data_ntx, var.name, name) {
   #'
   #'create data.table of essential summary statistics
@@ -389,5 +396,93 @@ merge.cox.files <- function(){
   assert("dir.assets.csv" %in% ls(envir=.GlobalEnv))
   cox.files <- list.files(dir.assets.csv)
   cox.files.iga.noclass <- cox.files[grep(pattern = "^cox_iga_\\d_(?!class)", cox.files, perl = TRUE)]
+}
+
+gg.binhist <- function(data, bin.breaks, colname, group.name = NULL, levels.name = NULL, legend.title = NULL, include.all = NULL, xlab = "", ylab = "", title = "", lowest = TRUE, count.stat = TRUE) {
+  #'
+  #'
+  #' create a binned histogram according to given bin.breaks
+  #'
+  #' @data
+  #' @bins
+  #' @colname
+  #' @group.name
+  #' @xlab
+  #' @ylab
+  #' @title
+  #' @lowest
+  #' @count
+  #'
+  #' TODO: include.all
+  assert(sum(is.na(cut(unlist(data[, ..colname]), bin.breaks, include.lowest = lowest))) == sum(is.na(data[, ..colname])),
+         "binning introduces NA values")
+  assert(if(!is.null(group.name)) !is.null(levels.name) & !is.null(include.all),
+         "if group.name given, so must levels.name and include.all")
+  if(!is.null(levels.name)) assertFactor(unlist(data[, ..group.name]))
+  if(!is.null(levels.name)) assert((length(levels.name) - 1) == length(levels(unlist(data[, ..group.name]))), "#levels name must equal group levels")
+  if(!is.null(levels.name)) assert(all(names(levels.name) == c(levels(unlist(data[, ..group.name])), "all")))
+  # assert level name match
+  # data[`biopsy proven recurrence (0=no, 1=yes)` == 1, ..colname]
   
+  if (!is.null(group.name)) {
+    n.levels <- length(levels(unlist(data[, ..group.name])))
+  }
+  tbl <- data[, group := "all"]
+  for (lev in levels(unlist(data[, ..group.name]))) {
+    idx <- as.vector(data[, ..group.name] == lev)
+    tbl.tmp <- data[idx, ]
+    tbl.tmp[, group := lev]
+    tbl <- rbindlist(list(tbl.tmp, tbl))
+  }
+  
+  set.geom.group <- function() {
+    if (count.stat) {
+      g <- geom_histogram(aes(y = after_stat(count), group = group, fill = group),
+                          breaks = bin.breaks,
+                          position = position_dodge2(preserve="single"))
+    } else {
+      g <- geom_histogram(aes(group = group, fill = group),
+                          position = position_dodge2(preserve="single"))
+    }
+    ## return
+    ggplot(tbl, aes(unlist(tbl[, ..colname])))  +
+      g
+  }
+  set.geom <- function() {
+    if (count.stat) {
+        g <- geom_histogram(aes(y = after_stat(count)), fill = "white", col = "black")
+    } else {
+        g <- geom_histogram(fill = "white", col = "black")
+    }
+    ## return
+    ggplot(data, aes(unlist(data[, ..colname]))) +
+      g
+  }
+  
+  if(is.null(group.name)) {
+    gplot <- set.geom()
+  } else {
+    gplot <- set.geom.group() + scale_fill_discrete(labels = levels.name)
+  }
+  
+  qplot <- gplot +
+    xlab(xlab) +
+    ylab(ylab) +
+    ggtitle(title)
+  if(!is.null(legend.title)) {
+    qplot <- qplot + scale_fill_discrete(name = legend.title)
+  }
+  
+  qplot +
+    default_theme 
+  
+  if(!is.null(levels.name)) {
+    if (!is.null(legend.title)) {  # stupid ggplot overwrites ALL scale_fill attributes
+      qplot <- qplot + scale_fill_discrete(labels = levels.name, name = legend.title) 
+    } else {
+      qplot <- qplot + scale_fill_discrete(labels = levels.name) 
+    }
+    
+  }
+  qplot + default_theme
 }

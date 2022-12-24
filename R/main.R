@@ -14,8 +14,10 @@ packages <- scan(file = paste0(dir.project, .Platform$file.sep, "requirements.tx
 sapply(packages, require, character.only = TRUE)
 #######
 default_theme <- theme_minimal()
+## see http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/
 scale_fill_manual_values <- c("#69b3a2", "#404080")
 two_scale_fill <- scale_fill_manual(values= scale_fill_manual_values)
+three_scale_fill <- scale_fill_manual(values=c("#69b3a2", "#404080", "#CC6600"))
 ## create folder for assets
 if (!file.exists(paste0(dir.project, .Platform$file.sep, "assets"))) {
   dir.create(paste0(dir.project, .Platform$file.sep, "assets"))
