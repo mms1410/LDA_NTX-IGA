@@ -10,14 +10,7 @@ data.table(psych::describe(data_iga_pos))[, vars := colnames(data_iga_pos)][] %>
 data.table(psych::describe(data_ntx))[, vars := colnames(data_ntx)][] %>% 
   fwrite(file = paste0(dir.assets.csv, .Platform$file.sep, "summary_ntx_all(psych).csv"))
 ################################################################################
-# TODO: age in years
-#data_iga[, follow_up_age := R_age_Tdls - R_age_Tdate]
-#data_ntx[, follow_up_age := R_age_Tdls - R_age_Datum]
 metadata <- rbindlist(list(
-  #create.summary.num.iga(data_iga, "R_age_Tdate", c("R_age_Tdate_iga", "R_age_Tdate_iga_0", "R_age_Tdate_iga_1")),
-  #create.summary.num.ntx(data_ntx, "R_age_Datum", "R_age_Tdate_ntx"),
-  #create.summary.num.iga(data_iga, "R_age_Tdls", c("R_age_Tdls_iga", "R_age_Tdls_iga_0", "R_age_Tdls_iga_1")),
-  #create.summary.num.ntx(data_ntx, "R_age_Tdls", "R_age_Tdls_ntx"),
   create.summary.num.iga(data_iga,
                          "follow_up_age",
                          c("follow_up_age_iga", "follow_up_age_iga_0", "follow_up_age_iga_1")),
@@ -33,7 +26,8 @@ metadata <- rbindlist(list(
                          "Highest PRA%",
                          c("high_pra_iga", "high_pra_iga_0", "high_pra_iga_1")),
   create.summary.num.iga(data_iga,
-                         var.name = "mismatch_sum",subset.names = c("hla_iga", "hla_iga_0", "hla_iga_1"))
+                         var.name = "mismatch_sum",
+                         subset.names = c("hla_iga", "hla_iga_0", "hla_iga_1"))
 ))
 fwrite(metadata, file = paste0(dir.assets.csv, .Platform$file.sep, "metadata_numeric.csv"))
 

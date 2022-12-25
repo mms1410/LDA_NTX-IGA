@@ -1,5 +1,3 @@
-#TODO:
-#boxplot and fivenum seems not to fit
 ################################################################################
 # main
 ################################################################################
@@ -40,6 +38,9 @@ dir.scripts <- dirname(dir.scripts)  #.../R
 ################################################################################
 source(paste0(dir.scripts, .Platform$file.sep, "read_data.R"))
 source(paste0(dir.scripts, .Platform$file.sep, "functions.R"))
+## add cold isch time hours and cold isch time minutes (in total minutes)
+data_iga[, cold_time_sum_min := cold.time.add(`Cold ischaemic period hours`, `Cold ischaemic period minutes`)]
+#
 follow_up <- years(10)
 ## follow-up period (T-date + follow_up)
 data_iga$follow_up_truncated <-pmin(data_iga$`T-dls`, data_iga$`T-date` + follow_up)

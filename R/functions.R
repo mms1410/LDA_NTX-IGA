@@ -399,7 +399,7 @@ merge.cox.files <- function(){
   cox.files.iga.noclass <- cox.files[grep(pattern = "^cox_iga_\\d_(?!class)", cox.files, perl = TRUE)]
 }
 
-gg.binhist <- function(data, bin.breaks, colname, group.name = NULL, levels.name = NULL, legend.title = NULL, include.all = NULL, xlab = "", ylab = "", title = "", lowest = TRUE, count.stat = TRUE) {
+gg.binhist <- function(data, bin.breaks, colname, group.name = NULL, levels.name = NULL, legend.title = NULL, include.all = NULL, xlab = "", ylab = "", title = "", lowest = TRUE, count.stat = TRUE, include.na = TRUE) {
   #'
   #'
   #' create a binned histogram according to given bin.breaks
@@ -425,9 +425,13 @@ gg.binhist <- function(data, bin.breaks, colname, group.name = NULL, levels.name
   # assert level name match
   # data[`biopsy proven recurrence (0=no, 1=yes)` == 1, ..colname]
   
-  if (!is.null(group.name)) {
-    n.levels <- length(levels(unlist(data[, ..group.name])))
-  }
+  
+  #if (!is.null(group.name)) {
+  #  n.levels <- length(levels(unlist(data[, ..group.name])))
+  #}
+  group.values <- cut(unlist(data[, ..colname]), bin.breaks, include.lowest = lowest)
+  #tbl[, group.values := group.values]
+  data$group.values <- group.values
   tbl <- data[, group := "all"]
   for (lev in levels(unlist(data[, ..group.name]))) {
     idx <- as.vector(data[, ..group.name] == lev)
@@ -435,25 +439,25 @@ gg.binhist <- function(data, bin.breaks, colname, group.name = NULL, levels.name
     tbl.tmp[, group := lev]
     tbl <- rbindlist(list(tbl.tmp, tbl))
   }
+  tbl$group.values
   
   set.geom.group <- function() {
-    if (count.stat) {
-      g <- geom_histogram(aes(y = after_stat(count), group = group, fill = group),
-                          breaks = bin.breaks,
-                          position = position_dodge2(preserve="single"))
+    if(include.na) {
+      g <- ggplot(tbl, aes(unlist(tbl[, group.values]))) 
     } else {
-      g <- geom_histogram(aes(group = group, fill = group),
-                          position = position_dodge2(preserve="single"))
+      g <- ggplot(tbl[!is.na(group.values)],
+                  aes(unlist(tbl[!is.na(group.values), group.values])))
     }
-    ## return
-    ggplot(tbl, aes(unlist(tbl[, ..colname])))  +
-      g
+    g +
+      geom_histogram(aes(fill = group),stat = "count",
+                     position = "dodge")
   }
   set.geom <- function() {
     if (count.stat) {
-        g <- geom_histogram(aes(y = after_stat(count)), fill = "white", col = "black")
+        g <- geom_histogram(aes(y = after_stat(count)),
+                            fill = "white", col = "black",  binwidth = bindwth)
     } else {
-        g <- geom_histogram(fill = "white", col = "black")
+        g <- geom_histogram(fill = "white", col = "black",  binwidth = bindwth)
     }
     ## return
     ggplot(data, aes(unlist(data[, ..colname]))) +
@@ -467,8 +471,8 @@ gg.binhist <- function(data, bin.breaks, colname, group.name = NULL, levels.name
   }
   
   qplot <- gplot +
-    xlab(xlab) +
     ylab(ylab) +
+    xlab(xlab) +
     ggtitle(title)
   if(!is.null(legend.title)) {
     qplot <- qplot + scale_fill_discrete(name = legend.title)

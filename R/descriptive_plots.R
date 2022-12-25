@@ -108,32 +108,30 @@ save.plot("boxplot_iga_pos_hla_sex.jpg")
 ## histogram all
 gg.binhist(data = data_iga, bin.breaks = c(0, 2, 4, 6), colname = "mismatch_sum", 
            group.name = "biopsy proven recurrence (0=no, 1=yes)",
-           levels.name = c("no rec.", "with rec.", "iga all"),
+           levels.name = c("r-IgA", "r+IgA", "all-IgA"),
            legend.title = "Gruppe", include.all = TRUE, xlab = "", ylab = "Anzahl",
            title = "HLA mimsatch", lowest = TRUE, count.stat = TRUE)
 save.plot("histogram_mismatch_sum_iga.jpg")
 
 # time of biopsy
 ## IGA all
-gg.boxplot(data = data_iga[], y.column = "time of biopsy (years after KTX)", x.column = "biopsy proven recurrence (0=no, 1=yes)",
+gg.boxplot(data = data_iga, y.column = "time of biopsy (years after KTX)", x.column = "biopsy proven recurrence (0=no, 1=yes)",
            x.ticks = c("0" = "Ohne", "1" = "Mit"),
            ylab = "Jahre nach KTX", title = "IGA: Jahre nach KTX")
 save.plot("boxplot_iga_yearsKTX.jpg")
 # current PRA
-#TODO: tick only 30
-#      same widh
-#      deutsch
 gg.binhist(data = data_iga, bin.breaks = c(0, 30, 100), colname = "Current PRA%", 
            group.name = "biopsy proven recurrence (0=no, 1=yes)",
-           levels.name = c("no rec.", "with rec.", "all iga"),
+           levels.name =  c("r-IgA", "r+IgA", "all-IgA"),
            legend.title = "Gruppe", include.all = TRUE, xlab = "", ylab = "Anzahl",
-           title = " Aktueller PRA%-Wert zum Transplantationszeitpunk \n (<= 30 & > 30)", lowest = TRUE, count.stat = TRUE)
+           title = " Aktueller PRA%-Wert zum Transplantationszeitpunk",
+           lowest = TRUE, count.stat = TRUE)
 save.plot("histogram_current_pra_iga.jpg")
 
 # highest PRA
 gg.binhist(data = data_iga, bin.breaks = c(0, 30, 100), colname = "Highest PRA%", 
            group.name = "biopsy proven recurrence (0=no, 1=yes)",
-           levels.name = c("no rec.", "with rec.", "all iga"),
+           levels.name = c("r-IgA", "r+IgA", "all-IgA"),
            legend.title = "Gruppe", include.all = TRUE, xlab = "", ylab = "Anzahl",
-           title = " Höchster PRA%-Wert\n (<= 30 & > 30)", lowest = TRUE, count.stat = TRUE)
+           title = " Höchster PRA%-Wert", lowest = TRUE, count.stat = TRUE)
 save.plot("histogram_highest_pra_iga.jpg")

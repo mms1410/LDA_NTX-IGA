@@ -128,9 +128,6 @@ data_ntx[, R_age_Tdls := interval(Geburtsdatum, `Date last seen[NTX PatientenInf
 ## create variable containing minimum of date last seen (T-dls) and end of
 ## create variable containing row wise sum of mm-A, mm-B and mm-DR
 data_iga$mismatch_sum <- as.numeric(as.character(data_iga$`mm-A`)) + as.numeric(as.character(data_iga$`mm-B`)) + as.numeric(as.character(data_iga$`mm-DR`))
-## add cold isch time hours and cold isch time minutes (in total minutes)
-data_iga[, cold_time_sum_min := cold.time.add(`Cold ischaemic period hours`, `Cold ischaemic period minutes`)]
-#
 data_iga[, follow_up_age := R_age_Tdls - R_age_Tdate]
 data_ntx[, follow_up_age := R_age_Tdls - R_age_Datum]
 ################################################################################
