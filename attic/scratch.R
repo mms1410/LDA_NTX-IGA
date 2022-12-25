@@ -123,3 +123,38 @@ ggplot() +
 create.summary.num.ntx(data_ntx,
                        "follow_up_age",
                        c("follow_up_age_ntx", "follow_up_age_ntx_0", "follow_up_age_ntx_1"))
+
+
+data <- data_iga
+bin.breaks <- c(0, 30, 100)
+colname <- "Current PRA%"
+group.name <- "biopsy proven recurrence (0=no, 1=yes)"
+levels.name <- c("no rec.", "with rec.", "all iga")
+legend.title = ""
+include.all = TRUE
+xlab = "xxxlab"
+ylab = ""
+title = ""
+lowest = TRUE
+count.stat = TRUE
+
+tbl <- data[, group := "all"]
+for (lev in levels(unlist(data[, ..group.name]))) {
+  idx <- as.vector(data[, ..group.name] == lev)
+  tbl.tmp <- data[idx, ]
+  tbl.tmp[, group := lev]
+  tbl <- rbindlist(list(tbl.tmp, tbl))
+}
+
+g <- geom_histogram(aes(y = after_stat(count), group = group, fill = group),
+               breaks = bin.breaks, binwidth = bindwth,
+               position = position_dodge2(preserve="single"))
+
+g <- ggplot(tbl, aes(unlist(tbl[, group.values])))  +
+  g
+g
+
+ggplot(tbl, aes(x = group.values)) +
+  geom_histogram(aes(fill = group),stat = "count",
+                 position = "dodge") + 
+  default_theme
