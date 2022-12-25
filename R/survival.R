@@ -235,7 +235,7 @@ model_log_rank_2 <- survfit(formula = Surv(time = status_date,
                                            event = status,
                                            type = "right") ~ data.stack$group,
                             data = data.stack)
-ggsurvplot(model_log_rank_2, pval = TRUE)
+ggsurvplot(model_log_rank_2, pval = TRUE, legend.labs = c("all-IgA", "all-NTX"))
 save.plot("kaplan-meier_log-rank_2.jpg")
 
 #### IGA-neg vs. NTX-all

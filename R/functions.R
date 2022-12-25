@@ -213,7 +213,7 @@ create.summary.num <- function(data_iga, var.name, subset.name) {
     "median" = median(data, na.rm = TRUE),
     "q1" = summary(data)[[2]],
     "q2" = summary(data)[[5]],
-    "IQR" = IQR(data, na.rm = FALSE),
+    "IQR" = IQR(data, na.rm = TRUE),
     "n_total" = length(data),
     "n" = sum(!is.na(data)),
     "n_na" = sum(is.na(data))
