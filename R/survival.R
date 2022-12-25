@@ -35,7 +35,7 @@ model_iga_1.1 <- survfit(formula = Surv(time = status_date,
                                         event = status,
                                         type = "right") ~ data_iga$`biopsy proven recurrence (0=no, 1=yes)`,
                                         data = data_iga)
-ggsurvplot(model_iga_1.1, pval = TRUE)
+ggsurvplot(model_iga_1.1, pval = TRUE, legend.labs = c("r-IgA", "r+IgA"))
 save.plot("kapla-meier_regime1_iga_LogRank.jpg")
 
 ## IGA positive
@@ -82,7 +82,7 @@ model_log_rank_1 <- survfit(formula = Surv(time = status_date,
                                            event = status,
                                            type = "right") ~ data.stack$group,
                             data = data.stack)
-ggsurvplot(model_log_rank_1, pval = TRUE)
+ggsurvplot(model_log_rank_1, pval = TRUE, legend.labs = c("all-IgA", "all-NTX"))
 save.plot("kaplan-meier_log-rank_1.jpg")
 
 
@@ -191,7 +191,7 @@ model_iga_2.1 <- survfit(formula = Surv(time = status_date,
                                         event = status,
                                         type = "right") ~ data_iga$`biopsy proven recurrence (0=no, 1=yes)`,
                          data = data_iga)
-ggsurvplot(model_iga_2.1, pval = TRUE)
+ggsurvplot(model_iga_2.1, pval = TRUE, legend.labs = c("r-IgA", "r+IgA"))
 save.plot("kapla-meier_regime2_iga_LogRank.jpg")
 
 
