@@ -118,4 +118,8 @@ ggplot() +
   geom_histogram(data = data_iga, aes(x = `Highest PRA%`, fill = `graft loss (0=functial, 1=loss)`)) +
   default_theme
 
-                 
+############
+
+create.summary.num.ntx(data_ntx,
+                       "follow_up_age",
+                       c("follow_up_age_ntx", "follow_up_age_ntx_0", "follow_up_age_ntx_1"))

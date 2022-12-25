@@ -199,7 +199,7 @@ cold.time.add <- function(time.h, time.m) {
 }
 
 
-create.summary.num <- function(data_iga, var.name, subset.name) {
+create.summary.num <- function(data, var.name, subset.name) {
   #'
   #' create named vector of essential summary statistics
   #'
@@ -208,7 +208,7 @@ create.summary.num <- function(data_iga, var.name, subset.name) {
   #' @subset.name: string of names given to iga subsets
   #'
   #'
-  data <- unlist(data_iga[, ..var.name])
+  data <- unlist(data[, ..var.name])
   c("name" = subset.name, "mean" = mean(data, na.rm = TRUE), "mean.stdr" = stderr(data),
     "median" = median(data, na.rm = TRUE),
     "q1" = summary(data)[[2]],
@@ -234,6 +234,7 @@ create.summary.num.ntx <- function(data_ntx, var.name, name) {
   assert(var.name %in% colnames(data_ntx))
   assert("numeric" %in% class(unlist((data_ntx[, ..var.name]))))
   data <- unlist(data_ntx[, ..var.name])
+  create.summary.num(data_ntx, "follow_up_age", "all")
   data.table(name = name, mean = mean(data, na.rm = TRUE), mean.stdr = stderr(data),
              median = median(data, na.rm = TRUE), q1 = summary(data)[[2]],
              q2 = summary(data)[[5]], IQR = IQR(data, na.rm = TRUE),
