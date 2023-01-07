@@ -32,7 +32,7 @@ write.summary <- function(data, file.name) {
     fwrite(file = paste0(dir.assets, .Platform$file.sep, "summary_numeric_iga_all.csv"))
 }
 
-gg.boxplot <- function(data, y.column, x.column = NULL, ylab = "", xlab = "", title = "", x.ticks = NULL, offset = NULL, annotate.quantile = FALSE, ylims = NULL) {
+gg.boxplot <- function(data, y.column, x.column = NULL, ylab = "", xlab = "", title = "", x.ticks = NULL, offset = NULL, annotate.quantile = FALSE, ylims = NULL, width = 0.5) {
   # TODO:
   #' ... for additional ggplot commands?
   #'
@@ -64,14 +64,14 @@ gg.boxplot <- function(data, y.column, x.column = NULL, ylab = "", xlab = "", ti
   if (!is.null(x.column)) {
     plt <- ggplot(data) +
       geom_boxplot(aes(y = unlist(data[, ..y.column]),
-                               x = unlist(data[, ..x.column]))) +
+                               x = unlist(data[, ..x.column])), width=width) +
       default_theme
     if (!is.null(x.ticks)) {
       plt <- plt + scale_x_discrete(labels = x.ticks)
     }
   } else {
     plt <- ggplot(data) +
-      geom_boxplot(aes(y = unlist(data[, ..y.column]))) +
+      geom_boxplot(aes(y = unlist(data[, ..y.column])), width=width) +
       default_theme
   }
   
@@ -199,7 +199,7 @@ cold.time.add <- function(time.h, time.m) {
 }
 
 
-create.summary.num <- function(data, var.name, subset.name) {
+create.summary.num.vec <- function(data, var.name, subset.name) {
   #'
   #' create named vector of essential summary statistics
   #'
@@ -242,26 +242,61 @@ create.summary.num.ntx <- function(data_ntx, var.name, name) {
             )
 }
 
-create.summary.num.iga <- function(data_iga, var.name, subset.names) {
-  #'
-  #' uses create.summary function to create summary for iga data
-  #'
-  #' @param data_iga: data.table with data
-  #' @param var.name: string with variable names
-  #' @param subset.names: string with name for iga subsets
+create.summary.num <- function(data,
+                               var.name,
+                               subset.names,
+                               include.all = TRUE,
+                               colname.split = "biopsy_proven_recurrence(0=no,1=yes)") {
   #'
   #'
-  assertDataTable(data_iga)
-  assert(var.name %in% colnames(data_iga))
-  assert("numeric" %in% class(unlist((data_iga[, ..var.name]))))
-  assertCharacter(subset.names, any.missing = FALSE, len = 3)
+  #' @data
+  #' @var.name
+  #' @subset.name
+  #' @inlude.all
+  #' @colname.split
+  #'
+  if (!is.null(colname.split)){
+    assert(colname.split %in% colnames(data))
+    assertFactor(data[[colname.split]])
+  }
+  if (is.null(colname.split)) {
+    assert(include.all == TRUE)
+    assert(length(subset.names) == 1)
+  }
+  assert(var.name %in% colnames(data))
+  assertLogical(include.all)
+  assertDataTable(data)
   
-  as.data.table(rbind(
-  create.summary.num(data_iga, var.name, subset.names[[1]]),
-  create.summary.num(data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 0], var.name, subset.names[[2]]),
-  create.summary.num(data_iga[`biopsy proven recurrence (0=no, 1=yes)` == 1], var.name, subset.names[[3]])))
-  
+  if (!is.null(colname.split)){
+    levels.data <- levels(data[[colname.split]])
+    n.levels <- length(levels.data)
+    if (include.all) {
+      assert(length(subset.names) == (n.levels + 1))
+      offset.for.all <- 1
+      tbl <- create.summary.num.vec(data, var.name, subset.names[[offset.for.all]])
+    } else {
+      assert(length(subset.names) == n.levels)
+      offset.for.all <- 0
+      tbl <- NULL
+    }
+    for (level.idx in seq(n.levels)) {
+      level.subset <- levels.data[level.idx]
+      idx.subset <- data[[colname.split]] == level.subset
+      name.subset <- subset.names[[level.idx + offset.for.all]]
+      data.subset <- data[idx.subset,]
+      tbl <- rbind(
+        tbl,
+        create.summary.num.vec(data.subset, var.name, name.subset)
+      )
+    }
+    tbl <- as.data.table(tbl)
+  } else {
+      tbl <- create.summary.num.vec(data, var.name, subset.names)
+      tbl <- as.data.table(as.list(tbl))
+  }
+  tbl
 }
+
 
 mismatch.out <- function(data) {
   # stderr <- function(x) sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x)))
@@ -417,10 +452,19 @@ gg.binhist <- function(data, bin.breaks, colname, group.name = NULL, levels.name
   #' TODO: include.all
   assert(sum(is.na(cut(unlist(data[, ..colname]), bin.breaks, include.lowest = lowest))) == sum(is.na(data[, ..colname])),
          "binning introduces NA values")
-  assert(if(!is.null(group.name)) !is.null(levels.name) & !is.null(include.all),
-         "if group.name given, so must levels.name and include.all")
+  
+  if(is.null(group.name)) {
+    assert(is.null(levels.name))
+    assert(is.null(include.all))
+  }
+  
   if(!is.null(levels.name)) assertFactor(unlist(data[, ..group.name]))
-  if(!is.null(levels.name)) assert((length(levels.name) - 1) == length(levels(unlist(data[, ..group.name]))), "#levels name must equal group levels")
+  if(!is.null(levels.name) & include.all){
+    assert((length(levels.name) - 1) == length(levels(unlist(data[, ..group.name]))), "#levels name must equal group levels")
+  } 
+  if(!is.null(levels.name) & !include.all){
+    assert((length(levels.name)) == length(levels(unlist(data[, ..group.name]))), "#levels name must equal group levels")
+  } 
   if(!is.null(levels.name)) assert(all(names(levels.name) == c(levels(unlist(data[, ..group.name])), "all")))
   # assert level name match
   # data[`biopsy proven recurrence (0=no, 1=yes)` == 1, ..colname]
@@ -432,15 +476,18 @@ gg.binhist <- function(data, bin.breaks, colname, group.name = NULL, levels.name
   group.values <- cut(unlist(data[, ..colname]), bin.breaks, include.lowest = lowest)
   #tbl[, group.values := group.values]
   data$group.values <- group.values
-  tbl <- data[, group := "all"]
+  if (include.all){
+    tbl <- data[, group := "all"]
+  } else {
+    tbl <- data.table()
+  }
   for (lev in levels(unlist(data[, ..group.name]))) {
     idx <- as.vector(data[, ..group.name] == lev)
     tbl.tmp <- data[idx, ]
     tbl.tmp[, group := lev]
     tbl <- rbindlist(list(tbl.tmp, tbl))
   }
-  tbl$group.values
-  
+  #tbl$group.values
   set.geom.group <- function() {
     if(include.na) {
       g <- ggplot(tbl, aes(unlist(tbl[, group.values]))) 
@@ -453,19 +500,12 @@ gg.binhist <- function(data, bin.breaks, colname, group.name = NULL, levels.name
                      position = "dodge")
   }
   set.geom <- function() {
-    if (count.stat) {
-        g <- geom_histogram(aes(y = after_stat(count)),
-                            fill = "white", col = "black",  binwidth = bindwth)
-    } else {
-        g <- geom_histogram(fill = "white", col = "black",  binwidth = bindwth)
-    }
     ## return
-    ggplot(data, aes(unlist(data[, ..colname]))) +
-      g
+    ggplot(data, aes(group.values)) + geom_histogram(stat="count")
   }
   
   if(is.null(group.name)) {
-    gplot <- set.geom()
+    gplot <-set.geom()
   } else {
     gplot <- set.geom.group() + scale_fill_discrete(labels = levels.name)
   }
@@ -490,4 +530,120 @@ gg.binhist <- function(data, bin.breaks, colname, group.name = NULL, levels.name
     
   }
   qplot + default_theme
+}
+tidy.name <- function(name) {
+  #'
+  #'
+  #'
+  #'
+  #'
+  #'
+  assertCharacter(name)
+  tidy.string <- function(string) {
+    string.new <- gsub(pattern = "\\s*", replacement = "", x = string)
+    string.new <- gsub(pattern = "-", replacement = "_", x = string.new)
+    string.new <- gsub(pattern = "/", replacement = "-", x = string.new)
+    string.new <- gsub(pattern = "\\.", replacement = "_", x = string.new)
+    string.new <- gsub(pattern = "männlich", replacement = "M", x = string.new)
+    string.new <- gsub(pattern = "weiblich", replacement = "W", x = string.new)
+    string.new
+  }
+  unlist(lapply(X = name, FUN = tidy.string))
+}
+tidy.column <- function(column) {
+  #'
+  #'
+  #'
+  #'
+  if (is.character(column)) {
+    tidy.name(column)
+  } else {
+    column
+  }
+}
+
+check.format <- function(x){
+  #'
+  #'
+  #'
+  #'
+  out <- tryCatch({
+    as.Date(x, tryFormats  = c("%m-%d-%Y", "%d-%m-%Y"))
+  }, error = function(e)FALSE)
+  !any(isFALSE(out))
+}
+
+check.dateformat.string <- function(string, summarize = TRUE) {
+  #'
+  #'
+  #'
+  #'
+  #'
+  assertCharacter(string)
+  if (summarize) {
+    all(unlist(lapply(X = string, FUN = check.format)))
+  } else {
+    unlist(lapply(X = string, FUN = check.format))
+  }
+}
+iso.format.date <- function(string) {
+  #'
+  #'
+  #'
+  #'
+  #'
+  assert(check.format.date(string))
+  as.Date(string, tryFormats  = c("%m-%d-%Y", "%d-%m-%Y"))  #ISO 8601
+}
+set.variables <- function(data,
+                          colname.surgery = "Datum_TX",
+                          colname.dls = "Date_last_seen",
+                          colname.death = "Todesdatum",
+                          colname.birth = "Geburtsdatum") {
+  #'
+  #'
+  #'
+  #data <- data.iga
+  colname.surgery = "Datum_TX"
+  colname.dls = "Date_last_seen"
+  colname.death = "Todesdatum"
+  colname.birth = "Geburtsdatum"
+  follow_up_year <- lapply(X = data[, ..colname.surgery], FUN = function(x) x+years(follow_up))
+  data$follow_up_year <- follow_up_year
+  follow_up_age <- interval(data[[eval(colname.birth)]], data[, follow_up_year]) / years(1)
+  data$follow_up_age <- follow_up_age
+  tdls_age <- interval(data[[eval(colname.birth)]], data[[eval(colname.dls)]]) / years(1)
+  data$tdls_age <- tdls_age
+  data$follow_up_min_age <- ifelse(data$follow_up_age < data$tdls_age, data$follow_up_age, data$tdls_age)
+  data
+}
+
+
+set.follow.up <- function(data,
+                          colname.surgery = "Datum_TX",
+                          colname.dls = "Date_last_seen",
+                          colname.death = "Todesdatum",
+                          colname.birth = "Geburtsdatum") {
+  #'
+  #'
+  #'
+  assert(colname.surgery %in% colnames(data))
+  assert(colname.dls %in% colnames(data))
+  assert(colname.death %in% colnames(data))
+  assert(colname.birth %in% colnames(data))
+  assertIntegerish(follow_up, lower = 0)
+  
+  #colname.surgery = "Datum_TX"
+  #colname.dls = "Date_last_seen"
+  #colname.death = "Todesdatum"
+  #colname.birth = "Geburtsdatum"
+  condition <- interval(data[[eval(colname.surgery)]],
+                        data[[eval(colname.dls)]]) / years(1) > follow_up
+  n.critical <- sum(interval(data[[eval(colname.surgery)]],
+                             data[[eval(colname.dls)]]) / years(1) > follow_up)
+  msg <- paste0(n.critical, " oberservations had dls > ", follow_up, " years")
+  if (n.critical >0) warning(msg)
+  # data[[eval(colname.surgery)]]
+  # ifelse(condition,)
+  
 }
