@@ -592,7 +592,7 @@ iso.format.date <- function(string) {
   #'
   #'
   #'
-  assert(check.format.date(string))
+  assert(check.dateformat.string(string))
   as.Date(string, tryFormats  = c("%m-%d-%Y", "%d-%m-%Y"))  #ISO 8601
 }
 set.variables <- function(data,

@@ -42,9 +42,6 @@ if (!all(tmp.col.date.ntx %in% colnames(data.ntx))) {
   stop("Some given column names in tmp.col.date.ntx seem not to exist in data:\n",
        paste0(tmp.col.date.ntx,":",tmp.col.date.ntx %in% colnames(data.ntx), "\n", collapse = ""))
 }
-str(data.iga[, ..tmp.col.date.iga])
-data.iga[, ..tmp.col.date.iga]
-
 tmp.col.parse.iga <- unlist(data.iga[, lapply(.SD, check.dateformat.string), .SDcols = tmp.col.date.iga])
 tmp.col.parse.ntx <- unlist(data.ntx[, lapply(.SD, check.dateformat.string), .SDcols = tmp.col.date.ntx])
 if (!all(tmp.col.parse.iga)) {
@@ -55,7 +52,6 @@ if (!all(tmp.col.parse.ntx)) {
   stop("Could not parse all date columns for NTX:\n",
        paste0(names(tmp.col.parse.ntx), ":", tmp.col.parse.ntx, "\n", collapse = ""))
 }
-
 tmp.col.mismatch <- c("mm_A", "mm_B", "mm_DR")
 if (!(all(tmp.col.mismatch %in% colnames(data.iga)) & all(tmp.col.mismatch %in% colnames(data.ntx)))){
   stop("tmp.col.mismatch not in dataset")
@@ -116,3 +112,4 @@ data.iga.neg <- data.iga[`biopsy_after_KTX(0=no,1=yes)` == 0]
 ###=============================================================================
 # remove tmp variables not used any more
 rm( list = ls()[grep(x = ls(), pattern = "^tmp")])
+
