@@ -1,135 +1,118 @@
-# load data
-##
-## check if whitespaces in filenames in data folder and replace by underscore
-## ntx path
-tmp_data_ntx_path <- dirname(rstudioapi::getSourceEditorContext()$path)  # <folder>/R
-tmp_data_ntx_path <- dirname(tmp_data_ntx_path)  # <folder>
-tmp_data_ntx_path <- paste0(tmp_data_ntx_path, .Platform$file.sep, "data")  # <folder>/data
-tmp_data_ntx_path <- paste0(tmp_data_ntx_path,
-                        .Platform$file.sep,
-                        "ntx_daten.csv")
-## iga path
-tmp_data_iga_path <- dirname(rstudioapi::getSourceEditorContext()$path)  # <folder>/R
-tmp_data_iga_path <- dirname(tmp_data_iga_path)  # <folder>
-tmp_data_iga_path <- paste0(tmp_data_iga_path, .Platform$file.sep, "data")  # <folder>/data
-tmp_data_iga_path <- paste0(tmp_data_iga_path,
-                        .Platform$file.sep,
-                        "IgAN_Sheet2.csv")
+###=============================================================================
+dir.project <- rstudioapi::getSourceEditorContext()$path  #.../R/main.R
+dir.project <- dirname(dir.project)  #.../R
+dir.project <- dirname(dir.project)  #...
+source(paste0(dir.project, .Platform$file.sep, "R", .Platform$file.sep,
+              "functions.R"))
+packages <- scan(file = paste0(dir.project, .Platform$file.sep, "requirements.txt"),
+                 sep = "\t", what = character())
+packages <- sapply(packages, require, character.only = TRUE)
 
-##
-tmp_iga2_select <- c("T-date" = "character",
-                     "T-dls" = "character",
-                     "graft loss (0=functial, 1=loss)" = "factor",
-                     "graft loss date" = "character",
-                     "max FUP graft (years)" = "numeric",
-                     "Pat death (0=alive, 1= dead)" = "factor",
-                     "max FUP survivial (years)" = "numeric",
-                     "biopsy after KTX  (0=no, 1=yes)" = "factor",
-                     "biopsy proven recurrence (0=no, 1=yes)" = "factor",
-                     "date of biopsy" = "character",
-                     "time of biopsy (years after KTX)" = "numeric",
-                     "Date of birth" = "character",
-                     "D-type" = "factor",
-                     "D-cod" = "factor",
-                     "D-age" = "numeric",
-                     "D-abo" = "factor",
-                     "D-sex" = "factor",
-                     "R-sex"  = "factor",
-                     "R-abo" = "factor",
-                     "R Full Phenotype" = "factor",
-                     "D-weight" = "numeric",
-                     "D-height" = "numeric",
-                     "D-pheno" = "factor",
-                     "T-fc" = "factor",
-                     "R-dc" = "factor",
-                     "R-weight" = "numeric",
-                     "R-height" = "numeric",
-                     "Cold ischaemic period hours" = "numeric",
-                     "Cold ischaemic period minutes" = "numeric",
-                     "Warm ischaemic period 2" = "numeric",
-                     "mm-A" = "factor",
-                     "mm-B" = "factor",
-                     "mm-DR" = "factor",
-                     "Current PRA%" = "numeric",
-                     "Highest PRA%" = "numeric")
+if (!all(packages)) {
+  stop(paste0("Could not load all packages:\n",
+              paste0(names(packages), ":",packages, "\n", collapse = "")
+              ))
+}
+path.data <- paste0(dir.project, .Platform$file.sep, "data")
+###=============================================================================
+## read data
+data.iga <- fread(paste0(path.data, .Platform$file.sep, "allIgA.csv"),
+                  na.strings = c("-", ""))
+data.ntx <- fread(paste0(path.data, .Platform$file.sep, "allNTX.csv"),
+                  na.strings = c("-", ""))
+###=============================================================================
+## remove whitespaces etc.
+tmp.colnames.iga <- tidy.name(colnames(data.iga))
+colnames(data.iga) <- tmp.colnames.iga
+tmp.colnames.ntx <- tidy.name(colnames(data.ntx))
+colnames(data.ntx) <- tmp.colnames.ntx
+data.iga[, (tmp.colnames.iga) := lapply(.SD, tidy.column), .SDcols = tmp.colnames.iga]
+data.ntx[, (tmp.colnames.ntx) := lapply(.SD, tidy.column), .SDcols = tmp.colnames.ntx]
+###=============================================================================
+tmp.col.date.iga <- c("Transplantatfunktionsende", "Todesdatum", "date_of_biopsy",
+                      "Geburtsdatum", "Datum_TX", "Date_last_seen")
+tmp.col.date.ntx <- c("Datum_TX", "Geburtsdatum", "Transplantatfunktionsende",
+                      "Date_last_seen", "Todesdatum")
 
+if (!all(tmp.col.date.iga %in% colnames(data.iga))) {
+  stop("Some given column names in tmp.col.date.iga seem not to exist in data:\n",
+       paste0(tmp.col.date.iga,":",tmp.col.date.iga %in% colnames(data.iga), "\n", collapse = ""))
+}
+if (!all(tmp.col.date.ntx %in% colnames(data.ntx))) {
+  stop("Some given column names in tmp.col.date.ntx seem not to exist in data:\n",
+       paste0(tmp.col.date.ntx,":",tmp.col.date.ntx %in% colnames(data.ntx), "\n", collapse = ""))
+}
+str(data.iga[, ..tmp.col.date.iga])
+data.iga[, ..tmp.col.date.iga]
 
-tmp_iga2_dmy <- c("T-date",
-                  "T-dls",
-                  "graft loss date",
-                  "date of biopsy",
-                  "Date of birth"
-                  )
+tmp.col.parse.iga <- unlist(data.iga[, lapply(.SD, check.dateformat.string), .SDcols = tmp.col.date.iga])
+tmp.col.parse.ntx <- unlist(data.ntx[, lapply(.SD, check.dateformat.string), .SDcols = tmp.col.date.ntx])
+if (!all(tmp.col.parse.iga)) {
+  stop("Could not parse all date columns for IgA:\n",
+       paste0(names(tmp.col.parse.iga), ":", tmp.col.parse.iga, "\n", collapse = ""))
+}
+if (!all(tmp.col.parse.ntx)) {
+  stop("Could not parse all date columns for NTX:\n",
+       paste0(names(tmp.col.parse.ntx), ":", tmp.col.parse.ntx, "\n", collapse = ""))
+}
 
-tmp_ntx_select <- c("Geburtsdatum"  = "character" ,
-                    "Datum" = "character",
-                    "Geschlecht"  = "factor" ,
-                    "Transplantatfunktionsende 1[NTX PatientenInformation]" = "character",
-                    "Transplantatfunktionsende 2[NTX PatientenInformation]" = "character",
-                    "Transplantatfunktionsende 3[NTX PatientenInformation]" = "character",
-                    "Transplantatfunktionsende 5[NTX PatientenInformation]" = "character",
-                    "Transplantatfunktionsende 6[NTX PatientenInformation]" = "character",
-                    "TX Status[NTX PatientenInformation]" = "factor",
-                    "Patienten Status[NTX PatientenInformation]" = "factor",
-                    "Date last seen[NTX PatientenInformation]" = "character", 
-                    "Todesdatum[NTX PatientenInformation]" = "character")
-tmp_ntx_dmy <- c("Geburtsdatum",
-                 "Datum",
-                  "Transplantatfunktionsende 1[NTX PatientenInformation]",
-                  "Transplantatfunktionsende 2[NTX PatientenInformation]",
-                  "Transplantatfunktionsende 3[NTX PatientenInformation]",
-                  "Transplantatfunktionsende 5[NTX PatientenInformation]",
-                  "Transplantatfunktionsende 6[NTX PatientenInformation]",
-                  "Date last seen[NTX PatientenInformation]",
-                  "Todesdatum[NTX PatientenInformation]")
-################################## ntx #########################################
-data_ntx <- fread(tmp_data_ntx_path,
-                  select = tmp_ntx_select,
-                  encoding = "UTF-8",
-                  na.strings = "")
-## date format
-tmp_pattern = "^([0]?[1-9]|[1|2][0-9]|[3][0|1])[./-]([0]?[1-9]|[1][0-2])[./-]([0-9]{4}|[0-9]{2})"
-data_ntx[, Datum := regmatches(Datum,
-                               regexpr(pattern = tmp_pattern,
-                                       text = Datum))]
-data_ntx[, (tmp_ntx_dmy) := lapply(.SD, lubridate::dmy), .SDcols = tmp_ntx_dmy]
-data_ntx[, R_age_Datum := interval(Geburtsdatum, Datum) / years(1)]
-## drop certain patients
-data_ntx <- data_ntx[R_age_Datum > 18]
-data_ntx <- data_ntx[is.na(`Transplantatfunktionsende 3[NTX PatientenInformation]`) & is.na(`Transplantatfunktionsende 5[NTX PatientenInformation]`) & is.na(`Transplantatfunktionsende 6[NTX PatientenInformation]`)] 
-data_ntx[, tdls := fcase(!is.na(`Date last seen[NTX PatientenInformation]`), `Date last seen[NTX PatientenInformation]`,
-      !is.na(`Todesdatum[NTX PatientenInformation]`), `Todesdatum[NTX PatientenInformation]`)]
-################################## iga #########################################
-data_iga <- fread(tmp_data_iga_path, 
-                   select = tmp_iga2_select,
-                   encoding = "UTF-8",
-                   na.strings = c("", "-"),
-                   dec = ",")
-
-data_iga <- data_iga[!is.na(`T-date`)]
-data_iga[, (tmp_iga2_dmy) := lapply(.SD, lubridate::dmy), .SDcols = tmp_iga2_dmy]
-data_iga[, R_age_Tdate := interval(`Date of birth`, `T-date`) / years(1)]
-data_iga[, R_age_Tdls := interval(`Date of birth`, `T-dls`) / years(1)]
-data_iga <- data_iga[R_age_Tdate > 18]
-
-tmp_to_merge <- c("Transplantatfunktionsende 1[NTX PatientenInformation]",
-                  "Transplantatfunktionsende 2[NTX PatientenInformation]",
-                  "Transplantatfunktionsende 3[NTX PatientenInformation]",
-                  "Transplantatfunktionsende 5[NTX PatientenInformation]",
-                  "Transplantatfunktionsende 6[NTX PatientenInformation]")
-data_ntx[, Transplantatfunktionsende := fcoalesce(
-  data_ntx[ ,tmp_to_merge, with = FALSE])]  ## NOTE: only the first non NA value will be chosen in fcoalesce
-
-                                                     
-data_ntx$`TX Status[NTX PatientenInformation]` <-fct_collapse(data_ntx$`TX Status[NTX PatientenInformation]`,
-                                                                    "1 - mit Transplantatfunktion" = c("1 - mit Transplantatfunktion"),
-                                                              "2 - ohne Transplantatfunktion" = c("2 - ohne Transplantatfunktion", "2- ohne Transplantatfunktion"))
-data_ntx[, R_age_Tdls := interval(Geburtsdatum, `Date last seen[NTX PatientenInformation]`) / years(1)]
-## create variable containing minimum of date last seen (T-dls) and end of
-## create variable containing row wise sum of mm-A, mm-B and mm-DR
-data_iga$mismatch_sum <- as.numeric(as.character(data_iga$`mm-A`)) + as.numeric(as.character(data_iga$`mm-B`)) + as.numeric(as.character(data_iga$`mm-DR`))
-data_iga[, follow_up_age := R_age_Tdls - R_age_Tdate]
-data_ntx[, follow_up_age := R_age_Tdls - R_age_Datum]
-################################################################################
+tmp.col.mismatch <- c("mm_A", "mm_B", "mm_DR")
+if (!(all(tmp.col.mismatch %in% colnames(data.iga)) & all(tmp.col.mismatch %in% colnames(data.ntx)))){
+  stop("tmp.col.mismatch not in dataset")
+}
+follow_up <- 10
+###=============================================================================
+## parse all date-format columns in ISO format
+data.iga[, (tmp.col.date.iga) := lapply(.SD, iso.format.date), .SDcols = tmp.col.date.iga]
+data.ntx[, (tmp.col.date.ntx) := lapply(.SD, iso.format.date), .SDcols = tmp.col.date.ntx]
+###=============================================================================
+## convert character to factor
+tmp.col.factor.iga <- colnames(data.iga)[which(as.vector(data.iga[,lapply(.SD, class)]) == "character")]
+tmp.col.factor.ntx <- colnames(data.ntx)[which(as.vector(data.ntx[,lapply(.SD, class)]) == "character")]
+data.iga[, (tmp.col.factor.iga) := lapply(.SD, as.factor), .SDcols = tmp.col.factor.iga]
+data.ntx[, (tmp.col.factor.ntx) := lapply(.SD, as.factor), .SDcols = tmp.col.factor.ntx]
+## convert specified columns to factor
+tmp.col.factor.iga <- c("graft_loss(0=functial,1=loss)", "Pat_death(0=alive,1=dead)",
+                        "biopsy_after_KTX(0=no,1=yes)", "biopsy_proven_recurrence(0=no,1=yes)")
+if (!all(tmp.col.factor.iga %in% colnames(data.iga))) {
+  stop()
+}
+data.iga[, (tmp.col.factor.iga) := lapply(.SD, as.factor), .SDcols = tmp.col.factor.iga]
+###=============================================================================
+### Date_last_seen in iga contains either date of death or last occasion patent was seen, but not for ntx
+### data.tables `fifelse` is used to preserve Date format
+data.ntx[, Date_last_seen := fifelse(!is.na(Date_last_seen), Date_last_seen, Todesdatum)]
+###=============================================================================
+## age last seen
+data.ntx[, R_age_Tdls := interval(Geburtsdatum, Date_last_seen) / years(1)]
+data.iga[, R_age_Tdls := interval(Geburtsdatum, Date_last_seen) / years(1)]
+## age surgery
+data.ntx[, R_age_surgery := interval(Geburtsdatum, Datum_TX) / years(1)]
+data.iga[, R_age_surgery := interval(Geburtsdatum, Datum_TX) / years(1)]
+## cold time sum minutes
+data.ntx[, cold_time_minutes := cold.time.add(Cold_ischaemic_period_hours, Cold_ischaemic_period_minutes)]
+data.iga[, cold_time_minutes := cold.time.add(Cold_ischaemic_period_hours, Cold_ischaemic_period_minutes)]
+data.ntx[, cold_time_minutes := ifelse(cold_time_minutes == 0, NA, cold_time_minutes)]
+data.iga[, cold_time_minutes := ifelse(cold_time_minutes == 0, NA, cold_time_minutes)]
+## age follow_up
+### NOTE: `Date_last_seen` if "min" of last seen timepoint and death
+#data.ntx[, age_at_follow_up := fifelse((Date_last_seen > (Datum_TX + years(follow_up))), (Datum_TX + years(follow_up)), as.Date(NA))]
+#data.iga[, age_at_follow_up := fifelse((Date_last_seen > (Datum_TX + years(follow_up))), (Datum_TX + years(follow_up)), as.Date(NA))]
+## mismatch sum
+data.ntx[, mismatch_sum := rowSums(.SD, na.rm = TRUE), .SDcols = tmp.col.mismatch]
+data.ntx[, mismatch_sum := ifelse(mismatch_sum == 0, NA, mismatch_sum)]
+data.iga[, mismatch_sum := rowSums(.SD, na.rm = TRUE), .SDcols = tmp.col.mismatch]
+data.iga[, mismatch_sum := ifelse(mismatch_sum == 0, NA, mismatch_sum)]
+## years_within_follow_up
+data.ntx[, years_within_follow_up := R_age_Tdls - R_age_surgery]
+data.iga[, years_within_follow_up := R_age_Tdls - R_age_surgery]
+###=============================================================================
+## patients younger than 18 years are not considered
+data.ntx <- data.ntx[R_age_surgery >= 18]
+data.iga <- data.iga[R_age_surgery >= 18] 
+###=============================================================================
+data.iga.pos <- data.iga[`biopsy_after_KTX(0=no,1=yes)` == 1]
+data.iga.neg <- data.iga[`biopsy_after_KTX(0=no,1=yes)` == 0]
+###=============================================================================
 # remove tmp variables not used any more
 rm( list = ls()[grep(x = ls(), pattern = "^tmp")])
