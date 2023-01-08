@@ -1,24 +1,24 @@
 ###=============================================================================
-dir.project <- rstudioapi::getSourceEditorContext()$path  #.../R/main.R
-dir.project <- dirname(dir.project)  #.../R
-dir.project <- dirname(dir.project)  #...
-source(paste0(dir.project, .Platform$file.sep, "R", .Platform$file.sep,
-              "functions.R"))
-packages <- scan(file = paste0(dir.project, .Platform$file.sep, "requirements.txt"),
-                 sep = "\t", what = character())
-packages <- sapply(packages, require, character.only = TRUE)
-
-if (!all(packages)) {
-  stop(paste0("Could not load all packages:\n",
-              paste0(names(packages), ":",packages, "\n", collapse = "")
-              ))
-}
-path.data <- paste0(dir.project, .Platform$file.sep, "data")
+#dir.project <- rstudioapi::getSourceEditorContext()$path  #.../R/main.R
+#dir.project <- dirname(dir.project)  #.../R
+#dir.project <- dirname(dir.project)  #...
+#source(paste0(dir.project, .Platform$file.sep, "R", .Platform$file.sep,
+#              "functions.R"))
+#packages <- scan(file = paste0(dir.project, .Platform$file.sep, "requirements.txt"),
+#                 sep = "\t", what = character())
+#packages <- sapply(packages, require, character.only = TRUE)#
+#
+#if (!all(packages)) {
+#  stop(paste0("Could not load all packages:\n",
+#              paste0(names(packages), ":",packages, "\n", collapse = "")
+#              ))
+#}
+#path.data <- paste0(dir.project, .Platform$file.sep, "data")
 ###=============================================================================
 ## read data
-data.iga <- fread(paste0(path.data, .Platform$file.sep, "allIgA.csv"),
+data.iga <- fread(paste0(dir.data, .Platform$file.sep, "allIgA.csv"),
                   na.strings = c("-", ""))
-data.ntx <- fread(paste0(path.data, .Platform$file.sep, "allNTX.csv"),
+data.ntx <- fread(paste0(dir.data, .Platform$file.sep, "allNTX.csv"),
                   na.strings = c("-", ""))
 ###=============================================================================
 ## remove whitespaces etc.
@@ -112,4 +112,11 @@ data.iga.neg <- data.iga[`biopsy_after_KTX(0=no,1=yes)` == 0]
 ###=============================================================================
 # remove tmp variables not used any more
 rm( list = ls()[grep(x = ls(), pattern = "^tmp")])
-
+Sys.sleep(1)
+cat(paste0(rep("=", 78,), collapse = ""))
+cat("\n")
+cat("read_data.R terminated")
+cat("\n")
+cat(paste0(rep("=", 78,), collapse = ""))
+cat("\n")
+Sys.sleep(1)

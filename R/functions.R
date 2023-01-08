@@ -434,7 +434,10 @@ merge.cox.files <- function(){
   cox.files.iga.noclass <- cox.files[grep(pattern = "^cox_iga_\\d_(?!class)", cox.files, perl = TRUE)]
 }
 
-gg.binhist <- function(data, bin.breaks, colname, group.name = NULL, levels.name = NULL, legend.title = NULL, include.all = NULL, xlab = "", ylab = "", title = "", lowest = TRUE, count.stat = TRUE, include.na = TRUE) {
+gg.binhist <- function(data, bin.breaks, colname, group.name = NULL,
+                       levels.name = NULL, legend.title = NULL, include.all = NULL,
+                       xlab = "", ylab = "", title = "", lowest = TRUE,
+                       count.stat = TRUE, include.na = TRUE) {
   #'
   #'
   #' create a binned histogram according to given bin.breaks
@@ -645,5 +648,24 @@ set.follow.up <- function(data,
   if (n.critical >0) warning(msg)
   # data[[eval(colname.surgery)]]
   # ifelse(condition,)
-  
+}
+create.summary.fac <- function(data, colnames.fac, percentage = FALSE, group.name = NULL) {
+  #'
+  #'
+  #'
+  assert(all(colnames.fac %in% colnames(data)))
+  assert(all("factor" %in% unlist(lapply(FUN = class,X =  data[, ..colnames.fac])))) 
+  tbl <- table(data[, ..colnames.fac])
+  if (percentage) {
+    tbl.percentage <- as.data.table(prop.table(tbl))
+    tbl <- as.data.table(tbl)
+    n.precentage <- tbl.percentage$N
+    tbl <- cbind(tbl, N.perc = n.precentage)
+  } else {
+    tbl <- as.data.table(tbl)
+  }
+  if(!is.null(group.name)) {
+    tbl <- cbind(group = group.name, tbl)
+  }
+  tbl
 }

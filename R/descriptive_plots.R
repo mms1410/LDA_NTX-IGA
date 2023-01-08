@@ -42,14 +42,14 @@ gg.boxplot(data = data.ntx[`Patienten_Status[NTXPatientenInformation]` == "1_leb
 save.plot("boxplot_tdls_alive_ntx.jpg")
 ## all
 p2.1 <- gg.boxplot(data = data.ntx[`Patienten_Status[NTXPatientenInformation]` == "1_lebt"],
-                 y.column = "years_within_follow_up",
-                 xlab = "NTX", ylab = "Zeitspanne in Jahren", ylims=c(0, 15))
+                   y.column = "years_within_follow_up",
+                   xlab = "NTX", ylab = "Zeitspanne in Jahren", ylims=c(0, 15))
 p2.2 <- gg.boxplot(data = data.iga.pos[`Pat_death(0=alive,1=dead)` == 0],
-                 y.column = "years_within_follow_up", xlab = "IgA+", ylims=c(0, 15))
+                   y.column = "years_within_follow_up", xlab = "IgA+", ylims=c(0, 15))
 p2.3 <- gg.boxplot(data = data.iga.neg[`Pat_death(0=alive,1=dead)` == 0],
-                 y.column = "years_within_follow_up", xlab = "IgA-", ylims=c(0, 15))
+                   y.column = "years_within_follow_up", xlab = "IgA-", ylims=c(0, 15))
 p2.4 <- gg.boxplot(data = data.iga[`Pat_death(0=alive,1=dead)` == 0],
-                 y.column="years_within_follow_up", xlab="IgA-all", ylims=c(0, 15))
+                   y.column="years_within_follow_up", xlab="IgA-all", ylims=c(0, 15))
 
 patch2 <- p2.1 | p2.4 |p2.2 | p2.3
 patch2 <- patch2 + plot_annotation(
@@ -115,8 +115,9 @@ p1 <- gg.boxplot(data = data.iga.pos,
 p2 <- gg.boxplot(data = data.iga.neg, y.column = "R_age_surgery",
                  xlab = "r-IgA", ylims = c(0, 85))
 p3 <- gg.boxplot(data = data.ntx, y.column ="R_age_surgery", xlab = "NTX", ylims = c(0, 85))
+p4 <- gg.boxplot(data = data.iga, y.column="R_age_surgery", xlab="all-IgA", ylims = c(0,85))
 
-patch <- p1 | p2 | p3
+patch <- p3 | p4 |p1 | p2
 patch <- patch + plot_annotation("Alter zum Zeitpunk der OP")
 patch
 save.plot("boxplot_age_all.jpg")
@@ -213,31 +214,58 @@ p4
 save.plot("boxplot_ntx_hla.jpg")
 
 
-p4 + ylim(c(0,6)) + ylab("Summe\n[0-6]") + ggtitle("") + labs(caption="all-NTX") |
-  p1 + ylim(c(0,6)) + ylab("") + ggtitle("") + labs(caption="all-IgA")|
-  p2 + ylim(c(0,6)) + ylab("") + ggtitle("") + labs(caption="r-IgA") |
-  p3 + ylim(c(0,6)) + ylab("") + ggtitle("") + labs(caption="r+IgA") +
+(p4 + ylim(c(0,6)) + ylab("Summe\n[0-6]") + ggtitle("") + labs(caption="all-NTX") |
+    p1 + ylim(c(0,6)) + ylab("") + ggtitle("") + labs(caption="all-IgA")|
+    p2 + ylim(c(0,6)) + ylab("") + ggtitle("") + labs(caption="r-IgA") |
+    p3 + ylim(c(0,6)) + ylab("") + ggtitle("") + labs(caption="r+IgA")) +
   plot_annotation("HLA mismatch")
 save.plot("boxplot_all_hla.jpg")
 
-## histogram all
+## histogram all IgA
 gg.binhist(data = data.iga, bin.breaks = c(0, 2, 4, 6), colname = "mismatch_sum", 
            group.name = "biopsy_proven_recurrence(0=no,1=yes)",
            levels.name = c("r-IgA", "r+IgA", "all-IgA"),
            legend.title = "Gruppe", include.all = TRUE, xlab = "", ylab = "Anzahl",
-           title = "HLA missatch", lowest = TRUE, count.stat = TRUE)
+           title = "HLA mimsatch\n(IgA)", lowest = TRUE, count.stat = TRUE)
 save.plot("histogram_mismatch_sum_iga.jpg")
+## histogram NTX
+data.ntx[, .(mismatch_sum = cut(mismatch_sum, c(0,2,4,6), include.lowest = TRUE))] %>%
+  ggplot() +
+  geom_histogram(aes(x = mismatch_sum), stat ="count", fill = "white", color = "black") +
+  ggtitle("HLA mismatch\n(NTX)") +
+  xlab("") +
+  ylab("Anzahl") +
+  default_theme
+save.plot("histogram_mismatch_sum_ntx.jpg")
+
+rbindlist(list(
+  data.ntx[, .(mismatch_sum = mismatch_sum, group = as.factor("all-NTX"))],
+  data.iga[, .(mismatch_sum = mismatch_sum, group = as.factor("all-IgA"))],
+  data.iga.pos[, .(mismatch_sum = mismatch_sum, group =as.factor("r+IgA"))],
+  data.iga.neg[, .(mismatch_sum = mismatch_sum, group = as.factor("r-IgA"))]
+)) %>%
+  gg.binhist(bin.breaks = c(0,2,4,6), colname = "mismatch_sum",
+             group.name = "group",
+             levels.name = c("all-NTX", "all-IgA", "r+IgA", "r-IgA"),
+             legend.title="Gruppe",
+             include.all = FALSE,
+             xlab = "",
+             ylab = "Anzahl",
+             title = "HLA mismatch",
+             lowest = TRUE,
+             count.stat=TRUE)
+save.plot("histogram_mismatch_all.jpg")
 ###=============================================================================
 # time of biopsy
-## IGA all
-gg.boxplot(data = data.iga, y.column = "time_of_biopsy_(years_after_KTX)",
+## IGA all ONLY 1
+gg.boxplot(data = data.iga[`biopsy_proven_recurrence(0=no,1=yes)` == 1],
+           y.column = "time_of_biopsy_(years_after_KTX)",
            x.column = "biopsy_proven_recurrence(0=no,1=yes)",
-           x.ticks = c("0" = "Ohne Rekurrez", "1" = "Mit Rekurrez"),
            ylab = "Jahre",
-           title = "Jahre nach KTX\n(all-IgA)")
+           title = "Jahre nach KTX\n(r+IgA)")
 save.plot("boxplot_iga_yearsKTX.jpg")
 ###=============================================================================
-# current PRA
+# current PRA IgA
 gg.binhist(data = data.iga, bin.breaks = c(0, 30, 100),
            colname = "current_PRA%", 
            group.name = "biopsy_proven_recurrence(0=no,1=yes)",
@@ -248,7 +276,40 @@ gg.binhist(data = data.iga, bin.breaks = c(0, 30, 100),
            title = " Aktueller PRA%-Wert zum Transplantationszeitpunk\n(IgA)",
            lowest = TRUE, count.stat = TRUE)
 save.plot("histogram_current_pra_iga.jpg")
-# highest PRA
+
+# current PRA NTX
+data.ntx$current_PRA
+data.ntx[, .(c_pra = cut(current_PRA, c(0,30,100), include.lowest=TRUE))] %>%
+  ggplot() +
+  geom_histogram(aes(c_pra), stat = "count", fill = "white", color = "black") +
+  ggtitle("Aktueller PRA%-Wert zum Transplantationszeitpunk\n(NTX)") +
+  xlab("") +
+  ylab("Anzahl") +
+  default_theme
+save.plot("histogram_current_pra_ntx.jpg")
+
+# current PRA all
+rbindlist(list(
+  data.ntx[, .(c_pra = current_PRA, group = as.factor("all-NTX"))],
+  data.iga[, .(c_pra = `current_PRA%`, group = as.factor("all-IgA"))],
+  data.iga.pos[, .(c_pra = `current_PRA%`, group = as.factor("r+IgA"))],
+  data.iga.neg[, .(c_pra = `current_PRA%`, group = as.factor("r-IgA"))]
+)) %>%
+  gg.binhist(bin.breaks = c(0,30,100),
+             colname="c_pra",
+             group.name="group",
+             levels.name = c("all-NTX", "all-IgA", "r+IgA", "r-IgA"),
+             legend.title = "Gruppe",
+             xlab = "",
+             ylab = "Anzahl",
+             title = "Aktueller PRA%-Wert zum Transplantationszeitpunk",
+             lowest = TRUE,
+             count.stat = TRUE,
+             include.all = FALSE)
+save.plot("histogram_current_pra_all.jpg")
+
+###=============================================================================
+# highest PRA IgA
 gg.binhist(data = data.iga, bin.breaks = c(0, 30, 100),
            colname = "Highest_PRA%", 
            group.name = "biopsy_proven_recurrence(0=no,1=yes)",
@@ -259,6 +320,37 @@ gg.binhist(data = data.iga, bin.breaks = c(0, 30, 100),
            title = " Höchster PRA%-Wert",
            lowest = TRUE, count.stat = TRUE)
 save.plot("histogram_highest_pra_iga.jpg")
+
+# highest PRA NTX
+data.ntx[, .(h_pra = cut(highest_PRA, c(0,30,100), include.lowest=TRUE))] %>%
+  ggplot() +
+  geom_histogram(aes(h_pra), stat = "count", fill = "white", color = "black") +
+  ggtitle("Höchster PRA%-Wert zum Transplantationszeitpunk\n(NTX)") +
+  xlab("") +
+  ylab("Anzahl") +
+  default_theme
+save.plot("histogram_highest_pra_ntx.jpg")
+
+# highest PRA all
+rbindlist(list(
+  data.ntx[, .(h_pra = highest_PRA, group = as.factor("all-NTX"))],
+  data.iga[, .(h_pra = `Highest_PRA%`, group = as.factor("all-IgA"))],
+  data.iga.pos[, .(h_pra = `Highest_PRA%`, group = as.factor("r+IgA"))],
+  data.iga.neg[, .(h_pra = `Highest_PRA%`, group = as.factor("r-IgA"))]
+)) %>%
+  gg.binhist(bin.breaks = c(0,30,100),
+             colname="h_pra",
+             group.name="group",
+             levels.name = c("all-NTX", "all-IgA", "r+IgA", "r-IgA"),
+             legend.title = "Gruppe",
+             xlab = "",
+             ylab = "Anzahl",
+             title = "Höchster PRA%-Wert zum Transplantationszeitpunk",
+             lowest = TRUE,
+             count.stat = TRUE,
+             include.all = FALSE)
+save.plot("histogram_highest_pra_all.jpg")
+
 ###=============================================================================
 ## donator type
 rbindlist(list(
@@ -273,26 +365,52 @@ rbindlist(list(
   ggtitle("Organspendetyp") +
   scale_fill_discrete(labels=c("Totspende", "Lebendspende")) +
   default_theme
+save.plot("histogram_D-type_iga.jpg")
+
+data.ntx %>%
+  ggplot() +
+  geom_histogram(aes( D_type), stat = "count", fill = "white", color = "black") +
+  ylab("Anzahl") +
+  xlab("") +
+  ggtitle("Organspendetyp") +
+  default_theme
+save.plot("histogram_D-type_ntx.jpg")
+
+rbindlist(list(
+  data.ntx[, .(Spendertyp = D_type, group = "all-NTX")],
+  data.iga[, .(Spendertyp = D_type, group = "all-IgA")],
+  data.iga.pos[, .(Spendertyp = D_type, group = "r+IgA")],
+  data.iga.neg[, .(Spendertyp = D_type, group = "r-IgA")]
+)) %>%
+  ggplot() +
+  geom_histogram(aes(fill = Spendertyp, x = group), stat="count", position = "dodge") +
+  ylab("Anzahl") +
+  xlab("") +
+  ggtitle("Organspendetyp") +
+  scale_fill_discrete(labels=c("Totspende", "Lebendspende")) +
+  default_theme
+save.plot("histogram_D-type_all.jpg")
+
 ###=============================================================================
 ## KREA 1Y
 p1 <- gg.boxplot(data.iga,
-           y.column = "Krea_1Y",
-           title = "Krea_1Y\n(all-IgA)",
-           ylab = "Kreatininwerte") + ylim(c(0,13))
+                 y.column = "Krea_1Y",
+                 title = "Krea_1Y\n(all-IgA)",
+                 ylab = "Kreatininwerte") + ylim(c(0,13))
 p1
 save.plot("boxplot_krea_1_iga.jpg")
 
 p2 <- gg.boxplot(data.iga.pos,
-           y.column = "Krea_1Y",
-           title = "Krea_1Y\n(r+IgA)",
-           ylab = "Kreatininwerte") + ylim(c(0,13))
+                 y.column = "Krea_1Y",
+                 title = "Krea_1Y\n(r+IgA)",
+                 ylab = "Kreatininwerte") + ylim(c(0,13))
 p2
 save.plot("boxplot_krea_1_iga_pos.jpg")
 
 p3 <-gg.boxplot(data.iga.neg,
-           y.column = "Krea_1Y",
-           title = "Krea_1Y\n(r-IgA)",
-           ylab = "Kreatininwerte") + ylim(c(0,13))
+                y.column = "Krea_1Y",
+                title = "Krea_1Y\n(r-IgA)",
+                ylab = "Kreatininwerte") + ylim(c(0,13))
 p3
 save.plot("boxplot_krea_1_iga_neg.jpg")
 
@@ -304,9 +422,9 @@ p4
 save.plot("boxplot_krea_1_ntx.jpg")
 
 patch1 <- (p4 + ylab("Kreatininwerte") + ggtitle("") + labs(caption="all-NTX") |
-  p1 + ylab("") + ggtitle("") + labs(caption="all-IgA") | 
-  p2 + ylab("") + ggtitle("") + labs(caption="r+IgA")| 
-  p3 + ylab("") + ggtitle("") + labs(caption="r-IgA")) +
+             p1 + ylab("") + ggtitle("") + labs(caption="all-IgA") | 
+             p2 + ylab("") + ggtitle("") + labs(caption="r+IgA")| 
+             p3 + ylab("") + ggtitle("") + labs(caption="r-IgA")) +
   plot_annotation("Krea 1Y")
 patch1
 save.plot("boxplot_krea_1_all.jpg")
@@ -342,9 +460,9 @@ p4
 save.plot("boxplot_krea_5_ntx.jpg")
 
 patch5 <- (p4 + ylab("Kreatininwerte") + ggtitle("") + labs(caption="all-NTX") |
-    p1 + ylab("") + ggtitle("") + labs(caption="all-IgA") | 
-    p2 + ylab("") + ggtitle("") + labs(caption="r+IgA")| 
-    p3 + ylab("") + ggtitle("") + labs(caption="r-IgA")) +
+             p1 + ylab("") + ggtitle("") + labs(caption="all-IgA") | 
+             p2 + ylab("") + ggtitle("") + labs(caption="r+IgA")| 
+             p3 + ylab("") + ggtitle("") + labs(caption="r-IgA")) +
   plot_annotation("Krea 5Y")
 patch5
 save.plot("boxplot_krea_5_all.jpg")
@@ -378,9 +496,9 @@ p4
 save.plot("boxplot_krea_10_ntx.jpg")
 
 patch10 <- (p4 + ylab("Kreatininwerte") + ggtitle("") + labs(caption="all-NTX") |
-             p1 + ylab("") + ggtitle("") + labs(caption="all-IgA") | 
-             p2 + ylab("") + ggtitle("") + labs(caption="r+IgA")| 
-             p3 + ylab("") + ggtitle("") + labs(caption="r-IgA")) +
+              p1 + ylab("") + ggtitle("") + labs(caption="all-IgA") | 
+              p2 + ylab("") + ggtitle("") + labs(caption="r+IgA")| 
+              p3 + ylab("") + ggtitle("") + labs(caption="r-IgA")) +
   plot_annotation("Krea 10Y")
 patch10
 save.plot("boxplot_krea_10_all.jpg")
@@ -389,3 +507,9 @@ patch1 / patch5 / patch10
 save.plot("boxplot_krea_all.jpg")
 ###=============================================================================
 rm( list = ls()[grep(x = ls(), pattern = "^p")])
+cat(paste0(rep("=", 78,), collapse = ""))
+cat("\n")
+cat("descriptive_plots.R terminated")
+cat("\n")
+cat(paste0(rep("=", 78,), collapse = ""))
+cat("\n")
