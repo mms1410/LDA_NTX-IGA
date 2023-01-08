@@ -52,4 +52,7 @@ source(paste0(dir.scripts, .Platform$file.sep, "descriptive_plots.R"))
 Sys.sleep(1)
 source(paste0(dir.scripts, .Platform$file.sep, "descriptive_metrics.R"))
 Sys.sleep(1)
-#source(paste0(dir.scripts, .Platform$file.sep, "survival.R"))
+source(paste0(dir.scripts, .Platform$file.sep, "survival.R"))
+cat(paste0(paste0(rep("=", 78,), collapse = ""),"\n","main script finished!",
+           "\n", "see asset folder for csv and jpg output.", "\n",
+           paste0(rep("=", 78,), collapse = "")))

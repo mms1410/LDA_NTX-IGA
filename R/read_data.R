@@ -56,7 +56,6 @@ tmp.col.mismatch <- c("mm_A", "mm_B", "mm_DR")
 if (!(all(tmp.col.mismatch %in% colnames(data.iga)) & all(tmp.col.mismatch %in% colnames(data.ntx)))){
   stop("tmp.col.mismatch not in dataset")
 }
-follow_up <- 10
 ###=============================================================================
 ## parse all date-format columns in ISO format
 data.iga[, (tmp.col.date.iga) := lapply(.SD, iso.format.date), .SDcols = tmp.col.date.iga]
@@ -112,11 +111,9 @@ data.iga.neg <- data.iga[`biopsy_after_KTX(0=no,1=yes)` == 0]
 ###=============================================================================
 # remove tmp variables not used any more
 rm( list = ls()[grep(x = ls(), pattern = "^tmp")])
-Sys.sleep(1)
 cat(paste0(rep("=", 78,), collapse = ""))
 cat("\n")
 cat("read_data.R terminated")
 cat("\n")
 cat(paste0(rep("=", 78,), collapse = ""))
 cat("\n")
-Sys.sleep(1)

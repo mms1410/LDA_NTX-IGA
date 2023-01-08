@@ -308,98 +308,231 @@ mismatch.out <- function(data) {
 
 stderr <- function(x) sd(x, na.rm = TRUE) / sqrt(length(!is.na(x)))
 
-create_iga_regime1 <- function(data_iga) {
-  data_iga <- data_iga %>% 
+
+create.iga.regime1 <- function(data,
+                                col.date.graftloss = "Transplantatfunktionsende",
+                                col.date.tx = "Datum_TX",
+                                col.date.death = "Todesdatum") {
+  #'
+  #'
+  #'
+  #'
+  #'
+  #'
+  
+  graftloss.within.follow <- !is.na(data[[col.date.graftloss]]) & (data[[col.date.graftloss]] <= (data[[col.date.tx]] + follow_up))
+  graftloss.after.follow <- !is.na(data[[col.date.graftloss]]) & (data[[col.date.graftloss]] > (data[[col.date.tx]] + follow_up))
+  dead.within.follow <- !is.na(data[[col.date.death]]) & (data[[col.date.death]] <= (data[[col.date.tx]] + follow_up))
+
+  cat(paste0(rep("=", 78), collapse = ""))
+  cat("\n")
+  cat("Call create.iga.regime.1")
+  cat("\n")
+  cat(paste0("N graftloss.within.follow: ", sum(graftloss.within.follow), collapse = ""))
+  cat("\n")
+  cat(paste0("N graftloss.after.follow: ", sum(graftloss.after.follow), collapse = ""))
+  cat("\n")
+  cat(paste0("N dead.within.follow: ", sum(dead.within.follow), collapse = ""))
+  cat("\n")
+  
+  data <- data %>% 
     mutate(status_date = case_when(
       ## graft-loss within follow up period
-      !is.na(`graft loss date`) & `graft loss date` <  `T-date` + follow_up ~ time_graft_loss,
+      graftloss.within.follow ~ interval(data[[col.date.tx]],data[[col.date.graftloss]]) / years(1),
       ## graft-loss after follow up period
-      !is.na(`graft loss date`) & `graft loss date` >  `T-date` + follow_up ~ time_date_follow_up,
-      ## no graft-loss and last seen within follow up
-      is.na(`graft loss date`) & !is.na(`T-dls`) & `T-dls` < `T-date` + follow_up ~ time_t_dls,
-      ## no graft-loss and last seen after follow up
-      is.na(`graft loss date`) & !is.na(`T-dls`) & `T-dls` > `T-date` + follow_up ~ time_date_follow_up,
-      ## no graft loss and no last seen 
-      is.na(`graft loss date`) & is.na(`T-dls`) ~ time_date_follow_up
-    )
-    )
-  data_iga <- data_iga %>% 
+      graftloss.after.follow ~ interval(data[[col.date.tx]], (data[[col.date.tx]] + follow_up)) / years(1),
+      ## no graft-loss within follow up period and died within follow up
+      (!graftloss.within.follow & dead.within.follow) ~ interval(data[[col.date.tx]], data[[col.date.death]]) / years(1),
+      ## no graft-loss within follow up period and survived
+      (!graftloss.within.follow & !dead.within.follow) ~ interval(data[[col.date.tx]], (data[[col.date.tx]] + follow_up)) / years(1)
+    ))
+  data <- data %>% 
     mutate(status = case_when(
       ## graft-loss within follow up period
-      !is.na(`graft loss date`) & `graft loss date` <  `T-date` + follow_up ~ 1,
-      ## else censored
-      TRUE ~ 0,
-    )
-    )
-  data_iga
-}
-
-create_iga_regime2 <- function(data_iga) {
-  data_iga <- data_iga %>% 
-    mutate(status_date = case_when(
-      ## patient death and death date within follow up
-      (`Pat death (0=alive, 1= dead)` == 1) & `T-dls` < `T-date` + follow_up ~ time_t_dls,
-      ## patient dead but after follow up
-      (`Pat death (0=alive, 1= dead)` == 1) & `T-dls` > `T-date` + follow_up ~ time_date_follow_up,
-      ## patient not death but dropped within follow up
-      (`Pat death (0=alive, 1= dead)` == 0) & `T-dls` < `T-date` + follow_up ~ time_t_dls,
-      ## patient not death but dropped after follow up
-      (`Pat death (0=alive, 1= dead)` == 0) & `T-dls` > `T-date` + follow_up ~ time_date_follow_up,
-      ## NOTE: T-dls never NA
+      graftloss.within.follow ~ 1,
+      ## graft-loss after follow up period
+      graftloss.after.follow ~ 0,
+      ## no graft-loss within follow up period and died within follow up
+      (!graftloss.within.follow & dead.within.follow) ~ 0,
+      ## no graft-loss within follow up period and survived
+      (!graftloss.within.follow & !dead.within.follow) ~ 0
     ))
-  data_iga
+  cat("created iga.regime.1")
+  cat("\n")
+  cat(paste0(rep("=", 78), collapse = ""))
+  cat("\n")
+  data
 }
 
-create_ntx_regime1 <- function(data_ntx) {
-  data_ntx <- data_ntx %>%
+create.iga.regime2 <- function(data,
+                               col.date.death = "Todesdatum",
+                               col.date.tx = "Datum_TX",
+                               col.date.dls ="Date_last_seen") {
+  #'
+  #'
+  #'
+  #'
+  #'
+  death.within.follow <- !is.na(data[[col.date.death]]) & data[[col.date.death]] <= (data[[col.date.tx]] + follow_up)
+  death.after.follow <- !is.na(data[[col.date.death]]) & data[[col.date.death]] > (data[[col.date.tx]] + follow_up)
+  no.death.droppen.within.follow <- is.na(data[[col.date.death]]) & (data[[col.date.dls]] <= (data[[col.date.tx]] + follow_up))
+  no.death.dropped.after.follow <- is.na(data[[col.date.death]]) & (data[[col.date.dls]] > (data[[col.date.tx]] + follow_up))
+  
+  
+  cat(paste0(rep("=", 78), collapse = ""))
+  cat("\n")
+  cat("Call create.iga.regime.2")
+  cat("\n")
+  cat(paste0("N death.within.follow: ", sum(death.within.follow), collapse = ""))
+  cat("\n")
+  cat(paste0("N death.after.follow: ", sum(death.after.follow), collapse = ""))
+  cat("\n")
+  cat(paste0("N no.death.droppen.within.follow: ", sum(no.death.droppen.within.follow), collapse = ""))
+  cat("\n")
+  cat(paste0("N no.death.dropped.after.follow: ", sum(no.death.dropped.after.follow), collapse = ""))
+  cat("\n")
+  
+  assert(sum(no.death.dropped.after.follow | no.death.droppen.within.follow) +
+           sum(death.within.follow |death.after.follow) == nrow(data))
+  
+  data <- data %>% 
+    mutate(status_date = case_when(
+      ## death within follow up
+      death.within.follow ~ interval(data[[col.date.tx]], data[[col.date.death]]) / years(1),
+      ## death after follow up
+      death.after.follow ~ interval(data[[col.date.tx]], (data[[col.date.tx]] + follow_up)) / years(1),
+      ## no death and dropped within follow up
+      no.death.droppen.within.follow ~ interval(data[[col.date.tx]], data[[col.date.dls]]) / years(1),
+      ## no death and dropped after follow up
+      no.death.dropped.after.follow ~ interval(data[[col.date.tx]], (data[[col.date.tx]] + follow_up)) / years(1)
+    ))
+  data <- data %>% 
+    mutate(status = case_when(
+      ## death within follow up
+      death.within.follow ~ 1,
+      ## death after follow up
+      death.after.follow ~ 0,
+      ## no death and dropped within follow up
+      no.death.droppen.within.follow ~ 0,
+      ## no death and dropped after follow up
+      no.death.dropped.after.follow ~ 0
+    ))
+  cat("created iga.regime.2")  
+  cat("\n")
+  cat(paste0(rep("=", 78), collapse = ""))
+  cat("\n")
+  data
+}
+
+create.ntx.regime1 <- function(data,
+                               col.date.graftloss = "Transplantatfunktionsende",
+                               col.date.tx = "Datum_TX",
+                               col.date.death = "Todesdatum",
+                               col.date.dls = "Date_last_seen") {
+  #'
+  #'
+  #'
+  #'
+  #'
+  #'
+  graft.loss <- !is.na(data[[col.date.graftloss]]) & (data[[col.date.graftloss]] < (data[[col.date.tx]] + follow_up))
+  death.within.follow <- !is.na(data[[col.date.death]]) & (data[[col.date.death]] <= (data[[col.date.tx]] + follow_up))
+  lastseen.within.follow <- is.na(data[[col.date.death]]) & (data[[col.date.dls]] <= (data[[col.date.tx]] + follow_up))
+  
+  cat(paste0(rep("=", 78), collapse = ""))
+  cat("\n")
+  cat("Call create.ntx.regime.1")
+  cat("\n")
+  cat(paste0("N graft.loss: ", sum(graft.loss, na.rm = TRUE), collapse = ""))
+  cat("\n")
+  cat(paste0("N death.within.follow: ", sum(death.within.follow, na.rm = TRUE), collapse = ""))
+  cat("\n")
+  cat(paste0("N lastseen.within.follow: ", sum(lastseen.within.follow, na.rm = TRUE), collapse = ""))
+  cat("\n")
+  
+  
+  data <- data %>%
     mutate(status_date = case_when(
       ## patient experienced graft loss
-      !is.na(Transplantatfunktionsende) & Transplantatfunktionsende <= (Datum + follow_up) ~ interval(Datum, Transplantatfunktionsende) / years(1),
-      ## patient died within follow up
-      `Todesdatum[NTX PatientenInformation]` < (Datum + follow_up) ~ interval(Datum, `Todesdatum[NTX PatientenInformation]`) / years(1),
-      ## patiend last seen within follow up
-      `Date last seen[NTX PatientenInformation]` < (Datum + follow_up) ~ interval(Datum, `Date last seen[NTX PatientenInformation]`) / years(1),
+      graft.loss ~ as.numeric(interval(data[[col.date.tx]], data[[col.date.graftloss]]) / years(1)),
+      # patient died within follow up
+      death.within.follow ~ as.numeric(interval(data[[col.date.tx]], data[[col.date.death]]) / years(1)),
+      ## patient last seen within follow up
+      lastseen.within.follow ~ as.numeric(interval(data[[col.date.tx]], data[[col.date.dls]]) / years(1)),
       ## else follow up
-      TRUE ~ interval(Datum, (Datum + follow_up)) / years(1)
+      TRUE ~ as.numeric(interval(data[[col.date.tx]], (data[[col.date.tx]] + follow_up)) / years(1))
     ))
-  data_ntx <- data_ntx %>%
+  data <- data %>%
     mutate(status = case_when(
       ## patient experienced graft loss
-      !is.na(Transplantatfunktionsende) & Transplantatfunktionsende <= (Datum + follow_up) ~ 1,
-      ## patient died within follow up 
-      `Todesdatum[NTX PatientenInformation]` < (Datum + follow_up) ~ 0,
-      ## patiend last seen within follow up
-      `Date last seen[NTX PatientenInformation]` < (Datum + follow_up) ~ 0,
+      graft.loss ~ 1,
+      # patient died within follow up
+      death.within.follow ~ 0,
+      ## patient last seen within follow up
+      lastseen.within.follow ~ 0,
       ## else follow up
       TRUE ~ 0
     ))
-  data_ntx
+  cat("created ntx.regime.1")
+  cat("\n")
+  cat(paste0(rep("=", 78), collapse = ""))
+  cat("\n")
+  data
 }
 
-create_ntx_regime2 <- function(data_ntx) {
-  data_ntx <- data_ntx %>%
+create.ntx.regime2 <- function(data,
+                               col.date.death = "Todesdatum",
+                               col.date.tx = "Datum_TX",
+                               col.date.dls = "Date_last_seen") {
+  #'
+  #'
+  #'
+  #'
+  
+  dead.within.follow <- !is.na(data[[col.date.death]]) & (data[[col.date.death]] <= (data[[col.date.tx]] + follow_up))
+  dead.after.follow <- !is.na(data[[col.date.death]]) & (data[[col.date.death]] > (data[[col.date.tx]] + follow_up))
+  lastseen.within.follow <- is.na(data[[col.date.death]]) & (data[[col.date.dls]] <= (data[[col.date.tx]] + follow_up))
+  lastseen.after.follow <- is.na(data[[col.date.death]]) & (data[[col.date.dls]] > (data[[col.date.tx]] + follow_up))
+  
+  cat(paste0(rep("=", 78), collapse = ""))
+  cat("\n")
+  cat("Call create.ntx.regime.2")
+  cat("\n")
+  cat(paste0("N dead.within.follow: ", sum(dead.within.follow), collapse = ""))
+  cat("\n")
+  cat(paste0("N dead.after.follow: ", sum(dead.after.follow), collapse = ""))
+  cat("\n")
+  cat(paste0("N lastseen.within.follow: ", sum(lastseen.within.follow), collapse = ""))
+  cat("\n")
+  cat(paste0("N lastseen.after.follow: ", sum(lastseen.after.follow), collapse = ""))
+  
+  data <- data %>%
     mutate(status_date = case_when(
       ## patient died within follow up
-      `Todesdatum[NTX PatientenInformation]` <= (Datum + follow_up) ~ interval(Datum, `Todesdatum[NTX PatientenInformation]`) / years(1),
+      dead.within.follow ~ (interval(data[[col.date.tx]], data[[col.date.death]]) / years(1)),
       ## patient died after follow up
-      `Todesdatum[NTX PatientenInformation]` > (Datum + follow_up) ~ interval(Datum, (Datum + follow_up)) / years(1),
+      dead.after.follow ~ (interval(data[[col.date.tx]], (data[[col.date.tx]] + follow_up)) / years(1)),
       ## patient dropped within follow up
-      `Date last seen[NTX PatientenInformation]` <= (Datum + follow_up) ~ interval(Datum, `Date last seen[NTX PatientenInformation]`) / years(1),
+      lastseen.within.follow ~ (interval(data[[col.date.tx]], data[[col.date.dls]]) / years(1)),
       ## patient dropped after follow up
-      `Date last seen[NTX PatientenInformation]` > (Datum + follow_up) ~ interval(Datum, (Datum + follow_up)) / years(1)
+      lastseen.after.follow ~ interval(data[[col.date.tx]], (data[[col.date.tx]] + follow_up)) / years(1)
     ))
-  data_ntx <- data_ntx %>%
+  data <- data %>%
     mutate(status = case_when(
       ## patient died within follow up
-      `Todesdatum[NTX PatientenInformation]` <= (Datum + follow_up) ~ 1,
+      dead.within.follow ~ 1,
       ## patient died after follow up
-      `Todesdatum[NTX PatientenInformation]` > (Datum + follow_up) ~ 0,
+      dead.after.follow ~ 0,
       ## patient dropped within follow up
-      `Date last seen[NTX PatientenInformation]` <= (Datum + follow_up) ~ 0,
+      lastseen.within.follow ~ 0,
       ## patient dropped after follow up
-      `Date last seen[NTX PatientenInformation]` > (Datum + follow_up) ~ 0
+      lastseen.after.follow ~ 0
     ))
-  data_ntx
+  cat("created ntx.regime.2")
+  cat("\n")
+  cat(paste0(rep("=", 78), collapse = ""))
+  cat("\n")
+  data
 }
 
 simple.cox.surv <- function(data, covariate, write.summary = TRUE, name.prefix = NULL, name.suffix = NULL, exponentiate = TRUE) {
@@ -418,7 +551,7 @@ simple.cox.surv <- function(data, covariate, write.summary = TRUE, name.prefix =
   }
   ##
   model <- coxph(formula = Surv(time = as.numeric(status_date),
-                       event = status) ~ data[[covariate]], data = data_iga)
+                       event = status) ~ data[[covariate]], data = data)
   file.name <- paste0(dir.assets.csv, .Platform$file.sep, paste0("cox_",name.prefix, covariate, name.suffix, ".csv"))
   fwrite(broom::tidy(model, conf.int = TRUE, exponentiate = exponentiate), file = file.name)
   model
