@@ -186,7 +186,7 @@ gg.histogram <- function(data, column, interval = FALSE, interval.devisor = 1, f
     geom_histogram(mapping = aes(x = unlist(data[, ..start])))
 }
 
-cold.time.add <- function(time.h, time.m) {
+cold.time.add <- function(time.h, time.m, h = FALSE) {
   #'
   #' @param time.h
   #' @param time.m
@@ -195,9 +195,13 @@ cold.time.add <- function(time.h, time.m) {
   time.m[is.na(time.m)] <- 0
   time.h[is.na(time.h)] <- 0
   
-  time.h * 60 + time.m
+  time <- time.h * 60 + time.m
+  if (h) {
+    time / 60
+  } else {
+    time
+  }
 }
-
 
 create.summary.num.vec <- function(data, var.name, subset.name) {
   #'

@@ -34,6 +34,7 @@ model_iga_1 <- survfit(formula = Surv(time = status_date, event = status,
 ggsurvplot(model_iga_1,
            conf.int = FALSE, cumevents = TRUE)
 save.plot("kaplan-meier_regime1_iga1.jpg")
+summary(model_iga_1, times = c(1:10))
 surv_median(model_iga_1)
 ## Kaplan Meier iga+/iga-
 model_iga_1.1 <- survfit(formula = Surv(time = status_date,
@@ -42,6 +43,7 @@ model_iga_1.1 <- survfit(formula = Surv(time = status_date,
                                         data = data.iga)
 ggsurvplot(model_iga_1.1, pval = TRUE, legend.labs = c("r-IgA", "r+IgA"))
 save.plot("kapla-meier_regime1_iga_LogRank.jpg")
+
 
 ## IGA positive
 model_iga_1.2 <- survfit(formula = Surv(time = status_date,

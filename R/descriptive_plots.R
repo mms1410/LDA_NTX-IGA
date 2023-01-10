@@ -1,7 +1,7 @@
 ###=============================================================================
 # descriptive statistics plots
 ###=============================================================================
-# Time Date Last seen Boxplot
+# Time Period Date Last seen Boxplot
 ## IgA
 data.iga[, .(`biopsy_proven_recurrence(0=no,1=yes)`,years_within_follow_up)] %>% 
   gg.boxplot(y.column="years_within_follow_up", x.column="biopsy_proven_recurrence(0=no,1=yes)",
@@ -14,32 +14,32 @@ gg.boxplot(data = data.ntx, y.column = "years_within_follow_up", title = "NTX: Z
 save.plot("boxplot_tdls_ntx.jpg")
 ## all
 p1.1 <- gg.boxplot(data = data.ntx, y.column = "years_within_follow_up",
-                 xlab = "NTX", ylab = "Zeitspanne in Jahren", ylims=c(0, 15))
+                   xlab = "NTX", ylab = "Zeitspanne in Jahren", ylims=c(0, 15))
 p1.2 <- gg.boxplot(data = data.iga.pos,
-                 y.column = "years_within_follow_up", xlab = "IgA+", ylims=c(0, 15))
+                   y.column = "years_within_follow_up", xlab = "IgA+", ylims=c(0, 15))
 p1.3 <- gg.boxplot(data = data.iga.neg,
-                 y.column = "years_within_follow_up", xlab = "IgA-", ylims=c(0, 15))
+                   y.column = "years_within_follow_up", xlab = "IgA-", ylims=c(0, 15))
 p1.4 <- gg.boxplot(data = data.iga,
-                 y.column="years_within_follow_up", xlab="IgA-all", ylims=c(0, 15))
+                   y.column="years_within_follow_up", xlab="IgA-all", ylims=c(0, 15))
 patch1 <- p1.1 | p1.4 |p1.2 | p1.3
 patch1 <- patch1 + plot_annotation(
   title = "Zeitspanne zwischen Operation und Datum zuletzt gesehen "
 )
 patch1
 save.plot("boxplot_tdls_all.jpg")
-# Time Date Last seen Boxplot (alive)
+# Time Period Date Last seen Boxplot (alive)
 ## IgA
 data.iga[`Pat_death(0=alive,1=dead)` == 0, .(`biopsy_proven_recurrence(0=no,1=yes)`,years_within_follow_up)] %>% 
   gg.boxplot(y.column="years_within_follow_up", x.column="biopsy_proven_recurrence(0=no,1=yes)",
              ylab="Zeitspanne in Jahren", x.ticks=c("0"="Ohne Rekurrenz", "1"="Mit Rekurrenz"),
              title="IGA: Zeitspanne zwischen Operation und Datum zuletzt gesehen\n(Überlebende)")
-save.plot("boxplot_tdls_alive_iga.jpg")
+save.plot("boxplot_tdls_period_alive_iga.jpg")
 ## NTX
 gg.boxplot(data = data.ntx[`Patienten_Status[NTXPatientenInformation]` == "1_lebt"],
            y.column = "years_within_follow_up",
            title = "NTX: Zeitspanne zwischen Operation und Datum zuletzt gesehen\n(Überlebende)",
            ylab = "Zeitspanne in Jahren")
-save.plot("boxplot_tdls_alive_ntx.jpg")
+save.plot("boxplot_tdls_period_alive_ntx.jpg")
 ## all
 p2.1 <- gg.boxplot(data = data.ntx[`Patienten_Status[NTXPatientenInformation]` == "1_lebt"],
                    y.column = "years_within_follow_up",
@@ -56,20 +56,20 @@ patch2 <- patch2 + plot_annotation(
   title = "Zeitspanne zwischen Operation und Datum zuletzt gesehen\n(Überlebende) "
 )
 patch2
-save.plot("boxplot_tdls_alive_all.jpg")
-# Time Date Last seen Boxplot (dead)
+save.plot("boxplot_tdls_period_alive_all.jpg")
+# Time Period Date Last seen Boxplot (dead)
 ## IgA
 data.iga[`Pat_death(0=alive,1=dead)` == 1, .(`biopsy_proven_recurrence(0=no,1=yes)`,years_within_follow_up)] %>% 
   gg.boxplot(y.column="years_within_follow_up", x.column="biopsy_proven_recurrence(0=no,1=yes)",
              ylab="Zeitspanne in Jahren", x.ticks=c("0"="Ohne Rekurrenz", "1"="Mit Rekurrenz"),
              title="IGA: Zeitspanne zwischen Operation und Datum zuletzt gesehen\n(Gestorbene)")
-save.plot("boxplot_tdls_alive_iga.jpg")
+save.plot("boxplot_tdls_period_alive_iga.jpg")
 ## NTX
 gg.boxplot(data = data.ntx[`Patienten_Status[NTXPatientenInformation]` == "2_verstorben"],
            y.column = "years_within_follow_up",
            title = "NTX: Zeitspanne zwischen Operation und Datum zuletzt gesehen\n(Verstorbene)",
            ylab = "Zeitspanne in Jahren")
-save.plot("boxplot_tdls_alive_ntx.jpg")
+save.plot("boxplot_tdls_period__alive_ntx.jpg")
 ## all
 p3.1 <- gg.boxplot(data = data.ntx[`Patienten_Status[NTXPatientenInformation]` == "2_verstorben"],
                    y.column = "years_within_follow_up",
@@ -86,12 +86,12 @@ patch3 <- patch3 + plot_annotation(
   title = "Zeitspanne zwischen Operation und Datum zuletzt gesehen\n(Verstorbene) "
 )
 patch3
-save.plot("boxplot_tdls_dead_all.jpg")
+save.plot("boxplot_tdls_period_dead_all.jpg")
 ##
 (p1.1 + ggtitle("Alle") | p1.4 | p1.2 | p1.3)/
   (p2.1 + ggtitle("Überlebene")| p2.4 | p2.2 | p2.3) /
   (p3.1 + ggtitle("Verstorbende")| p3.4 | p3.2 | p3.3) + plot_annotation("Zeitspanne zwischen Operation und Datum zuletzt gesehen")
-save.plot("boxplot_tdls_all_groups.jpg")
+save.plot("boxplot_tdls_period_all_groups.jpg")
 ###=============================================================================
 # age_surgery Boxplot
 ## IGA
@@ -231,7 +231,7 @@ save.plot("histogram_mismatch_sum_iga.jpg")
 ## histogram NTX
 data.ntx[, .(mismatch_sum = cut(mismatch_sum, c(0,2,4,6), include.lowest = TRUE))] %>%
   ggplot() +
-  geom_histogram(aes(x = mismatch_sum), stat ="count", fill = "white", color = "black") +
+  geom_histogram(aes(x = mismatch_sum, fill="#69b3a2"), stat ="count", fill = "white", color = "black") +
   ggtitle("HLA mismatch\n(NTX)") +
   xlab("") +
   ylab("Anzahl") +
@@ -369,22 +369,24 @@ save.plot("histogram_D-type_iga.jpg")
 
 data.ntx %>%
   ggplot() +
-  geom_histogram(aes( D_type), stat = "count", fill = "white", color = "black") +
+  geom_histogram(aes(D_type, fill = D_type), stat = "count") +
   ylab("Anzahl") +
   xlab("") +
   ggtitle("Organspendetyp") +
   default_theme
 save.plot("histogram_D-type_ntx.jpg")
 
+## all
 rbindlist(list(
-  data.ntx[, .(Spendertyp = D_type, group = "all-NTX")],
-  data.iga[, .(Spendertyp = D_type, group = "all-IgA")],
-  data.iga.pos[, .(Spendertyp = D_type, group = "r+IgA")],
-  data.iga.neg[, .(Spendertyp = D_type, group = "r-IgA")]
-)) %>%
+  data.ntx[, .(Spendertyp = D_type, Gruppe = as.factor("all-NTX"))],
+  data.iga[, .(Spendertyp = D_type, Gruppe = as.factor("all-IgA"))],
+  data.iga.pos[, .(Spendertyp = D_type, Gruppe = as.factor("r+IgA"))],
+  data.iga.neg[, .(Spendertyp = D_type, Gruppe = as.factor("r-IgA"))]
+))[, .(Anzahl = .N), by = .(Spendertyp,Gruppe)][, .(Anteil = 100 * Anzahl / sum(Anzahl),
+                                                    Spendertyp = Spendertyp), by = Gruppe] %>% 
   ggplot() +
-  geom_histogram(aes(fill = Spendertyp, x = group), stat="count", position = "dodge") +
-  ylab("Anzahl") +
+  geom_col(aes(y = Anteil, x = Gruppe, fill = Spendertyp), position = "dodge") +
+  ylab("Anteil") +
   xlab("") +
   ggtitle("Organspendetyp") +
   scale_fill_discrete(labels=c("Totspende", "Lebendspende")) +
@@ -429,6 +431,21 @@ patch1 <- (p4 + ylab("Kreatininwerte") + ggtitle("") + labs(caption="all-NTX") |
 patch1
 save.plot("boxplot_krea_1_all.jpg")
 
+p1.krea <- rbindlist(list(
+  data.iga[, .(group = as.factor("all-IgA"), Krea_1Y)],
+  data.iga.pos[, .(group = as.factor("r+IgA"), Krea_1Y)],
+  data.iga.neg[, .(group = as.factor("r-IgA"), Krea_1Y)],
+  data.ntx[, .(group = as.factor("all-NTX"), Krea_1Y)]
+))[, (krea_1Y_mean = mean(Krea_1Y, na.rm = TRUE)), by = group][, .(Gruppe = group, mean = V1)]%>% 
+  ggplot() +
+  ylab("Mittelwert") +
+  xlab("1 Jahr") +
+  scale_x_discrete(limits = c("all-NTX", "all-IgA", "r+IgA", "r-IgA")) +
+  geom_col(aes(y = mean, x = Gruppe, fill = Gruppe), width = 0.2) +
+  default_theme +
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1.5, hjust=1))
+p1.krea
 ###=============================================================================
 ## KREA 5Y
 p1 <- gg.boxplot(data.iga,
@@ -466,6 +483,22 @@ patch5 <- (p4 + ylab("Kreatininwerte") + ggtitle("") + labs(caption="all-NTX") |
   plot_annotation("Krea 5Y")
 patch5
 save.plot("boxplot_krea_5_all.jpg")
+
+p5.krea <- rbindlist(list(
+  data.iga[, .(group = as.factor("all-IgA"), Krea_5Y)],
+  data.iga.pos[, .(group = as.factor("r+IgA"), Krea_5Y)],
+  data.iga.neg[, .(group = as.factor("r-IgA"), Krea_5Y)],
+  data.ntx[, .(group = as.factor("all-NTX"), Krea_5Y)]
+))[, (krea_1Y_mean = mean(Krea_5Y, na.rm = TRUE)), by = group][, .(Gruppe = group, mean = V1)]%>% 
+  ggplot() +
+  ylab("") +
+  xlab("5 Jahre") +
+  scale_x_discrete(limits = c("all-NTX", "all-IgA", "r+IgA", "r-IgA")) +
+  geom_col(aes(y = mean, x = Gruppe, fill = Gruppe), width = 0.2) +
+  default_theme +
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1.5, hjust=1))
+p5.krea
 ###=============================================================================
 ## KREA 10Y
 p1 <- gg.boxplot(data.iga,
@@ -502,9 +535,27 @@ patch10 <- (p4 + ylab("Kreatininwerte") + ggtitle("") + labs(caption="all-NTX") 
   plot_annotation("Krea 10Y")
 patch10
 save.plot("boxplot_krea_10_all.jpg")
+
+p10.krea <- rbindlist(list(
+  data.iga[, .(group = as.factor("all-IgA"), Krea_10Y)],
+  data.iga.pos[, .(group = as.factor("r+IgA"), Krea_10Y)],
+  data.iga.neg[, .(group = as.factor("r-IgA"), Krea_10Y)],
+  data.ntx[, .(group = as.factor("all-NTX"), Krea_10Y)]
+))[, (krea_1Y_mean = mean(Krea_10Y, na.rm = TRUE)), by = group][, .(Gruppe = group, mean = V1)]%>% 
+  ggplot() +
+  ylab("") +
+  xlab("10 Jahre") +
+  scale_x_discrete(limits = c("all-NTX", "all-IgA", "r+IgA", "r-IgA")) +
+  geom_col(aes(y = mean, x = Gruppe, fill = Gruppe), width = 0.2) +
+  theme(legend.position = "none") +
+  default_theme + theme(axis.text.x = element_text(angle = 45, vjust = 1.5, hjust=1))
+
+p10.krea
 ###=============================================================================
 patch1 / patch5 / patch10
 save.plot("boxplot_krea_all.jpg")
+
+(p1.krea | p5.krea | p10.krea) & plot_annotation(title = "Kreatininwerte")
 ###=============================================================================
 rm( list = ls()[grep(x = ls(), pattern = "^p")])
 cat(paste0(rep("=", 78,), collapse = ""))
