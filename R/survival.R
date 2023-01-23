@@ -337,6 +337,8 @@ save.plot("cox-regression_iga_2_no_mismatch.jpg")
 fwrite(tidy(model_cox_iga_2_no_mismatch, conf.int = TRUE, exponentiate = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_2_no_mismatch.csv"))
 
+
+## NTX
 model_cox_ntx_2 <- coxph(formula = Surv(time = as.numeric(status_date),
                                         event = status) ~ R_age_surgery +
                            D_age + Geschlecht + D_sex + D_type + current_PRA + highest_PRA +
