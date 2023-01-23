@@ -1,0 +1,17 @@
+group,Geschlecht,D_type,N,N.perc
+all-NTX,M,Cadaver,473,0.544303797468355
+all-NTX,W,Cadaver,266,0.306098964326812
+all-NTX,M,Living,89,0.102416570771001
+all-NTX,W,Living,41,0.047180667433832
+all-IgA,M,Cadaver,34,0.53125
+all-IgA,W,Cadaver,15,0.234375
+all-IgA,M,Living,14,0.21875
+all-IgA,W,Living,1,0.015625
+r+Iga,M,Cadaver,5,0.714285714285714
+r+Iga,W,Cadaver,0,0
+r+Iga,M,Living,2,0.285714285714286
+r+Iga,W,Living,0,0
+r-IgA,M,Cadaver,29,0.508771929824562
+r-IgA,W,Cadaver,15,0.263157894736842
+r-IgA,M,Living,12,0.210526315789474
+r-IgA,W,Living,1,0.0175438596491228

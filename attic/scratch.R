@@ -158,3 +158,65 @@ ggplot(tbl, aes(x = group.values)) +
   geom_histogram(aes(fill = group),stat = "count",
                  position = "dodge") + 
   default_theme
+################################################################################
+data_tx <- fread(tmp_data_tx, stringsAsFactors = TRUE, encoding = "UTF-8")
+data_crea <- fread(tmp_data_crea, stringsAsFactors = TRUE, encoding = "UTF-8")
+
+
+data_ntx <- fread(tmp_data_ntx_path,
+                  select = tmp_ntx_select,
+                  encoding = "UTF-8",
+                  na.strings = "")
+
+
+all(data_crea[, `Patient-ID`] %in% data_ntx$`Patient-ID`)
+all(data_ntx$`Patient-ID` %in% data_crea[, `Patient-ID`])
+
+colnames(data_ntx)[colnames(data_ntx) %in% colnames(data_tx)]
+colnames(data_tx)
+tmp_idx <- grepl(pattern = "^Cold", x = colnames(data_tx))
+gsub(x = colnames(data_tx)[tmp_idx], pattern = "-", replacement = " ")
+data_tmp <- data_crea[data_ntx, on = "Patient-ID"]
+data_tmp <- merge(data_crea, data_ntx, by = "Patient-ID")
+
+data_crea <- data_crea[R_age_Datum > 18]
+data_crea <- data_crea[is.na(`Transplantatfunktionsende 3[NTX PatientenInformation]`) & is.na(`Transplantatfunktionsende 5[NTX PatientenInformation]`) & is.na(`Transplantatfunktionsende 6[NTX PatientenInformation]`)] 
+data_crea[, tdls := fcase(!is.na(`Date last seen[NTX PatientenInformation]`), `Date last seen[NTX PatientenInformation]`,
+                         !is.na(`Todesdatum[NTX PatientenInformation]`), `Todesdatum[NTX PatientenInformation]`)]
+################################################################################
+fifelse(!is.na(data$Date_last_seen), data$Date_last_seen, data$Todesdatum)
+fifelse((data$Date_last_seen > (data$Datum_TX + years(follow_up))), (data$Datum_TX + years(follow_up)), as.Date(NA))
+create.summary.num(data.iga, "cold_time_sum_min", c("cold_iga", "cold_iga_0", "cold_iga_1"))
+
+as.data.table(create.summary.num(data.iga, "cold_time_minutes", c("cold_iga", "cold_iga_0", "cold_iga_1")))
+create.summary.num(data = data.ntx, var.name = "hla_mismatch", subset.names = "hml_mismatch_ntx",
+                   include.all = TRUE, colname.split = NULL)      
+
+
+gg.binhist(data = data.ntx, bin.breaks = c(0, 30, 100),
+           colname = "current_PRA", 
+           group.name = NULL,
+           levels.name =  NULL,
+           legend.title = NULL,
+           include.all = NULL,
+           xlab = "", ylab = "Anzahl",
+           title = " Aktueller PRA%-Wert zum Transplantationszeitpunk",
+           lowest = TRUE, count.stat = TRUE)
+
+#rbindlist(list(
+#  data.iga[, .(group = "all-IgA", Spendertyp = D_type)],
+#  data.iga.pos[, .(group = "r+IgA", Spendertyp = D_type)],
+#  data.iga.neg[, .(group = "r-IgA", Spendertyp = D_type)]
+#)) %>%
+#  ggplot(aes(group, fill = Spendertyp)) +
+#  geom_bar(position = "fill") +
+#  geom_label(aes(label=after_stat(count)),
+#             stat = "count",
+#             position = "fill",
+#             format_string = "{:.3f}%",
+#             size = 3) +
+#  default_theme
+
+############
+
+(!is.na(data.iga$Transplantatfunktionsende) & (data.iga$Transplantatfunktionsende <  (data.iga$Datum_TX + follow_up)))

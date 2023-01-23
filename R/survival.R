@@ -6,14 +6,16 @@
 ## preliminaries
 covariates.iga <- c("R_age_surgery", "D_age", "Geschlecht",  "D_sex",  "D_type", "current_PRA%", "Highest_PRA%",
                     "cold_time_minutes", "mismatch_sum")
+covariates.ntx <- c("R_age_surgery", "D_age", "Geschlecht", "D_sex", "D_type", "current_PRA", "highest_PRA",
+                    "cold_time_minutes", "mismatch_sum")
 covariates.iga.class <- c("R_age_surgery_class","D_age", "Geschlecht", "D_sex",
                           "D_type","current_PRA%", "Highest_PRA%", "cold_time_minutes_class", "mismatch_sum_class")
 if (!all(covariates.iga %in% colnames(data.iga))){
   stop(paste0("Not all names provided incovariates.iga could be found:\n"),
               paste(covariates.iga, ":", covariates.iga %in% colnames(data.iga), "\n"))
 }
-data.iga.backup <- data.iga
-data.ntx.backup <- data.ntx
+# data.iga.backup <- data.iga
+# data.ntx.backup <- data.ntx
 data.iga[, time_date_biopsy := interval(Datum_TX, date_of_biopsy) / years(1)]
 data.iga[, time_t_dls := interval(Datum_TX, Date_last_seen) / years(1)]
 data.iga[, time_date_birth := interval(Datum_TX, Geburtsdatum) / years(1)]
@@ -27,6 +29,8 @@ data.iga <- create.iga.regime1(data.iga)
 data.iga.pos <- data.iga[`biopsy_proven_recurrence(0=no,1=yes)` == 1]
 data.iga.neg <- data.iga[`biopsy_proven_recurrence(0=no,1=yes)` == 0]
 
+data.ntx <- create.ntx.regime1(data.ntx)
+
 ## IGA all
 ## Kaplan Meier all iga
 model_iga_1 <- survfit(formula = Surv(time = status_date, event = status,
@@ -34,8 +38,9 @@ model_iga_1 <- survfit(formula = Surv(time = status_date, event = status,
 ggsurvplot(model_iga_1,
            conf.int = FALSE, cumevents = TRUE)
 save.plot("kaplan-meier_regime1_iga1.jpg")
-summary(model_iga_1, times = c(1:10))
 surv_median(model_iga_1)
+summary(model_iga_1, times = c(1:10))
+
 ## Kaplan Meier iga+/iga-
 model_iga_1.1 <- survfit(formula = Surv(time = status_date,
                                         event = status,
@@ -69,7 +74,6 @@ surv_median(model_iga_1.3)
 summary(model_iga_1.3, times = c(1:10))
 
 ## NTX
-data.ntx <- create.ntx.regime1(data.ntx)
 model_ntx_1 <- survfit(formula = Surv(time = status_date, event = status,
                                       type = "right") ~ 1, data = data.ntx)
 ggsurvplot(model_ntx_1, conf.int = FALSE, cumevents = TRUE)
@@ -117,7 +121,8 @@ survdiff(Surv(time = status_date, event = status,
 model_cox_iga_1 <- coxph(formula = Surv(time = as.numeric(status_date),
                                                        event = status) ~ R_age_surgery +
                          D_age + Geschlecht + D_sex + D_type + 
-                           cold_time_minutes + mismatch_sum + `current_PRA%` + `Highest_PRA%`, data = data.iga)
+                           cold_time_minutes + mismatch_sum + `current_PRA%` +
+                           `Highest_PRA%` + `biopsy_proven_recurrence(0=no,1=yes)`, data = data.iga)
 
 summary(model_cox_iga_1)
 ggsurvplot(survfit(model_cox_iga_1, data = data.iga), conf.int = FALSE)
@@ -125,18 +130,43 @@ save.plot("cox-regression_iga_1.jpg")
 fwrite(tidy(model_cox_iga_1, conf.int = TRUE, exponentiate = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_1_all.csv"))
 #### all permutations
-lapply(X = covariates.iga, FUN = function(x){simple.cox.surv(data = data.iga, covariate = x, name.prefix = "iga_1_")})
+lapply(X = c(covariates.iga, "biopsy_proven_recurrence(0=no,1=yes)"),
+       FUN = function(x){simple.cox.surv(data = data.iga, covariate = x, name.prefix = "iga_1_")})
 
 ### all no mismatch
 model_cox_iga_1_no_mismatch <- coxph(formula = Surv(time = as.numeric(status_date),
                                         event = status) ~ R_age_surgery +
-                                       D_age + Geschlecht + D_sex + D_type + cold_time_minutes +
-                                       mismatch_sum + `current_PRA%` + `Highest_PRA%`, data = data.iga)
+                                       D_age + Geschlecht + D_sex + D_type +
+                                       cold_time_minutes + mismatch_sum + `current_PRA%` +
+                                       `Highest_PRA%` + `biopsy_proven_recurrence(0=no,1=yes)`, data = data.iga)
 summary(model_cox_iga_1_no_mismatch)
 ggsurvplot(survfit(model_cox_iga_1, data = data.iga), conf.int = FALSE)
 save.plot("cox-regression_iga_1_no_mismatch.jpg")
 fwrite(tidy(model_cox_iga_1_no_mismatch, conf.int = TRUE, exponentiate = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_1_no_mismatch.csv"))
+
+## all NTX
+### with mismatch
+model_cox_ntx_1 <- coxph(formula = Surv(time = as.numeric(status_date),
+                                      event = status) ~ R_age_surgery +
+                         D_age + Geschlecht + D_sex + D_type + current_PRA + highest_PRA +
+                         cold_time_minutes + mismatch_sum, data = data.ntx)
+summary(model_cox_ntx_1)
+ggsurvplot(survfit(model_cox_ntx_1, data = data.ntx), conf.int = FALSE)
+fwrite(tidy(model_cox_ntx_1, conf.int = TRUE, exponentiate = TRUE),
+       file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_ntx_1.csv"))
+### no mismatch
+model_cox_ntx_1_no_mismatch <- coxph(formula = Surv(time = as.numeric(status_date),
+                                        event = status) ~ R_age_surgery +
+                           D_age + Geschlecht + D_sex + D_type + current_PRA + highest_PRA +
+                           cold_time_minutes , data = data.ntx)
+summary(model_cox_ntx_1_no_mismatch)
+ggsurvplot(survfit(model_cox_ntx_1_no_mismatch, data = data.ntx), conf.int = FALSE)
+fwrite(tidy(model_cox_ntx_1_no_mismatch, conf.int = TRUE, exponentiate = TRUE),
+       file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_ntx_1_no_mismatch.csv"))
+### all permutations
+lapply(X = covariates.ntx, FUN = function(x){simple.cox.surv(data = data.ntx, covariate = x, name.prefix = "ntx_1_")})
+###=============================================================================
 ###=============================================================================
 #### age -> 18-39 ,40-59, >60
 data.iga$R_age_surgery_class <- cut(data.iga$R_age_surgery, breaks = c(0, 39, 59, Inf), include.lowest = TRUE)
@@ -157,7 +187,7 @@ data.iga$cold_time_minutes_class <- cut(data.iga$cold_time_minutes, breaks = c(0
 model_cox_iga_1_class <- coxph(formula = Surv(time = as.numeric(status_date),
                                         event = status) ~ R_age_surgery_class +
                                  D_age + Geschlecht + D_sex + D_type + cold_time_minutes_class +
-                                 mismatch_sum_class + `current_PRA%` + `Highest_PRA%` , data = data.iga)
+                                 mismatch_sum_class + `current_PRA%` + `Highest_PRA%`+ `biopsy_proven_recurrence(0=no,1=yes)` , data = data.iga)
 summary(model_cox_iga_1_class)
 ggsurvplot(survfit(model_cox_iga_1_class, data = data.iga), conf.int = FALSE)
 save.plot("cox-regression_iga_1_class.jpg")
@@ -170,14 +200,15 @@ if (!(all(covariates.iga.class %in% colnames(data.iga)))){
        paste0(covariates.iga.class, " : ", covariates.iga.class %in% colnames(data.iga), "\n")
   )
 }
-lapply(X = covariates.iga.class, FUN = function(x){simple.cox.surv(data = data.iga, covariate = x, name.prefix = "iga_1_class_")})
+lapply(X = c(covariates.iga.class, "biopsy_proven_recurrence(0=no,1=yes)"),
+       FUN = function(x){simple.cox.surv(data = data.iga, covariate = x, name.prefix = "iga_1_class_")})
 
 ### no mismatch
 model_cox_iga_1_class_no_mismatch <- coxph(formula = Surv(time = as.numeric(status_date),
                                               event = status) ~ R_age_surgery_class +
                                              D_age + Geschlecht + D_sex + D_type +
                                              cold_time_minutes_class + mismatch_sum +
-                                             `current_PRA%` + `Highest_PRA%`, data = data.iga)
+                                             `current_PRA%` + `Highest_PRA%` + `biopsy_proven_recurrence(0=no,1=yes)`, data = data.iga)
 summary(model_cox_iga_1_class_no_mismatch)
 ggsurvplot(survfit(model_cox_iga_1_class, data = data.iga), conf.int = FALSE)
 save.plot("cox-regression_iga_1_class_no_mismatch.jpg")
@@ -185,8 +216,12 @@ fwrite(tidy(model_cox_iga_1_class_no_mismatch, conf.int = TRUE, exponentiate = T
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_1_no_mismatch_class.csv"))
 
  ################################################################################
+#
 # regime 2
+#
 ################################################################################
+data_ntx <- create.ntx.regime2(data.ntx)
+
 data.iga <- create.iga.regime2(data.iga)
 data.iga.pos <- data.iga[`biopsy_proven_recurrence(0=no,1=yes)` == 1]
 data.iga.neg <- data.iga[`biopsy_proven_recurrence(0=no,1=yes)` == 0]
@@ -230,7 +265,6 @@ surv_median(model_iga_2_neg)
 summary(model_iga_2_neg, times = c(1:10))
 
 ## NTX
-data_ntx <- create.ntx.regime2(data.ntx)
 model_ntx_2 <- survfit(Surv(time = status_date, event = status,
                             type = "right") ~1, data = data.ntx)
 ggsurvplot(model_ntx_2, conf.int = FALSE, cumevents = TRUE)
@@ -275,12 +309,11 @@ survdiff(Surv(time = status_date, event = status,
 
 ################################################################################
 # Cox Regression
-
 ### all
 model_cox_iga_2 <- coxph(formula = Surv(time = as.numeric(status_date),
                                         event = status) ~ R_age_surgery +
                            D_age + Geschlecht + D_sex + D_type + cold_time_minutes + mismatch_sum +
-                           `current_PRA%` + `Highest_PRA%`, data = data.iga)
+                           `current_PRA%` + `Highest_PRA%` + `biopsy_proven_recurrence(0=no,1=yes)`, data = data.iga)
 
 summary(model_cox_iga_2)
 ggsurvplot(survfit(model_cox_iga_2, data = data.iga), conf.int = FALSE)
@@ -289,13 +322,14 @@ fwrite(tidy(model_cox_iga_2, conf.int = TRUE, exponentiate = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_2_all.csv"))
 
 #### all permutations
-lapply(X = covariates.iga, FUN = function(x){simple.cox.surv(data = data.iga, covariate = x, name.prefix = "iga_2_")})
+lapply(X = c(covariates.iga, "biopsy_proven_recurrence(0=no,1=yes)"),
+       FUN = function(x){simple.cox.surv(data = data.iga, covariate = x, name.prefix = "iga_2_")})
 
 ## no mismatch
 model_cox_iga_2_no_mismatch <- coxph(formula = Surv(time = as.numeric(status_date),
                                         event = status) ~ R_age_surgery +
                            D_age + Geschlecht + D_sex + D_type + cold_time_minutes +
-                             mismatch_sum + `current_PRA%` + `Highest_PRA%`, data = data.iga)
+                             mismatch_sum + `current_PRA%` + `Highest_PRA%` +`biopsy_proven_recurrence(0=no,1=yes)`, data = data.iga)
 
 summary(model_cox_iga_2_no_mismatch)
 ggsurvplot(survfit(model_cox_iga_2_no_mismatch, data = data.iga), conf.int = FALSE)
@@ -303,6 +337,25 @@ save.plot("cox-regression_iga_2_no_mismatch.jpg")
 fwrite(tidy(model_cox_iga_2_no_mismatch, conf.int = TRUE, exponentiate = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_2_no_mismatch.csv"))
 
+model_cox_ntx_2 <- coxph(formula = Surv(time = as.numeric(status_date),
+                                        event = status) ~ R_age_surgery +
+                           D_age + Geschlecht + D_sex + D_type + current_PRA + highest_PRA +
+                           cold_time_minutes + mismatch_sum, data = data.ntx)
+summary(model_cox_ntx_2)
+ggsurvplot(survfit(model_cox_ntx_2, data = data.ntx), conf.int = FALSE)
+fwrite(tidy(model_cox_ntx_2, conf.int = TRUE, exponentiate = TRUE),
+       file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_ntx_2.csv"))
+### no mismatch
+model_cox_ntx_2_no_mismatch <- coxph(formula = Surv(time = as.numeric(status_date),
+                                                    event = status) ~ R_age_surgery +
+                                       D_age + Geschlecht + D_sex + D_type + current_PRA + highest_PRA +
+                                       cold_time_minutes , data = data.ntx)
+summary(model_cox_ntx_2_no_mismatch)
+ggsurvplot(survfit(model_cox_ntx_2_no_mismatch, data = data.ntx), conf.int = FALSE)
+fwrite(tidy(model_cox_ntx_2_no_mismatch, conf.int = TRUE, exponentiate = TRUE),
+       file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_ntx_2_no_mismatch.csv"))
+
+###=============================================================================
 #### age -> 18-39 ,40-59, >60
 data.iga$R_age_surgery_class <- cut(data.iga$R_age_surgery, breaks = c(0, 39, 59, Inf), include.lowest = TRUE)
 # sum(is.na(data.iga$R_age_surgery)) == sum(is.na(data.iga$R_age_surgery_class))
@@ -322,7 +375,7 @@ data.iga$cold_time_minutes_class <- cut(data.iga$cold_time_minutes, breaks = c(0
 model_cox_iga_2_class <- coxph(formula = Surv(time = as.numeric(status_date),
                                               event = status) ~ R_age_surgery_class +
                                  D_age + Geschlecht + D_sex + D_type + cold_time_minutes_class +
-                                 mismatch_sum + `current_PRA%` + `Highest_PRA%` , data = data.iga)
+                                 mismatch_sum + `current_PRA%` + `Highest_PRA%` * `biopsy_proven_recurrence(0=no,1=yes)` , data = data.iga)
 summary(model_cox_iga_2_class)
 ggsurvplot(survfit(model_cox_iga_2_class, data = data.iga), conf.int = FALSE)
 save.plot("cox-regression_iga_2_class.jpg")
@@ -330,18 +383,20 @@ fwrite(tidy(model_cox_iga_2_class, conf.int = TRUE, exponentiate = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_2_all_class.csv"))
 
 #### all permutations
-lapply(X = covariates.iga.class, FUN = function(x){simple.cox.surv(data = data.iga, covariate = x, name.prefix = "iga_2_class_")})
+lapply(X = c(covariates.iga.class, "biopsy_proven_recurrence(0=no,1=yes)"), FUN = function(x){simple.cox.surv(data = data.iga, covariate = x, name.prefix = "iga_2_class_")})
 
 ### no mismatch
 model_cox_iga_2_class_no_mismatch <- coxph(formula = Surv(time = as.numeric(status_date),
                                               event = status) ~ R_age_surgery_class +
                                  D_age + Geschlecht + D_sex + D_type + cold_time_minutes_class +
-                                   mismatch_sum + `current_PRA%` + `Highest_PRA%`, data = data.iga)
+                                   mismatch_sum + `current_PRA%` + `Highest_PRA%` + `biopsy_proven_recurrence(0=no,1=yes)`,
+                                 data = data.iga)
 summary(model_cox_iga_2_class_no_mismatch)
 ggsurvplot(survfit(model_cox_iga_2_class_no_mismatch, data = data.iga), conf.int = FALSE)
 save.plot("cox-regression_iga_2_class.jpg")
 fwrite(tidy(model_cox_iga_2_class_no_mismatch, conf.int = TRUE, exponentiate = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_2_no_mismatch_class.csv"))
+
 cat(paste0(rep("=", 78,), collapse = ""))
 cat("\n")
 cat("survival.R terminated")

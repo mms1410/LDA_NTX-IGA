@@ -393,6 +393,14 @@ rbindlist(list(
   default_theme
 save.plot("histogram_D-type_all.jpg")
 
+cat("Donator-type percent:\n")
+rbindlist(list(
+  data.ntx[, .(Spendertyp = D_type, Gruppe = as.factor("all-NTX"))],
+  data.iga[, .(Spendertyp = D_type, Gruppe = as.factor("all-IgA"))],
+  data.iga.pos[, .(Spendertyp = D_type, Gruppe = as.factor("r+IgA"))],
+  data.iga.neg[, .(Spendertyp = D_type, Gruppe = as.factor("r-IgA"))]
+))[, .(Anzahl = .N), by = .(Spendertyp,Gruppe)][, .(Anteil = 100 * Anzahl / sum(Anzahl),
+                                                    Spendertyp = Spendertyp), by = Gruppe] 
 ###=============================================================================
 ## KREA 1Y
 p1 <- gg.boxplot(data.iga,
@@ -444,8 +452,20 @@ p1.krea <- rbindlist(list(
   geom_col(aes(y = mean, x = Gruppe, fill = Gruppe), width = 0.2) +
   default_theme +
   theme(legend.position = "none") +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 45, vjust = 1.5, hjust=1))+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
 p1.krea
+
+
+cat("Kreatinin 1Y:\n")
+rbindlist(list(
+  data.iga[, .(group = as.factor("all-IgA"), Krea_1Y)],
+  data.iga.pos[, .(group = as.factor("r+IgA"), Krea_1Y)],
+  data.iga.neg[, .(group = as.factor("r-IgA"), Krea_1Y)],
+  data.ntx[, .(group = as.factor("all-NTX"), Krea_1Y)]
+))[, (krea_1Y_mean = mean(Krea_1Y, na.rm = TRUE)), by = group][, .(Gruppe = group, mean = V1)]
+cat("\n")
 ###=============================================================================
 ## KREA 5Y
 p1 <- gg.boxplot(data.iga,
@@ -497,8 +517,18 @@ p5.krea <- rbindlist(list(
   geom_col(aes(y = mean, x = Gruppe, fill = Gruppe), width = 0.2) +
   default_theme +
   theme(legend.position = "none") +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 45, vjust = 1.5, hjust=1)) +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
 p5.krea
+cat("Kreatinin 5Y:\n")
+rbindlist(list(
+  data.iga[, .(group = as.factor("all-IgA"), Krea_5Y)],
+  data.iga.pos[, .(group = as.factor("r+IgA"), Krea_5Y)],
+  data.iga.neg[, .(group = as.factor("r-IgA"), Krea_5Y)],
+  data.ntx[, .(group = as.factor("all-NTX"), Krea_5Y)]
+))[, (krea_5Y_mean = mean(Krea_5Y, na.rm = TRUE)), by = group][, .(Gruppe = group, mean = V1)]
+cat("\n")
 ###=============================================================================
 ## KREA 10Y
 p1 <- gg.boxplot(data.iga,
@@ -548,9 +578,20 @@ p10.krea <- rbindlist(list(
   scale_x_discrete(limits = c("all-NTX", "all-IgA", "r+IgA", "r-IgA")) +
   geom_col(aes(y = mean, x = Gruppe, fill = Gruppe), width = 0.2) +
   theme(legend.position = "none") +
-  default_theme + theme(axis.text.x = element_text(angle = 45, vjust = 1.5, hjust=1))
+  default_theme + theme(axis.text.x = element_text(angle = 45, vjust = 1.5, hjust=1)) +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
 
 p10.krea
+
+cat("Kreatinin 10Y:\n")
+rbindlist(list(
+  data.iga[, .(group = as.factor("all-IgA"), Krea_10Y)],
+  data.iga.pos[, .(group = as.factor("r+IgA"), Krea_10Y)],
+  data.iga.neg[, .(group = as.factor("r-IgA"), Krea_10Y)],
+  data.ntx[, .(group = as.factor("all-NTX"), Krea_10Y)]
+))[, (krea_10Y_mean = mean(Krea_10Y, na.rm = TRUE)), by = group][, .(Gruppe = group, mean = V1)]
+cat("\n")
 ###=============================================================================
 patch1 / patch5 / patch10
 save.plot("boxplot_krea_all.jpg")
