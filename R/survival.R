@@ -25,6 +25,9 @@ data.iga[, time_t_dls := interval(Datum_TX, Date_last_seen) / years(1)]
 data.iga[, time_date_birth := interval(Datum_TX, Geburtsdatum) / years(1)]
 data.iga[, time_graft_loss := interval(Datum_TX, Transplantatfunktionsende) / years(1)]
 data.iga[, time_date_follow_up := interval(Datum_TX, Datum_TX + follow_up) / years(1)]
+################## DIRTY HACK #####################
+# ToDo: in read_data
+levels(data.iga$D_sex) <- c("M", "F")
 ###=============================================================================
 # regime 1
 ################################################################################
@@ -34,6 +37,9 @@ data.iga.pos <- data.iga[`biopsy_proven_recurrence(0=no,1=yes)` == 1]
 data.iga.neg <- data.iga[`biopsy_proven_recurrence(0=no,1=yes)` == 0]
 
 data.ntx <- create.ntx.regime1(data.ntx)
+
+levels(data.iga$D_sex) <- c("M", "F")
+           
 data.ntx.cadaver <- data.ntx[D_type == "Cadaver"]
 data.iga.cadaver <- data.iga[D_type == "Cadaver"]
 data.iga.pos.cadaver <- data.iga.pos[D_type == "Cadaver"]
