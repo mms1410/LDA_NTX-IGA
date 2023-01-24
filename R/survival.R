@@ -6,8 +6,12 @@
 ## preliminaries
 covariates.iga <- c("R_age_surgery", "D_age", "Geschlecht",  "D_sex",  "D_type", "current_PRA%", "Highest_PRA%",
                     "cold_time_minutes", "mismatch_sum")
+covariates.iga.cadaver <- c("R_age_surgery", "D_age", "Geschlecht",  "D_sex", "current_PRA%", "Highest_PRA%",
+                            "cold_time_minutes", "mismatch_sum")
 covariates.ntx <- c("R_age_surgery", "D_age", "Geschlecht", "D_sex", "D_type", "current_PRA", "highest_PRA",
                     "cold_time_minutes", "mismatch_sum")
+covariates.ntx.cadaver <- c("R_age_surgery", "D_age", "Geschlecht", "D_sex", "current_PRA", "highest_PRA",
+                            "cold_time_minutes", "mismatch_sum")
 covariates.iga.class <- c("R_age_surgery_class","D_age", "Geschlecht", "D_sex",
                           "D_type","current_PRA%", "Highest_PRA%", "cold_time_minutes_class", "mismatch_sum_class")
 if (!all(covariates.iga %in% colnames(data.iga))){
@@ -151,6 +155,8 @@ fwrite(tidy(model_cox_iga_1_cadaver, conf.int = TRUE, exponentiate = TRUE),
 #### all permutations
 lapply(X = c(covariates.iga, "biopsy_proven_recurrence(0=no,1=yes)"),
        FUN = function(x){simple.cox.surv(data = data.iga, covariate = x, name.prefix = "iga_1_")})
+lapply(X = c(covariates.iga.cadaver, "biopsy_proven_recurrence(0=no,1=yes)"),
+       FUN = function(x){simple.cox.surv(data = data.iga.cadaver, covariate = x, name.prefix = "iga_1_cadaver_")})
 
 ### all no mismatch
 model_cox_iga_1_no_mismatch <- coxph(formula = Surv(time = as.numeric(status_date),
@@ -230,6 +236,7 @@ fwrite(tidy(model_cox_ntx_1_cadaver_no_mismatch, conf.int = TRUE, exponentiate =
 
 ### all permutations
 lapply(X = covariates.ntx, FUN = function(x){simple.cox.surv(data = data.ntx, covariate = x, name.prefix = "ntx_1_")})
+lapply(X = covariates.ntx, FUN = function(x){simple.cox.surv(data = data.ntx.cadaver, covariate = x, name.prefix = "ntx_1_cadaver_")})
 ###=============================================================================
 ## all NTX & all IgA
 data.stack <- rbindlist(list(
