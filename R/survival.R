@@ -258,6 +258,8 @@ ggsurvplot(survfit(model_cox_all, data = data.ntx), conf.int = FALSE)
 fwrite(tidy(model_cox_all, conf.int = TRUE, exponentiate = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_1_all_cadaver.csv"))
 
+covariates.cox.all <- c("R_age_surgery", "D_age", "Geschlecht", "D_sex", "c_pra", "h_pra", "cold_time_minutes", "mismatch_sum", "group")
+lapply(X = covariates.cox.all, FUN = function(x){simple.cox.surv(data = data.stack, covariate = x, name.prefix = "all_1__")})
 ###=============================================================================
 #### age -> 18-39 ,40-59, >60
 data.iga$R_age_surgery_class <- cut(data.iga$R_age_surgery, breaks = c(0, 39, 59, Inf), include.lowest = TRUE)
