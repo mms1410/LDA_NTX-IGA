@@ -30,6 +30,10 @@ data.iga.pos <- data.iga[`biopsy_proven_recurrence(0=no,1=yes)` == 1]
 data.iga.neg <- data.iga[`biopsy_proven_recurrence(0=no,1=yes)` == 0]
 
 data.ntx <- create.ntx.regime1(data.ntx)
+data.ntx.cadaver <- data.ntx[D_type == "Cadaver"]
+data.iga.cadaver <- data.iga[D_type == "Cadaver"]
+data.iga.pos.cadaver <- data.iga.pos[D_type == "Cadaver"]
+data.iga.neg.cadaver <- data.iga.neg[D_type == "Cadaver"]
 
 ## IGA all
 ## Kaplan Meier all iga
@@ -80,7 +84,7 @@ ggsurvplot(model_ntx_1, conf.int = FALSE, cumevents = TRUE)
 save.plot("kaplan-meier_regime1_ntx.jpg")
 surv_median(model_ntx_1)
 summary(model_ntx_1, times = c(1:10))
-###############################################################################
+################################################################################
 # Log Rank Tests
 data.stack <- rbindlist(list(
   data.iga[, .(status, status_date, group="iga")],
@@ -129,6 +133,21 @@ ggsurvplot(survfit(model_cox_iga_1, data = data.iga), conf.int = FALSE)
 save.plot("cox-regression_iga_1.jpg")
 fwrite(tidy(model_cox_iga_1, conf.int = TRUE, exponentiate = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_1_all.csv"))
+
+### all D_type = Cadaver
+model_cox_iga_1_cadaver <- coxph(formula = Surv(time = as.numeric(status_date),
+                                        event = status) ~ R_age_surgery +
+                           D_age + Geschlecht + D_sex + 
+                           cold_time_minutes + mismatch_sum + `current_PRA%` +
+                           `Highest_PRA%` + `biopsy_proven_recurrence(0=no,1=yes)`,
+                         data = data.iga.cadaver)
+
+summary(model_cox_iga_1_cadaver)
+ggsurvplot(survfit(model_cox_iga_1_cadaver, data = data.iga.cadaver), conf.int = FALSE)
+save.plot("cox-regression_iga_1_cadaver.jpg")
+fwrite(tidy(model_cox_iga_1_cadaver, conf.int = TRUE, exponentiate = TRUE),
+       file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_1_all_cadaver.csv"))
+
 #### all permutations
 lapply(X = c(covariates.iga, "biopsy_proven_recurrence(0=no,1=yes)"),
        FUN = function(x){simple.cox.surv(data = data.iga, covariate = x, name.prefix = "iga_1_")})
@@ -137,13 +156,27 @@ lapply(X = c(covariates.iga, "biopsy_proven_recurrence(0=no,1=yes)"),
 model_cox_iga_1_no_mismatch <- coxph(formula = Surv(time = as.numeric(status_date),
                                         event = status) ~ R_age_surgery +
                                        D_age + Geschlecht + D_sex + D_type +
-                                       cold_time_minutes + mismatch_sum + `current_PRA%` +
+                                       cold_time_minutes  + `current_PRA%` +
                                        `Highest_PRA%` + `biopsy_proven_recurrence(0=no,1=yes)`, data = data.iga)
 summary(model_cox_iga_1_no_mismatch)
 ggsurvplot(survfit(model_cox_iga_1, data = data.iga), conf.int = FALSE)
 save.plot("cox-regression_iga_1_no_mismatch.jpg")
 fwrite(tidy(model_cox_iga_1_no_mismatch, conf.int = TRUE, exponentiate = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_1_no_mismatch.csv"))
+
+
+### all no mismatch & Cadaver
+model_cox_iga_1_cadaver_no_mismatch <- coxph(formula = Surv(time = as.numeric(status_date),
+                                                    event = status) ~ R_age_surgery +
+                                       D_age + Geschlecht + D_sex  +
+                                       cold_time_minutes  + `current_PRA%` +
+                                       `Highest_PRA%` + `biopsy_proven_recurrence(0=no,1=yes)`,
+                                       data = data.iga.cadaver)
+summary(model_cox_iga_1_cadaver_no_mismatch)
+ggsurvplot(survfit(model_cox_iga_1_cadaver_no_mismatch, data = data.iga.cadaver), conf.int = FALSE)
+save.plot("cox-model_cox_iga_1_cadaver_no_mismatch.jpg")
+fwrite(tidy(model_cox_iga_1_cadaver_no_mismatch, conf.int = TRUE, exponentiate = TRUE),
+       file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_iga_1_cadaver_no_mismatch.csv"))
 
 ## all NTX
 ### with mismatch
@@ -155,6 +188,16 @@ summary(model_cox_ntx_1)
 ggsurvplot(survfit(model_cox_ntx_1, data = data.ntx), conf.int = FALSE)
 fwrite(tidy(model_cox_ntx_1, conf.int = TRUE, exponentiate = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_ntx_1.csv"))
+
+### with mismatch & D_type == Cadaver
+model_cox_ntx_1_cadaver <- coxph(formula = Surv(time = as.numeric(status_date),
+                                        event = status) ~ R_age_surgery +
+                           D_age + Geschlecht + D_sex  + current_PRA + highest_PRA +
+                           cold_time_minutes + mismatch_sum, data = data.ntx.cadaver)
+summary(model_cox_ntx_1_cadaver)
+ggsurvplot(survfit(model_cox_ntx_1_cadaver, data = data.ntx.cadaver), conf.int = FALSE)
+fwrite(tidy(model_cox_ntx_1_cadaver, conf.int = TRUE, exponentiate = TRUE),
+       file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_ntx_1_cadaver.csv"))
 ### no mismatch
 model_cox_ntx_1_no_mismatch <- coxph(formula = Surv(time = as.numeric(status_date),
                                         event = status) ~ R_age_surgery +
@@ -164,9 +207,50 @@ summary(model_cox_ntx_1_no_mismatch)
 ggsurvplot(survfit(model_cox_ntx_1_no_mismatch, data = data.ntx), conf.int = FALSE)
 fwrite(tidy(model_cox_ntx_1_no_mismatch, conf.int = TRUE, exponentiate = TRUE),
        file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_ntx_1_no_mismatch.csv"))
+
+### no_mismatch &  D_type = "Cadaver"
+model_cox_ntx_1_cadaver_no_mismatch <- coxph(formula = Surv(time = as.numeric(status_date),
+                                              event = status) ~ R_age_surgery +
+                                 D_age + Geschlecht + D_sex + D_type + current_PRA + highest_PRA +
+                                 cold_time_minutes , data = data.ntx.cadaver)
+summary(model_cox_ntx_1_cadaver_no_mismatch)
+ggsurvplot(survfit(model_cox_ntx_1_cadaver_no_mismatch, data = data.ntx.cadaver), conf.int = FALSE)
+
+fwrite(tidy(model_cox_ntx_1_cadaver_no_mismatch, conf.int = TRUE, exponentiate = TRUE),
+       file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_ntx_1_cadaver_no_mismatch.csv"))
+
+### D_type = "Cadaver"
+model_cox_ntx_1_cadaver <- coxph(formula = Surv(time = as.numeric(status_date),
+                                                            event = status) ~ R_age_surgery +
+                                               D_age + Geschlecht + D_sex + D_type + current_PRA + highest_PRA +
+                                               cold_time_minutes + mismatch_sum, data = data.ntx[D_type == "Cadaver"])
+summary(model_cox_ntx_1_cadaver)
+fwrite(tidy(model_cox_ntx_1_cadaver_no_mismatch, conf.int = TRUE, exponentiate = TRUE),
+       file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_ntx_1_cadaver_.csv"))
+
 ### all permutations
 lapply(X = covariates.ntx, FUN = function(x){simple.cox.surv(data = data.ntx, covariate = x, name.prefix = "ntx_1_")})
 ###=============================================================================
+## all NTX & all IgA
+data.stack <- rbindlist(list(
+  data.iga[D_type == "Cadaver", .(R_age_surgery, D_age, Geschlecht, D_sex,
+                                  c_pra = `current_PRA%`, h_pra = `Highest_PRA%`,
+                                  cold_time_minutes, mismatch_sum, group = as.factor("IgA"),
+                                  status, status_date)],
+  data.ntx[D_type == "Cadaver", .(R_age_surgery, D_age, Geschlecht, D_sex,
+                                  c_pra = `current_PRA`, h_pra = `highest_PRA`,
+                                  cold_time_minutes, mismatch_sum, group = as.factor("NTX"),
+                                  status, status_date)]
+))
+model_cox_all <- coxph(formula = Surv(time = as.numeric(status_date),
+                                      event = status) ~ R_age_surgery +
+                         D_age + Geschlecht + D_sex + c_pra + h_pra +
+                         cold_time_minutes + mismatch_sum + group, data = data.stack)
+summary(model_cox_all)
+ggsurvplot(survfit(model_cox_all, data = data.ntx), conf.int = FALSE)
+fwrite(tidy(model_cox_all, conf.int = TRUE, exponentiate = TRUE),
+       file = paste0(dir.assets.csv, .Platform$file.sep, "model_cox_1_all_cadaver.csv"))
+
 ###=============================================================================
 #### age -> 18-39 ,40-59, >60
 data.iga$R_age_surgery_class <- cut(data.iga$R_age_surgery, breaks = c(0, 39, 59, Inf), include.lowest = TRUE)
@@ -183,6 +267,7 @@ data.iga$cold_time_minutes_class <- cut(data.iga$cold_time_minutes, breaks = c(0
 # sum(is.na(data_iga$cold_time_sum_min)) == sum(is.na(data_iga$cold_time_sum_class))
 # table(data_iga$cold_time_sum_class)
 ###=============================================================================
+## IgA
 ### all
 model_cox_iga_1_class <- coxph(formula = Surv(time = as.numeric(status_date),
                                         event = status) ~ R_age_surgery_class +
