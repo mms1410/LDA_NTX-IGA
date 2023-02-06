@@ -406,28 +406,44 @@ rbindlist(list(
 p1 <- gg.boxplot(data.iga,
                  y.column = "Krea_1Y",
                  title = "Krea_1Y\n(all-IgA)",
-                 ylab = "Kreatininwerte") + ylim(c(0,13))
+                 ylab = "Kreatininwerte") + ylim(c(0,13)) +
+  geom_hline(aes(yintercept = mean(data.iga$Krea_1Y, na.rm = TRUE), color ="red")) +
+  theme(legend.position = "none") +
+  annotate("text", y = mean(data.iga$Krea_1Y, na.rm = TRUE),
+           x =  -0.1, label = round(mean(data.iga$Krea_1Y, na.rm = TRUE),2), color = "red")
 p1
 save.plot("boxplot_krea_1_iga.jpg")
 
 p2 <- gg.boxplot(data.iga.pos,
                  y.column = "Krea_1Y",
                  title = "Krea_1Y\n(r+IgA)",
-                 ylab = "Kreatininwerte") + ylim(c(0,13))
+                 ylab = "Kreatininwerte") + ylim(c(0,13)) +
+  geom_hline(aes(yintercept = mean(data.iga.pos$Krea_1Y, na.rm = TRUE), color ="red")) +
+  theme(legend.position = "none") +
+  annotate("text", y = mean(data.iga.pos$Krea_1Y, na.rm = TRUE),
+           x =  -0.1, label = round(mean(data.iga.pos$Krea_1Y, na.rm = TRUE),2), color = "red")
 p2
 save.plot("boxplot_krea_1_iga_pos.jpg")
 
 p3 <-gg.boxplot(data.iga.neg,
                 y.column = "Krea_1Y",
                 title = "Krea_1Y\n(r-IgA)",
-                ylab = "Kreatininwerte") + ylim(c(0,13))
+                ylab = "Kreatininwerte") + ylim(c(0,13)) +
+  geom_hline(aes(yintercept = mean(data.iga.neg$Krea_1Y, na.rm = TRUE), color ="red")) +
+  theme(legend.position = "none") +
+  annotate("text", y = mean(data.iga.neg$Krea_1Y, na.rm = TRUE),
+           x =  -0.1, label = round(mean(data.iga.neg$Krea_1Y, na.rm = TRUE),2), color = "red")
 p3
 save.plot("boxplot_krea_1_iga_neg.jpg")
 
 p4 <- gg.boxplot(data.ntx,
                  y.column = "Krea_1Y",
                  title = "Krea_1Y\n(all-NTX)",
-                 ylab = "Kreatininwerte") + ylim(c(0,13))
+                 ylab = "Kreatininwerte") + ylim(c(0,13)) +
+  geom_hline(aes(yintercept = mean(data.ntx$Krea_1Y, na.rm = TRUE), color ="red")) +
+  theme(legend.position = "none") +
+  annotate("text", y = mean(data.ntx$Krea_1Y, na.rm = TRUE),
+           x =  -0.1, label = round(mean(data.ntx$Krea_1Y, na.rm = TRUE),2), color = "red")
 p4
 save.plot("boxplot_krea_1_ntx.jpg")
 
@@ -471,28 +487,44 @@ cat("\n")
 p1 <- gg.boxplot(data.iga,
                  y.column = "Krea_5Y",
                  title = "Krea_5Y\n(all-IgA)",
-                 ylab = "Kreatininwerte") + ylim(c(0,13))
+                 ylab = "Kreatininwerte") + ylim(c(0,13)) +
+  geom_hline(aes(yintercept = mean(data.iga$Krea_5Y, na.rm = TRUE), color ="red")) +
+  theme(legend.position = "none") +
+  annotate("text", y = mean(data.iga$Krea_5Y, na.rm = TRUE),
+           x =  -0.1, label = round(mean(data.iga$Krea_5Y, na.rm = TRUE),2), color = "red")
 p1
 save.plot("boxplot_krea_5_iga.jpg")
 
 p2 <- gg.boxplot(data.iga.pos,
                  y.column = "Krea_5Y",
                  title = "Krea_5Y\n(r+IgA)",
-                 ylab = "Kreatininwerte") + ylim(c(0,13))
+                 ylab = "Kreatininwerte") + ylim(c(0,13)) +
+  geom_hline(aes(yintercept = mean(data.iga.pos$Krea_5Y, na.rm = TRUE), color ="red")) +
+  theme(legend.position = "none") +
+  annotate("text", y = mean(data.iga.pos$Krea_5Y, na.rm = TRUE),
+           x =  -0.1, label = round(mean(data.iga.pos$Krea_5Y, na.rm = TRUE),2), color = "red")
 p2
 save.plot("boxplot_krea_5_iga_pos.jpg")
 
 p3 <-gg.boxplot(data.iga.neg,
                 y.column = "Krea_5Y",
                 title = "Krea_5Y\n(r-IgA)",
-                ylab = "Kreatininwerte") + ylim(c(0,13))
+                ylab = "Kreatininwerte") + ylim(c(0,13)) +
+  geom_hline(aes(yintercept = mean(data.iga.pos$Krea_5Y, na.rm = TRUE), color ="red")) +
+  theme(legend.position = "none") +
+  annotate("text", y = mean(data.iga.pos$Krea_5Y, na.rm = TRUE),
+           x =  -0.1, label = round(mean(data.iga.pos$Krea_5Y, na.rm = TRUE),2), color = "red")
 p3
 save.plot("boxplot_krea_5_iga_neg.jpg")
 
 p4 <- gg.boxplot(data.ntx,
                  y.column = "Krea_5Y",
                  title = "Krea_5Y\n(all-NTX)",
-                 ylab = "Kreatininwerte") + ylim(c(0,13))
+                 ylab = "Kreatininwerte") + ylim(c(0,13)) +
+  geom_hline(aes(yintercept = mean(data.ntx$Krea_5Y, na.rm = TRUE), color ="red")) +
+  theme(legend.position = "none") +
+  annotate("text", y = mean(data.ntx$Krea_5Y, na.rm = TRUE),
+           x =  -0.1, label = round(mean(data.ntx$Krea_5Y, na.rm = TRUE),2), color = "red")
 p4
 save.plot("boxplot_krea_5_ntx.jpg")
 
@@ -534,27 +566,44 @@ cat("\n")
 p1 <- gg.boxplot(data.iga,
                  y.column = "Krea_10Y",
                  title = "Krea_10Y\n(all-IgA)",
-                 ylab = "Kreatininwerte") + ylim(c(0,13))
+                 ylab = "Kreatininwerte") + ylim(c(0,13)) +
+  geom_hline(aes(yintercept = mean(data.iga$Krea_10Y, na.rm = TRUE), color ="red")) +
+  theme(legend.position = "none") +
+  annotate("text", y = mean(data.iga$Krea_10Y, na.rm = TRUE),
+           x =  -0.1, label = round(mean(data.iga$Krea_10Y, na.rm = TRUE),2), color = "red")
 p1
+
 save.plot("boxplot_krea_10_iga_all.jpg")
 p2 <- gg.boxplot(data.iga.pos,
                  y.column = "Krea_10Y",
                  title = "Krea_10Y\n(r+IgA)",
-                 ylab = "Kreatininwerte") + ylim(c(0,13))
+                 ylab = "Kreatininwerte") + ylim(c(0,13)) +
+  geom_hline(aes(yintercept = mean(data.iga.pos$Krea_10Y, na.rm = TRUE), color ="red")) + 
+  theme(legend.position = "none") +
+  annotate("text", y = mean(data.iga.pos$Krea_10Y, na.rm = TRUE),
+           x =  -0.1, label = round(mean(data.iga.pos$Krea_10Y, na.rm = TRUE),2), color = "red")
 p2
 save.plot("boxplot_krea_10_iga_pos.jpg")
 
 p3 <-gg.boxplot(data.iga.neg,
                 y.column = "Krea_10Y",
                 title = "Krea_10Y\n(r-IgA)",
-                ylab = "Kreatininwerte") + ylim(c(0,13))
+                ylab = "Kreatininwerte") + ylim(c(0,13)) +
+  geom_hline(aes(yintercept = mean(data.iga.neg$Krea_10Y, na.rm = TRUE), colour ="red")) +
+  theme(legend.position = "none") +
+  annotate("text", y = mean(data.iga.neg$Krea_10Y, na.rm = TRUE),
+           x =  -0.1, label = round(mean(data.iga.neg$Krea_10Y, na.rm = TRUE),2), color = "red")
 p3
 save.plot("boxplot_krea_10_iga_neg.jpg")
 
 p4 <- gg.boxplot(data.ntx,
                  y.column = "Krea_10Y",
                  title = "Krea_10Y\n(all-NTX)",
-                 ylab = "Kreatininwerte") + ylim(c(0,13))
+                 ylab = "Kreatininwerte") + ylim(c(0,13)) +
+  geom_hline(aes(yintercept = mean(data.ntx$Krea_10Y, na.rm = TRUE), colour ="red")) +
+  theme(legend.position = "none") +
+  annotate("text", y = mean(data.ntx$Krea_10Y, na.rm = TRUE),
+           x =  -0.1, label = round(mean(data.ntx$Krea_10Y, na.rm = TRUE),2), color = "red")
 p4
 save.plot("boxplot_krea_10_ntx.jpg")
 
