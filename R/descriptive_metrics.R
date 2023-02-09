@@ -136,6 +136,11 @@ wilcox.test(data.iga$Krea_1Y, data.ntx$Krea_1Y)
 wilcox.test(data.iga.pos$R_age_surgery, data.iga.neg$R_age_surgery)
 wilcox.test(data.iga$R_age_surgery, data.ntx$R_age_surgery)
 ###=============================================================================
+## Mean time in years TX loss
+mean(interval(data.iga.pos$Datum_TX ,data.iga.pos$Transplantatfunktionsende) / years(1), na.rm = TRUE)
+mean(interval(data.iga.neg$Datum_TX ,data.iga.neg$Transplantatfunktionsende) / years(1), na.rm = TRUE)
+mean(interval(data.ntx$Datum_TX ,data.ntx$Transplantatfunktionsende) / years(1), na.rm = TRUE)
+###=============================================================================
 rm( list = ls()[grep(x = ls(), pattern = "^meta")])
 cat(paste0(rep("=", 78,), collapse = ""))
 cat("\n")
