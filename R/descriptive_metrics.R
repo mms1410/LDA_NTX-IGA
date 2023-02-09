@@ -127,6 +127,14 @@ summary(aov(`time_of_biopsy_(years_after_KTX)`~`biopsy_proven_recurrence(0=no,1=
 wilcox.test(data.iga.neg$Krea_10Y, data.iga.pos$Krea_10Y)
 wilcox.test(data.iga.neg$Krea_5Y, data.iga.pos$Krea_5Y)
 wilcox.test(data.iga.neg$Krea_1Y, data.iga.pos$Krea_1Y)
+
+wilcox.test(data.iga$Krea_10Y, data.ntx$Krea_10Y)
+wilcox.test(data.iga$Krea_5Y, data.ntx$Krea_5Y)
+wilcox.test(data.iga$Krea_1Y, data.ntx$Krea_1Y)
+###=============================================================================
+## WILCOX AGE
+wilcox.test(data.iga.pos$R_age_surgery, data.iga.neg$R_age_surgery)
+wilcox.test(data.iga$R_age_surgery, data.ntx$R_age_surgery)
 ###=============================================================================
 rm( list = ls()[grep(x = ls(), pattern = "^meta")])
 cat(paste0(rep("=", 78,), collapse = ""))
